@@ -1,6 +1,8 @@
 #![feature(no_std, lang_items)]
 #![no_std]
 
+pub mod utils;
+
 extern {
     fn main(_: isize, _: *const *const u8) -> isize;
 }
