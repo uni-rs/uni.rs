@@ -24,4 +24,8 @@ SECTIONS
     .data : {
         *(.data)
     }
+
+    /DISCARD/ : {
+        *(.note.*)
+    }
 }
