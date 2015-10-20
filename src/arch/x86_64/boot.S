@@ -1,0 +1,31 @@
+.section __xen_guest
+    .ascii "GUEST_OS=Uni.rs-x86_64"
+    .ascii ",XEN_VER=xen-3.0"
+    .ascii ",VIRT_BASE=0x0"
+    .ascii ",ELF_PADDR_OFFSET=0x0"
+    .ascii ",HYPERCALL_PAGE=0x2"
+    .ascii ",LOADER=generic"
+    .byte 0
+
+.text
+
+.extern _stack_start
+.global _start, shared_info, hypercall_page
+
+_start:
+    cld
+    movq _stack(%rip), %rsp
+    movq %rsi,%rdi
+    call uni_rust_entry
+
+_stack:
+    .quad _stack_start
+
+    .org 0x1000
+
+shared_info:
+    .org 0x2000
+
+hypercall_page:
+    .org 0x3000
+
