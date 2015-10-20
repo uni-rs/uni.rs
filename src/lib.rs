@@ -3,6 +3,7 @@
 
 pub mod xen;
 
+pub mod arch;
 pub mod utils;
 
 extern {
