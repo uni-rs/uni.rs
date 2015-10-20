@@ -1,5 +1,5 @@
 .section __xen_guest
-    .ascii "GUEST_OS=Uni.rs"
+    .ascii "GUEST_OS=Uni.rs-x86"
     .ascii ",XEN_VER=xen-3.0"
     .ascii ",VIRT_BASE=0x0"
     .ascii ",ELF_PADDR_OFFSET=0x0"
