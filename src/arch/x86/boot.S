@@ -10,7 +10,7 @@
 
 .text
 
-.extern _stack_start
+.extern rust_stack
 .global _start, shared_info, hypercall_page
 
 _start:
@@ -20,7 +20,7 @@ _start:
     call uni_rust_entry
 
 _stack:
-    .long _stack_start, 0xe021
+    .long rust_stack, 0xe021
 
     .org 0x1000
 

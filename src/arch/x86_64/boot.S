@@ -9,7 +9,7 @@
 
 .text
 
-.extern _stack_start
+.extern rust_stack
 .global _start, shared_info, hypercall_page
 
 _start:
@@ -19,7 +19,7 @@ _start:
     call uni_rust_entry
 
 _stack:
-    .quad _stack_start
+    .quad rust_stack
 
     .org 0x1000
 

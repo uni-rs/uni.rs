@@ -2,13 +2,16 @@
 #![no_std]
 
 pub mod xen;
-
 pub mod arch;
 pub mod utils;
 
 extern {
     fn main(_: isize, _: *const *const u8) -> isize;
 }
+
+#[no_mangle]
+#[allow(non_upper_case_globals)]
+pub static rust_stack: [u8; 8192] = [0; 8192];
 
 #[no_mangle]
 pub fn uni_rust_entry() {

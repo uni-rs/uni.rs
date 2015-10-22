@@ -16,11 +16,6 @@ SECTIONS
         *(.rodata.*)
     }
 
-    . = ALIGN(4096);
-
-    . += 8192;
-    _stack_start = .;
-
     .data : {
         *(.data)
     }
