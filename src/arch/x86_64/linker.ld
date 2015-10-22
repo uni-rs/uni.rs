@@ -7,6 +7,7 @@ SECTIONS
     . = 0x0;
 
     .text : {
+        *(.boot)
         *(.text .text.*)
     }
 
@@ -14,7 +15,8 @@ SECTIONS
         *(.rodata .rodata.*)
     }
 
-    .data : {
+    .data : ALIGN(4096) {
+        *(.stack)
         *(.data .data.*)
     }
 

@@ -8,7 +8,7 @@
     .ascii ",LOADER=generic"
     .byte 0
 
-.text
+.section .boot
 
 .extern rust_stack
 .global _start, shared_info, hypercall_page
@@ -20,7 +20,7 @@ _start:
     call uni_rust_entry
 
 _stack:
-    .long rust_stack, 0xe021
+    .long rust_stack + 8192 - 4, 0xe021
 
     .org 0x1000
 

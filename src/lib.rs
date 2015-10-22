@@ -11,6 +11,7 @@ extern {
 
 #[no_mangle]
 #[allow(non_upper_case_globals)]
+#[link_section=".stack"]
 pub static rust_stack: [u8; 8192] = [0; 8192];
 
 #[no_mangle]
