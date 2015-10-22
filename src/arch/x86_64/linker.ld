@@ -7,20 +7,19 @@ SECTIONS
     . = 0x0;
 
     .text : {
-        *(.text)
-        *(.text.*)
+        *(.text .text.*)
     }
 
     .rodata : {
-        *(.rodata)
-        *(.rodata.*)
+        *(.rodata .rodata.*)
     }
 
     .data : {
-        *(.data)
+        *(.data .data.*)
     }
 
     /DISCARD/ : {
-        *(.note.*)
+        *(.note .note.*)
+        *(.debug .debug.*)
     }
 }
