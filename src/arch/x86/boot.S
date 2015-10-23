@@ -1,3 +1,11 @@
+/*
+ Ring 1 CS: 0xe019
+ Ring 1 DS: 0xe021
+ Ring 1 SS: 0xe021
+*/
+
+#define ENTRY(X) .globl X ; X :
+
 .section __xen_guest
     .ascii "GUEST_OS=Uni.rs-x86"
     .ascii ",XEN_VER=xen-3.0"
@@ -11,9 +19,9 @@
 .section .boot
 
 .extern rust_stack
-.global _start, shared_info, hypercall_page
+.global shared_info, hypercall_page
 
-_start:
+ENTRY(_start)
     cld
     lss _stack, %esp
     pushl %esi
