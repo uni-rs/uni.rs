@@ -10,7 +10,7 @@
 .section .boot
 
 .extern rust_stack
-.global _start, shared_info, hypercall_page
+.global _start, _shared_info, hypercall_page
 
 _start:
     cld
@@ -23,7 +23,7 @@ _stack:
 
     .org 0x1000
 
-shared_info:
+_shared_info:
     .org 0x2000
 
 hypercall_page:
