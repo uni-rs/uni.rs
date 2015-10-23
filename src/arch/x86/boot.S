@@ -19,16 +19,20 @@
 .section .boot
 
 .extern rust_stack
-.global _shared_info, hypercall_page
+.global _shared_info, start_info, hypercall_page
 
 ENTRY(_start)
     cld
     lss _stack, %esp
-    pushl %esi
+    lea start_info, %eax
+    movl %esi, (%eax)
     call uni_rust_entry
 
 _stack:
     .long rust_stack + 8192 - 4, 0xe021
+
+start_info:
+    .long 0
 
     .org 0x1000
 

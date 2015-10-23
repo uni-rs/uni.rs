@@ -10,16 +10,19 @@
 .section .boot
 
 .extern rust_stack
-.global _start, _shared_info, hypercall_page
+.global _start, _shared_info, start_info, hypercall_page
 
 _start:
     cld
     movq _stack(%rip), %rsp
-    movq %rsi,%rdi
+    movq %rsi, start_info(%rip)
     call uni_rust_entry
 
 _stack:
     .quad rust_stack + 8192 - 8
+
+start_info:
+    .quad 0
 
     .org 0x1000
 
