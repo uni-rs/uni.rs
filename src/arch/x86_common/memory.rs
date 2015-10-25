@@ -4,6 +4,7 @@ use ::xen::SharedInfo;
 
 use ::arch::defs::Ulong;
 use ::arch::defs::MAX_ULONG;
+use ::arch::defs::MACH2PHYS_VIRT_START;
 
 use ::xen::hypercall::HyperCalls;
 use ::xen::hypercall::hypercall3;
@@ -24,6 +25,22 @@ macro_rules! pte {
     ($x:expr) => {
         (($x as Ulong) & (PTE_MASK ^ MAX_ULONG)) | 3;
     }
+}
+
+fn mfn_to_pfn(mfn: Mfn) -> Pfn {
+    unsafe {
+        let mtp_mapping: *const Ulong = MACH2PHYS_VIRT_START as *const Ulong;
+
+        *mtp_mapping.offset(mfn as isize)
+    }
+}
+
+fn pfn_to_vaddr(pfn: Pfn) -> Vaddr {
+    pfn << PAGE_SHIFT
+}
+
+pub fn mfn_to_vaddr(mfn: Mfn) -> Vaddr {
+    pfn_to_vaddr(mfn_to_pfn(mfn))
 }
 
 #[allow(dead_code)]
