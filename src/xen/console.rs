@@ -6,6 +6,7 @@ use core::fmt::{Write, Result};
 use core::mem::size_of;
 
 use xen::event;
+use xen::sched;
 
 static mut CONS: InnerConsole = InnerConsole::new();
 
@@ -93,6 +94,12 @@ impl Console {
         let size_of_output = (size_of::<[u8; 2048]>() - 1) as u32;
 
         (self.console.out_prod & size_of_output) as usize
+    }
+
+    pub fn flush(&self) -> () {
+        while self.console.out_cons < self.console.out_prod {
+            sched::yield_cpu();
+        }
     }
 }
 
