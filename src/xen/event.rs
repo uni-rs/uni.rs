@@ -23,7 +23,20 @@ enum EventOp {
     SetPriority = 13,
 }
 
-#[allow(dead_code)]
+#[repr(C)]
+struct EvtchnSend {
+    port: EvtchnPort,
+}
+
 fn event_channel_op(op: EventOp, event: Ulong) -> Ulong {
     hypercall2(HyperCalls::EventChannelOp, op as Ulong, event)
+}
+
+pub fn send(port: EvtchnPort) -> i32 {
+    let ev: EvtchnSend = EvtchnSend {
+        port: port,
+    };
+    let ev_ptr = &ev as *const EvtchnSend;
+
+    event_channel_op(EventOp::Send, ev_ptr as Ulong) as i32
 }
