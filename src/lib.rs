@@ -2,7 +2,9 @@
 #![feature(core_str_ext)]
 #![no_std]
 
+#[macro_use]
 pub mod xen;
+
 pub mod arch;
 pub mod utils;
 

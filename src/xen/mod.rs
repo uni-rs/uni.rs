@@ -2,6 +2,8 @@ use ::arch::defs::XEN_LEGACY_MAX_VCPUS;
 
 pub mod event;
 pub mod sched;
+
+#[macro_use]
 pub mod console;
 
 pub mod hypercall;

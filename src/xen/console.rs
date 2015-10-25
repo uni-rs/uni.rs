@@ -1,7 +1,7 @@
 use core::ops::Deref;
 use core::ops::DerefMut;
 
-use core::fmt::{Write, Result};
+use core::fmt::{Write, Result, Arguments, write};
 
 use core::mem::size_of;
 
@@ -11,6 +11,31 @@ use xen::sched;
 static mut CONS: InnerConsole = InnerConsole::new();
 
 type ConsRingIdx = u32;
+
+#[macro_export]
+macro_rules! println {
+    ($fmt:expr) => {
+        print!(concat!($fmt, "\r\n"))
+    };
+    ($fmt:expr, $($arg:tt)*) => {
+        print!(concat!($fmt, "\r\n"), $($arg)*)
+    }
+}
+
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => {
+        $crate::xen::console::_print(format_args!($($arg)*));
+    }
+}
+
+pub fn _print(fmt: Arguments) {
+    let res = write(&mut console(), fmt);
+
+    if let Err(e) = res {
+        panic!("Fail to print on the Xen console: {}", e);
+    }
+}
 
 #[repr(C)]
 pub struct ConsoleInterface {
