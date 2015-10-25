@@ -5,6 +5,7 @@ pub mod x86_common;
 #[path="x86_64"]
 mod imp {
     pub mod defs;
+    pub mod xen;
     pub use ::arch::x86_common::barrier;
 }
 
@@ -12,8 +13,10 @@ mod imp {
 #[path="x86"]
 mod imp {
     pub mod defs;
+    pub mod xen;
     pub use ::arch::x86_common::barrier;
 }
 
 pub use self::imp::defs;
+pub use self::imp::xen;
 pub use self::imp::barrier;
