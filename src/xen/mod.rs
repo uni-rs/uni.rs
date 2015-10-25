@@ -1,6 +1,7 @@
 use ::arch::defs::XEN_LEGACY_MAX_VCPUS;
 
 pub mod event;
+pub mod sched;
 pub mod console;
 
 pub mod hypercall;
