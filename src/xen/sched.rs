@@ -18,3 +18,7 @@ enum SchedOp {
 fn sched_op(op: SchedOp, sched: Ulong) -> i32 {
     hypercall2(HyperCalls::SchedOp, op as Ulong, sched) as i32
 }
+
+pub fn yield_cpu() -> i32 {
+    sched_op(SchedOp::Yield, 0)
+}
