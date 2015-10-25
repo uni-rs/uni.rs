@@ -1,6 +1,10 @@
 use core::ops::Deref;
 use core::ops::DerefMut;
 
+use core::fmt::{Write, Result};
+
+use core::mem::size_of;
+
 use xen::event;
 
 static mut CONS: InnerConsole = InnerConsole::new();
@@ -74,5 +78,42 @@ impl Console {
 
     pub fn set_port(&mut self, port: event::EvtchnPort) {
         self.console.port = port
+    }
+
+    fn is_output_full(&self) -> bool {
+        let data: ConsRingIdx;
+
+        data = self.console.out_prod - self.console.out_cons;
+
+        // size_of output field
+        (data as usize) >= size_of::<[u8; 2048]>()
+    }
+
+    fn out_idx(&self) -> usize {
+        let size_of_output = (size_of::<[u8; 2048]>() - 1) as u32;
+
+        (self.console.out_prod & size_of_output) as usize
+    }
+}
+
+impl Write for Console {
+    fn write_str(&mut self, s: &str) -> Result {
+
+        for c in s.as_bytes() {
+            while self.is_output_full() {
+                event::send(self.console.port);
+            }
+
+            let index = self.out_idx();
+
+            self.console.output[index] = *c;
+            ::arch::barrier::wmb();
+
+            self.console.out_prod += 1;
+        }
+
+        event::send(self.console.port);
+
+        Ok(())
     }
 }

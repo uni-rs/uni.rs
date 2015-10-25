@@ -1,4 +1,5 @@
 #![feature(no_std, lang_items, asm, const_fn)]
+#![feature(core_str_ext)]
 #![no_std]
 
 pub mod xen;
