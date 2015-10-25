@@ -22,11 +22,16 @@ fn init() {
 }
 
 #[no_mangle]
-pub fn uni_rust_entry() {
+pub fn uni_rust_entry() -> ! {
+    let app_ret;
+
     init();
 
     unsafe {
-        let _ = main(0, core::ptr::null());
+        app_ret = main(0, core::ptr::null());
     }
-}
 
+    xen::sched::poweroff(app_ret as arch::defs::Ulong);
+
+    panic!("Failed to poweroff the machine !");
+}
