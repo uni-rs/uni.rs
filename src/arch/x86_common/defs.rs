@@ -27,3 +27,4 @@ pub struct ArchSharedInfo {
 }
 
 pub const MAX_ULONG: Ulong = MAX_USIZE;
+pub const XEN_LEGACY_MAX_VCPUS: usize = 32;
