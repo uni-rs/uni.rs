@@ -1,4 +1,6 @@
-use core::fmt::Arguments;
+use core::fmt;
+
+use ::xen::sched::crash;
 
 #[cfg(not(test))]
 #[lang = "stack_exhausted"]
@@ -14,6 +16,11 @@ pub fn eh_personality() -> ! {
 
 #[cfg(not(test))]
 #[lang = "panic_fmt"]
-pub fn panic_fmt(_: Arguments, _: &(&'static str, u32)) -> ! {
+pub extern fn panic_impl(msg: fmt::Arguments, file: &'static str, line: u32) {
+    println!("Panic at '{}:{}' with message '{}'", file, line, msg);
+    ::xen::console::console().flush();
+
+    crash();
+
     loop {}
 }
