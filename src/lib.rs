@@ -24,6 +24,3 @@ pub fn uni_rust_entry() {
     }
 }
 
-#[lang = "stack_exhausted"] pub fn stack_exhausted() {}
-#[lang = "eh_personality"] pub fn eh_personality() {}
-#[lang = "panic_fmt"] pub fn panic_fmt() -> ! { loop {} }
