@@ -17,8 +17,14 @@ const STACK_SIZE: usize = 8192;
 #[link_section=".stack"]
 pub static rust_stack: [u8; STACK_SIZE] = [0; STACK_SIZE];
 
+fn init() {
+    arch::init();
+}
+
 #[no_mangle]
 pub fn uni_rust_entry() {
+    init();
+
     unsafe {
         let _ = main(0, core::ptr::null());
     }
