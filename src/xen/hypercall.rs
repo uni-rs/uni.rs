@@ -1,3 +1,5 @@
+use ::arch::defs::Ulong;
+
 pub enum HyperCalls {
     SetTrapTable = 0,
     MmuUpdate = 1,
@@ -39,4 +41,43 @@ pub enum HyperCalls {
     TmemOp = 38,
     XcReservedOp = 39,
     XenpmuOp = 40,
+}
+
+pub fn hypercall0(id: HyperCalls) -> Ulong {
+    unsafe {
+        ::arch::xen::hypercall(id as u32, 0, 0, 0, 0, 0)
+    }
+}
+
+pub fn hypercall1(id: HyperCalls, arg1: Ulong) -> Ulong {
+    unsafe {
+        ::arch::xen::hypercall(id as u32, arg1, 0, 0, 0, 0)
+    }
+}
+
+pub fn hypercall2(id: HyperCalls, arg1: Ulong, arg2: Ulong) -> Ulong {
+    unsafe {
+        ::arch::xen::hypercall(id as u32, arg1, arg2, 0, 0, 0)
+    }
+}
+
+pub fn hypercall3(id: HyperCalls, arg1: Ulong, arg2: Ulong,
+                  arg3: Ulong) -> Ulong {
+    unsafe {
+        ::arch::xen::hypercall(id as u32, arg1, arg2, arg3, 0, 0)
+    }
+}
+
+pub fn hypercall4(id: HyperCalls, arg1: Ulong, arg2: Ulong, arg3: Ulong,
+                  arg4: Ulong) -> Ulong {
+    unsafe {
+        ::arch::xen::hypercall(id as u32, arg1, arg2, arg3, arg4, 0)
+    }
+}
+
+pub fn hypercall5(id: HyperCalls, arg1: Ulong, arg2: Ulong, arg3: Ulong,
+                  arg4: Ulong, arg5: Ulong) -> Ulong {
+    unsafe {
+        ::arch::xen::hypercall(id as u32, arg1, arg2, arg3, arg4, arg5)
+    }
 }
