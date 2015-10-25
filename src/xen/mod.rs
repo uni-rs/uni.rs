@@ -1,5 +1,7 @@
 use ::arch::defs::XEN_LEGACY_MAX_VCPUS;
 
+pub mod console;
+
 pub mod hypercall;
 
 const MAX_GUEST_CMDLINE: usize = 1024;
