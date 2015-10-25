@@ -3,7 +3,6 @@ use core::ops::DerefMut;
 
 use xen::event;
 
-#[allow(dead_code)]
 static mut CONS: InnerConsole = InnerConsole::new();
 
 type ConsRingIdx = u32;
@@ -53,5 +52,27 @@ impl DerefMut for InnerConsole {
         unsafe {
             &mut (*self.interface)
         }
+    }
+}
+
+pub struct Console {
+   console: &'static mut InnerConsole
+}
+
+pub fn console() -> Console {
+    unsafe {
+        Console {
+            console: &mut CONS,
+        }
+    }
+}
+
+impl Console {
+    pub fn set_interface(&mut self, interface: *mut ConsoleInterface) {
+        self.console.interface = interface
+    }
+
+    pub fn set_port(&mut self, port: event::EvtchnPort) {
+        self.console.port = port
     }
 }
