@@ -48,6 +48,10 @@ fn shutdown_code(status: Ulong) -> i32 {
     sched_op(SchedOp::ShutdownCode, status)
 }
 
+pub fn crash() -> i32 {
+    shutdown(ShutdownReason::Crash)
+}
+
 pub fn poweroff(status: Ulong) -> i32 {
     let ret: i32 = shutdown_code(status);
 
