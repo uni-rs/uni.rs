@@ -7,6 +7,7 @@ mod imp {
     pub mod defs;
     pub mod xen;
     pub use ::arch::x86_common::barrier;
+    pub use ::arch::x86_common::init;
 }
 
 #[cfg(target_arch = "x86")]
@@ -15,7 +16,10 @@ mod imp {
     pub mod defs;
     pub mod xen;
     pub use ::arch::x86_common::barrier;
+    pub use ::arch::x86_common::init;
 }
+
+pub use self::imp::init;
 
 pub use self::imp::defs;
 pub use self::imp::xen;

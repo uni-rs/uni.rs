@@ -9,3 +9,6 @@ extern {
     // was made a global variable only for x86_*
     pub static start_info: *const StartInfo;
 }
+
+pub fn init() {
+}
