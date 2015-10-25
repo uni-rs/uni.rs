@@ -4,6 +4,10 @@ pub mod hypercall;
 
 const MAX_GUEST_CMDLINE: usize = 1024;
 
+extern {
+    pub static _shared_info: SharedInfo;
+}
+
 #[repr(C)]
 pub struct DomUConsole {
     pub mfn: ::arch::defs::XenPfn,
