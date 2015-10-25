@@ -11,4 +11,7 @@ extern {
 }
 
 pub fn init() {
+    unsafe {
+        memory::map_shared_info();
+    }
 }
