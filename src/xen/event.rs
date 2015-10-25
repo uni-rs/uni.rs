@@ -3,6 +3,8 @@ use xen::hypercall::HyperCalls;
 
 use ::arch::defs::Ulong;
 
+pub type EvtchnPort = u32;
+
 #[allow(dead_code)]
 enum EventOp {
     BindInterdomain = 0,
