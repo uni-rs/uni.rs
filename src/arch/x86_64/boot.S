@@ -19,7 +19,8 @@ _start:
     call uni_rust_entry
 
 _stack:
-    .quad rust_stack + 8192 - 8
+    .quad _stack_end
+    .quad rust_stack
 
 start_info:
     .quad 0

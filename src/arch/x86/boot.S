@@ -29,7 +29,8 @@ ENTRY(_start)
     call uni_rust_entry
 
 _stack:
-    .long rust_stack + 8192 - 4, 0xe021
+    .long _stack_end, 0xe021
+    .long rust_stack
 
 start_info:
     .long 0

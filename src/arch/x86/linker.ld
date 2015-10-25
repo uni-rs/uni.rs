@@ -16,7 +16,9 @@ SECTIONS
     }
 
     .data : ALIGN(4096) {
+        _stack_start = .;
         *(.stack)
+        _stack_end = .;
         *(.data .data.*)
     }
 
