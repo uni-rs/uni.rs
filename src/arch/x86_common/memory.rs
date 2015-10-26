@@ -39,6 +39,10 @@ fn pfn_to_vaddr(pfn: Pfn) -> Vaddr {
     pfn << PAGE_SHIFT
 }
 
+fn vaddr_to_pfn(vaddr: Vaddr) -> Pfn {
+    vaddr >> PAGE_SHIFT
+}
+
 pub fn mfn_to_vaddr(mfn: Mfn) -> Vaddr {
     pfn_to_vaddr(mfn_to_pfn(mfn))
 }
