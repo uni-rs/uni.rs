@@ -24,6 +24,8 @@ fn init() {
     arch::init();
 
     println!("Uni.rs is booting");
+
+    let (_, _) = unsafe { arch::init_memory() };
 }
 
 #[no_mangle]

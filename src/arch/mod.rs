@@ -9,6 +9,7 @@ mod imp {
     pub mod xen;
     pub use ::arch::x86_common::barrier;
     pub use ::arch::x86_common::init;
+    pub use ::arch::x86_common::init_memory;
 }
 
 #[cfg(target_arch = "x86")]
@@ -19,10 +20,12 @@ mod imp {
     pub mod xen;
     pub use ::arch::x86_common::barrier;
     pub use ::arch::x86_common::init;
+    pub use ::arch::x86_common::init_memory;
 }
 
 // Exported functions
 pub use self::imp::init;
+pub use self::imp::init_memory;
 
 // Exported modules
 pub use self::imp::defs;

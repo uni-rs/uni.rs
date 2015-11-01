@@ -7,6 +7,8 @@ pub mod defs;
 pub mod barrier;
 pub mod memory;
 
+pub use self::memory::init as init_memory;
+
 extern {
     // Start info is not present on all architecture, this is why this
     // was made a global variable only for x86_*
