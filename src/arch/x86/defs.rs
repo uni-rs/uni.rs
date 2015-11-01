@@ -9,3 +9,5 @@ pub const MACH2PHYS_VIRT_START: Vaddr = 0xF5800000;
 pub const XENULONGSIZE: usize = 4;
 
 pub const HYPERVISOR_START: Vaddr = 0xF5800000;
+
+pub const PML4_OFFSET_SHIFT: usize = 0;
