@@ -14,7 +14,7 @@ mod imp {
 #[cfg(target_arch = "x86")]
 #[path="x86"]
 mod imp {
-    pub mod compiler {}
+    pub mod compiler;
     pub mod defs;
     pub mod xen;
     pub use ::arch::x86_common::barrier;
