@@ -46,6 +46,7 @@ fn vaddr_to_pfn(vaddr: Vaddr) -> Pfn {
 pub fn mfn_to_vaddr(mfn: Mfn) -> Vaddr {
     pfn_to_vaddr(mfn_to_pfn(mfn))
 }
+pub mod page;
 
 #[allow(dead_code)]
 enum MapFlags {
