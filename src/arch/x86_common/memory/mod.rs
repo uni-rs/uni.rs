@@ -1,51 +1,22 @@
 use core::mem::size_of;
 
-use ::xen::SharedInfo;
+use xen::SharedInfo;
 
-use ::arch::defs::Ulong;
-use ::arch::defs::MAX_ULONG;
-use ::arch::defs::MACH2PHYS_VIRT_START;
+use arch::defs::Ulong;
 
-use ::xen::hypercall::HyperCalls;
-use ::xen::hypercall::hypercall3;
-use ::xen::hypercall::hypercall4;
+use xen::hypercall::HyperCalls;
+use xen::hypercall::hypercall3;
+use xen::hypercall::hypercall4;
 
-use ::arch::x86_common::start_info;
-
-const PAGE_SHIFT: u32 = 12;
-const PAGE_SIZE: u32 = 1 << PAGE_SHIFT;
-
-const PTE_MASK: Ulong = (PAGE_SIZE as Ulong) - 1;
-
-pub type Vaddr = Ulong;
-pub type Pfn = Ulong;
-pub type Mfn = Ulong;
+use arch::x86_common::start_info;
 
 macro_rules! pte {
     ($x:expr) => {
-        (($x as Ulong) & (PTE_MASK ^ MAX_ULONG)) | 3;
+        (($x as ::arch::defs::TableEntry) &
+         (::arch::defs::PTE_FLAGS_MASK ^ ::core::u64::MAX)) | ::arch::defs::PAGE_FLAGS;
     }
 }
 
-fn mfn_to_pfn(mfn: Mfn) -> Pfn {
-    unsafe {
-        let mtp_mapping: *const Ulong = MACH2PHYS_VIRT_START as *const Ulong;
-
-        *mtp_mapping.offset(mfn as isize)
-    }
-}
-
-fn pfn_to_vaddr(pfn: Pfn) -> Vaddr {
-    pfn << PAGE_SHIFT
-}
-
-fn vaddr_to_pfn(vaddr: Vaddr) -> Pfn {
-    vaddr >> PAGE_SHIFT
-}
-
-pub fn mfn_to_vaddr(mfn: Mfn) -> Vaddr {
-    pfn_to_vaddr(mfn_to_pfn(mfn))
-}
 pub mod page;
 
 #[allow(dead_code)]
@@ -57,14 +28,15 @@ enum MapFlags {
     InvlpgAll = 4,
 }
 
-fn update_va_mapping(guest_page: Ulong, mac_page: Ulong,
+fn update_va_mapping(guest_page: Ulong, mac_page: page::Maddr,
                      flags: MapFlags) -> i32 {
     if size_of::<Ulong>() == size_of::<u64>() {
-        hypercall3(HyperCalls::UpdateVaMapping, guest_page, mac_page,
+        hypercall3(HyperCalls::UpdateVaMapping, guest_page, mac_page as Ulong,
                    flags as Ulong) as i32
     } else {
         hypercall4(HyperCalls::UpdateVaMapping, guest_page,
-                   mac_page, 0, flags as Ulong) as i32
+                   mac_page as Ulong, (mac_page >> 32) as Ulong,
+                   flags as Ulong) as i32
     }
 }
 

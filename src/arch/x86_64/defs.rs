@@ -1,6 +1,6 @@
 //! Definitions for the x86_64 architecture
 
-use ::arch::x86_common::memory::Vaddr;
+use arch::x86_common::memory::page::Vaddr;
 
 pub use arch::x86_common::defs::*;
 

@@ -15,11 +15,11 @@ extern {
 
 pub fn init() {
     unsafe {
-        let console_vaddr: memory::Vaddr;
+        let console_vaddr: memory::page::Vaddr;
 
         memory::map_shared_info();
 
-        console_vaddr = memory::mfn_to_vaddr((*start_info).domu_console.mfn);
+        console_vaddr = memory::page::mfn_to_vaddr((*start_info).domu_console.mfn);
 
         console().set_port((*start_info).domu_console.evtchn);
         console().set_interface(console_vaddr as *mut ConsoleInterface);

@@ -1,8 +1,8 @@
 //! Definitions for the x86 architecture
 
-use ::arch::x86_common::memory::Vaddr;
+use arch::x86_common::memory::page::Vaddr;
 
-pub use ::arch::x86_common::defs::*;
+pub use arch::x86_common::defs::*;
 
 pub const MACH2PHYS_VIRT_START: Vaddr = 0xF5800000;
 
