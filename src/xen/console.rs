@@ -5,10 +5,12 @@ use core::fmt::{Write, Result, Arguments, write};
 
 use core::mem::size_of;
 
+use os::lock::{SpinLock, SpinGuard};
+
 use xen::event;
 use xen::sched;
 
-static mut CONS: InnerConsole = InnerConsole::new();
+static CONSOLE: SpinLock<Console> = SpinLock::new(Console::new());
 
 type ConsRingIdx = u32;
 
@@ -30,11 +32,15 @@ macro_rules! print {
 }
 
 pub fn _print(fmt: Arguments) {
-    let res = write(&mut console(), fmt);
+    let res = write(&mut *console(), fmt);
 
     if let Err(e) = res {
         panic!("Fail to print on the Xen console: {}", e);
     }
+}
+
+pub fn console<'a>() -> SpinGuard<'a, Console> {
+    CONSOLE.lock()
 }
 
 #[repr(C)]
@@ -47,21 +53,50 @@ pub struct ConsoleInterface {
     out_prod: ConsRingIdx,
 }
 
-struct InnerConsole {
-    pub interface: *mut ConsoleInterface,
-    pub port: event::EvtchnPort,
+pub struct Console {
+    interface: *mut ConsoleInterface,
+    port: event::EvtchnPort,
 }
 
-impl InnerConsole {
-    pub const fn new() -> InnerConsole {
-        InnerConsole {
+impl Console {
+    pub const fn new() -> Self {
+        Console {
             interface: 0 as *mut ConsoleInterface,
             port: 0,
         }
     }
+
+    pub fn set_interface(&mut self, interface: *mut ConsoleInterface) {
+        self.interface = interface
+    }
+
+    pub fn set_port(&mut self, port: event::EvtchnPort) {
+        self.port = port
+    }
+
+    fn is_output_full(&self) -> bool {
+        let data: ConsRingIdx;
+
+        data = self.out_prod - self.out_cons;
+
+        // size_of output field
+        (data as usize) >= size_of::<[u8; 2048]>()
+    }
+
+    fn out_idx(&self) -> usize {
+        let size_of_output = (size_of::<[u8; 2048]>() - 1) as u32;
+
+        (self.out_prod & size_of_output) as usize
+    }
+
+    pub fn flush(&self) -> () {
+        while self.out_cons < self.out_prod {
+            sched::yield_cpu();
+        }
+    }
 }
 
-impl Deref for InnerConsole {
+impl Deref for Console {
     type Target = ConsoleInterface;
 
     #[inline]
@@ -75,7 +110,7 @@ impl Deref for InnerConsole {
     }
 }
 
-impl DerefMut for InnerConsole {
+impl DerefMut for Console {
     #[inline]
     fn deref_mut(&mut self) -> &mut ConsoleInterface {
         // See deref
@@ -85,66 +120,23 @@ impl DerefMut for InnerConsole {
     }
 }
 
-pub struct Console {
-   console: &'static mut InnerConsole
-}
-
-pub fn console() -> Console {
-    unsafe {
-        Console {
-            console: &mut CONS,
-        }
-    }
-}
-
-impl Console {
-    pub fn set_interface(&mut self, interface: *mut ConsoleInterface) {
-        self.console.interface = interface
-    }
-
-    pub fn set_port(&mut self, port: event::EvtchnPort) {
-        self.console.port = port
-    }
-
-    fn is_output_full(&self) -> bool {
-        let data: ConsRingIdx;
-
-        data = self.console.out_prod - self.console.out_cons;
-
-        // size_of output field
-        (data as usize) >= size_of::<[u8; 2048]>()
-    }
-
-    fn out_idx(&self) -> usize {
-        let size_of_output = (size_of::<[u8; 2048]>() - 1) as u32;
-
-        (self.console.out_prod & size_of_output) as usize
-    }
-
-    pub fn flush(&self) -> () {
-        while self.console.out_cons < self.console.out_prod {
-            sched::yield_cpu();
-        }
-    }
-}
-
 impl Write for Console {
     fn write_str(&mut self, s: &str) -> Result {
 
         for c in s.as_bytes() {
             while self.is_output_full() {
-                event::send(self.console.port);
+                event::send(self.port);
             }
 
             let index = self.out_idx();
 
-            self.console.output[index] = *c;
+            self.output[index] = *c;
             ::arch::barrier::wmb();
 
-            self.console.out_prod += 1;
+            self.out_prod += 1;
         }
 
-        event::send(self.console.port);
+        event::send(self.port);
 
         Ok(())
     }
