@@ -5,6 +5,7 @@
 #[macro_use]
 pub mod xen;
 
+pub mod os;
 pub mod arch;
 pub mod utils;
 
