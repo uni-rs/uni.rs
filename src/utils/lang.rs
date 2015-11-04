@@ -24,3 +24,9 @@ pub extern fn panic_impl(msg: fmt::Arguments, file: &'static str, line: u32) {
 
     loop {}
 }
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub fn _Unwind_Resume(_: *mut u8) -> ! {
+    panic!("_Unwind_Resume called");
+}
