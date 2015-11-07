@@ -1,19 +1,17 @@
 {
+    "llvm-target": "i686-unknown-none-gnu",
     "data-layout": "e-p:32:32-f64:32:64-i64:32:64-f80:32:32-n8:16:32",
-    "llvm-target": "i686-unknown-linux-gnu",
     "target-endian": "little",
     "target-pointer-width": "32",
+    "os": "uni",
     "executables": true,
     "features": "-mmx,-sse,-sse2,-sse3,-ssse3",
-    "os": "none",
     "arch": "x86",
-    "pre-link-args": [
-        "-m32",
-        "-Tlinker.ld",
-        "-nostdlib"
-    ],
+    "pre-link-args": [ "-m32", "-Tlinker.ld", "-nostdlib" ],
+    "code_model": "kernel",
     "no-compiler-rt": true,
     "eliminate-frame-pointer": false,
-    "linker_is_gnu": true,
+    "linker-is-gnu": true,
+    "archive-format": "gnu",
     "morestack": false
 }
