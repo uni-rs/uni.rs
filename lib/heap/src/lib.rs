@@ -5,6 +5,8 @@
 use core::ptr;
 use core::cmp;
 
+mod types;
+
 pub trait Allocator {
     unsafe fn allocate(&mut self, size: usize, align: usize) -> *mut u8;
     unsafe fn deallocate(&mut self, ptr: *mut u8, old_size: usize, align: usize);
