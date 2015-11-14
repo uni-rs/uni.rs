@@ -53,62 +53,6 @@ impl<T> UnsafeList<T> {
             }
         }
     }
-
-    pub unsafe fn cursor<'a>(&'a mut self) -> UnsafeCursor<'a, T> {
-        let head_dup = self.head.clone();
-
-        UnsafeCursor {
-            head: &mut self.head,
-            current: head_dup,
-        }
-    }
-}
-
-pub struct UnsafeCursor<'a, T: 'a> {
-    head: &'a mut Link<Node<T>>,
-    current: Link<Node<T>>,
-}
-
-impl<'a, T: 'a> UnsafeCursor<'a, T> {
-    pub unsafe fn remove(&mut self) -> Link<Node<T>> {
-        if self.current.is_null() {
-            return Link::none();
-        }
-
-        let mut res = self.current.clone();
-        let update_head = *self.head == self.current;
-
-        self.next();
-
-        if let Some(node) = res.as_mut() {
-            if let Some(prev) = node.prev.as_mut() {
-                prev.next = node.next.clone();
-            }
-
-            if let Some(next) = node.next.as_mut() {
-                next.prev = node.prev.clone();
-            }
-
-            node.next = Link::none();
-            node.prev = Link::none();
-        }
-
-        if update_head {
-            *self.head = self.current.clone();
-        }
-
-        res
-    }
-
-    pub unsafe fn next(&mut self) {
-        if let Some(node) = self.current.as_mut() {
-            self.current = node.next.clone();
-        }
-    }
-
-    pub unsafe fn as_ref(&self) -> Option<&Node<T>> {
-        self.current.as_ref()
-    }
 }
 
 pub struct Node<T> {
