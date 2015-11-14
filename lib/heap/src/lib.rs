@@ -1,4 +1,5 @@
 #![feature(no_std)]
+#![feature(ptr_as_ref)]
 
 #![no_std]
 
