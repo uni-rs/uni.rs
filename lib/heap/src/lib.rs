@@ -6,6 +6,8 @@
 use core::ptr;
 use core::cmp;
 
+mod fit;
+
 mod types;
 
 pub trait Allocator {
