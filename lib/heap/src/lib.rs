@@ -23,6 +23,8 @@ mod fit;
 
 mod types;
 
+pub use fit::FirstFit;
+
 /// Trait implemented by every allocator
 pub trait Allocator {
     unsafe fn allocate(&mut self, size: usize, align: usize) -> *mut u8;
