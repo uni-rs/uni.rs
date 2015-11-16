@@ -332,3 +332,102 @@ impl Allocator for FirstFit {
         self.free_blocks.push_front(node);
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::FirstFit;
+    use super::{Header, Footer, FreeBlock};
+    use super::super::Allocator;
+
+    use core::mem::size_of;
+    use core::ptr::null_mut;
+
+    const HEAP_SIZE: usize = 4096;
+    const HEAP_ALIGN: usize = 8;
+
+    extern "C" {
+        fn memalign(alignment: usize, size: usize) -> *mut u8;
+        fn free(ptr: *mut u8);
+    }
+
+    unsafe fn create_allocator(size: usize) -> (FirstFit, *mut u8) {
+        let heap = memalign(4096, size);
+        let allocator = FirstFit::new(heap, size);
+
+        let actual_size = size - size_of::<Header>() - size_of::<Footer>();
+
+        // Verify the init block
+        let init_block = (heap as *const FreeBlock).as_ref().unwrap();
+
+        assert!(init_block.elem.free);
+        assert!(!init_block.elem.has_next());
+        assert!(!init_block.elem.has_prev());
+        assert!(init_block.next.is_null());
+        assert!(init_block.prev.is_null());
+        assert_eq!(init_block.elem.size, actual_size);
+
+        (allocator, heap)
+    }
+
+    #[test]
+    fn test_new_first_fit() {
+        let vec = vec![32, 1024, 4096, 4194304];
+
+        for size in vec {
+            unsafe {
+                let (_, heap) = create_allocator(size);
+
+                free(heap);
+            }
+        }
+    }
+
+    unsafe fn alloc_test(allocator: &mut FirstFit,
+                         size: usize) -> *const Header {
+        let real_size = align_up!(size, HEAP_ALIGN);
+        let ptr = allocator.allocate(size, HEAP_ALIGN);
+
+        assert!(ptr != null_mut());
+
+        let hdr = ptr.offset(-(size_of::<Header>() as isize)) as *const Header;
+
+        // Be careful when calling this function because this test might fail
+        // if the block that the allocator is gonna use cannot be splitted
+        assert_eq!((*hdr).size & !super::SIZE_MASK, real_size);
+        assert!(!(*hdr).free);
+
+        hdr
+    }
+
+    #[test]
+    fn test_alloc_dealloc_first_fit() {
+        unsafe {
+            let (mut allocator, heap) = create_allocator(HEAP_SIZE);
+
+            assert_eq!(allocator.allocate(HEAP_SIZE + 1, HEAP_ALIGN),
+                       null_mut());
+
+            let blk1 = alloc_test(&mut allocator, 10);
+            let blk2 = alloc_test(&mut allocator, 100);
+            let blk3 = alloc_test(&mut allocator, 231);
+
+            allocator.deallocate(blk2.offset(1) as *mut u8, 100, HEAP_ALIGN);
+
+            assert!((*blk2).free);
+
+            let blk4 = alloc_test(&mut allocator, 100);
+
+            assert_eq!(blk2, blk4);
+
+            allocator.deallocate(blk3.offset(1) as *mut u8, 231, HEAP_ALIGN);
+            allocator.deallocate(blk1.offset(1) as *mut u8, 10, HEAP_ALIGN);
+            allocator.deallocate(blk4.offset(1) as *mut u8, 100, HEAP_ALIGN);
+
+            assert!(allocator.allocate(HEAP_SIZE - size_of::<Header>() -
+                                       size_of::<Footer>() - 500, HEAP_ALIGN) !=
+                    null_mut());
+
+            free(heap);
+        }
+    }
+}

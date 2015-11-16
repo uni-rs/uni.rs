@@ -6,6 +6,10 @@
 
 #![no_std]
 
+#[cfg(test)]
+#[macro_use]
+extern crate std;
+
 use core::ptr;
 use core::cmp;
 
