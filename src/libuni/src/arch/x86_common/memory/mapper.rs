@@ -1,6 +1,6 @@
 use core::mem::size_of;
 
-use utils::libc::memset;
+use rlibc::memset;
 
 use super::page;
 

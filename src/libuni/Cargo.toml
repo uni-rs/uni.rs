@@ -3,14 +3,16 @@
 name = "uni"
 version = "0.0.1"
 authors = ["Baptiste Covolato"]
-build = "build.rs"
 
 [lib]
 name = "uni"
 crate-type = [ "lib" ]
 
-[build-dependencies]
-gcc = "0.3"
+[dependencies]
+rlibc = "0.1.4"
+
+[dependencies.heap]
+path = "../libheap"
 
 [[example]]
 name = "hello"

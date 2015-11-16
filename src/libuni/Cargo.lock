@@ -1,0 +1,17 @@
+[root]
+name = "uni"
+version = "0.0.1"
+dependencies = [
+ "heap 0.0.1",
+ "rlibc 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "heap"
+version = "0.0.1"
+
+[[package]]
+name = "rlibc"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
