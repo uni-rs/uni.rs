@@ -1,10 +1,14 @@
 #![feature(no_std)]
 #![no_std]
+#![no_builtins]
 
 #[macro_use]
 extern crate uni;
-
 extern crate xen;
+
+mod arch;
+
+pub mod libc;
 
 extern {
     fn main(_: isize, _: *const *const u8) -> isize;
@@ -19,13 +23,13 @@ const STACK_SIZE: usize = 8192;
 pub static rust_stack: [u8; STACK_SIZE] = [0; STACK_SIZE];
 
 fn init() {
-    uni::arch::init();
+    self::arch::init();
 
     println!("Uni.rs is booting");
 
     // Memory initialization is unsafe
     unsafe {
-        let (heap_start, heap_size) = uni::arch::init_memory();
+        let (heap_start, heap_size) = arch::init_memory();
 
         uni::alloc::init(heap_start, heap_size);
     }

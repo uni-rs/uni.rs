@@ -8,9 +8,6 @@ authors = ["Baptiste Covolato"]
 name = "uni"
 crate-type = [ "lib" ]
 
-[dependencies]
-rlibc = "0.1.4"
-
 [dependencies.heap]
 path = "../libheap"
 

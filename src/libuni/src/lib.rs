@@ -3,7 +3,6 @@
 #![feature(lang_items)]
 #![no_std]
 
-extern crate rlibc;
 extern crate heap;
 extern crate xen;
 
@@ -14,6 +13,5 @@ extern crate std;
 pub mod console;
 
 pub mod os;
-pub mod arch;
 pub mod alloc;
 pub mod utils;

@@ -1,4 +1,5 @@
-#![feature(start, no_std)]
+#![feature(no_std)]
+#![feature(start)]
 #![no_std]
 
 #[macro_use]
