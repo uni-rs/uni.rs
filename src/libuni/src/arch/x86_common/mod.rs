@@ -1,10 +1,6 @@
-use ::xen::StartInfo;
-
-use ::xen::console::console;
-use ::xen::console::ConsoleInterface;
+use xen::defs::{StartInfo, SharedInfo, ConsoleInterface};
 
 pub mod defs;
-pub mod barrier;
 pub mod memory;
 
 pub use self::memory::init as init_memory;
@@ -15,6 +11,11 @@ extern {
     pub static start_info: *const StartInfo;
 }
 
+// XXX: Move somewhere else
+extern {
+    pub static _shared_info: SharedInfo;
+}
+
 pub fn init() {
     unsafe {
         let console_vaddr: memory::page::Vaddr;
@@ -23,7 +24,7 @@ pub fn init() {
 
         console_vaddr = memory::page::mfn_to_vaddr((*start_info).domu_console.mfn);
 
-        console().set_port((*start_info).domu_console.evtchn);
-        console().set_interface(console_vaddr as *mut ConsoleInterface);
+        ::console::init(console_vaddr as *mut ConsoleInterface,
+                        (*start_info).domu_console.evtchn);
     }
 }

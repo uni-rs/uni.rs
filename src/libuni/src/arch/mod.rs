@@ -6,8 +6,6 @@ pub mod x86_common;
 mod imp {
     pub mod compiler {}
     pub mod defs;
-    pub mod xen;
-    pub use ::arch::x86_common::barrier;
     pub use ::arch::x86_common::init;
     pub use ::arch::x86_common::init_memory;
 }
@@ -17,8 +15,6 @@ mod imp {
 mod imp {
     pub mod compiler;
     pub mod defs;
-    pub mod xen;
-    pub use ::arch::x86_common::barrier;
     pub use ::arch::x86_common::init;
     pub use ::arch::x86_common::init_memory;
 }
@@ -29,6 +25,4 @@ pub use self::imp::init_memory;
 
 // Exported modules
 pub use self::imp::defs;
-pub use self::imp::xen;
-pub use self::imp::barrier;
 pub use self::imp::compiler;

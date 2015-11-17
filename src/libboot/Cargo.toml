@@ -10,3 +10,6 @@ crate-type = [ "lib" ]
 
 [dependencies.uni]
 path = "../libuni"
+
+[dependencies.xen]
+path = "../libxen"

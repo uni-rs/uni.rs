@@ -1,18 +1,19 @@
-#![feature(no_std, lang_items, asm, const_fn)]
-#![feature(core_str_ext)]
+#![feature(no_std)]
+#![feature(const_fn)]
+#![feature(lang_items)]
 #![no_std]
 
 extern crate rlibc;
 extern crate heap;
+extern crate xen;
 
 #[cfg(test)]
 extern crate std;
 
 #[macro_use]
-pub mod xen;
+pub mod console;
 
 pub mod os;
 pub mod arch;
-pub mod utils;
-
 pub mod alloc;
+pub mod utils;

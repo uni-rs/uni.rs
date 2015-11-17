@@ -4,6 +4,8 @@
 #[macro_use]
 extern crate uni;
 
+extern crate xen;
+
 extern {
     fn main(_: isize, _: *const *const u8) -> isize;
 }
@@ -39,9 +41,9 @@ pub extern "C" fn uni_rust_entry() -> ! {
         app_ret = main(0, core::ptr::null());
     }
 
-    uni::xen::console::console().flush();
+    uni::console::console().flush();
 
-    uni::xen::sched::poweroff(app_ret as uni::arch::defs::Ulong);
+    // xen::sched::poweroff(app_ret as xen::defs::Ulong);
 
     panic!("Failed to poweroff the machine !");
 }

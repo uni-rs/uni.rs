@@ -1,9 +1,7 @@
-use xen::hypercall::hypercall2;
-use xen::hypercall::HyperCalls;
+use hypercall::hypercall2;
+use hypercall::HypercallKind;
 
-use ::arch::defs::Ulong;
-
-pub type EvtchnPort = u32;
+use defs::{Ulong, EvtchnPort};
 
 #[allow(dead_code)]
 enum EventOp {
@@ -28,8 +26,11 @@ struct EvtchnSend {
     port: EvtchnPort,
 }
 
-fn event_channel_op(op: EventOp, event: Ulong) -> Ulong {
-    hypercall2(HyperCalls::EventChannelOp, op as Ulong, event)
+#[inline]
+fn event_channel_op(op: EventOp, event: Ulong) -> i32 {
+    unsafe {
+        hypercall2(HypercallKind::EventChannelOp, op as Ulong, event) as i32
+    }
 }
 
 pub fn send(port: EvtchnPort) -> i32 {
@@ -38,5 +39,5 @@ pub fn send(port: EvtchnPort) -> i32 {
     };
     let ev_ptr = &ev as *const EvtchnSend;
 
-    event_channel_op(EventOp::Send, ev_ptr as Ulong) as i32
+    event_channel_op(EventOp::Send, ev_ptr as Ulong)
 }

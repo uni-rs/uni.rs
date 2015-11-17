@@ -3,6 +3,7 @@ name = "uni-boot"
 version = "0.0.1"
 dependencies = [
  "uni 0.0.1",
+ "xen 0.0.1",
 ]
 
 [[package]]
@@ -20,5 +21,10 @@ version = "0.0.1"
 dependencies = [
  "heap 0.0.1",
  "rlibc 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "xen 0.0.1",
 ]
+
+[[package]]
+name = "xen"
+version = "0.0.1"
 

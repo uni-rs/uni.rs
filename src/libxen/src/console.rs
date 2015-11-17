@@ -1,77 +1,29 @@
 use core::ops::Deref;
 use core::ops::DerefMut;
 
-use core::fmt::{Write, Result, Arguments, write};
+use core::fmt::{Write, Result};
 
 use core::mem::size_of;
 
-use os::lock::{SpinLock, SpinGuard};
+use defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
 
-use xen::event;
-use xen::sched;
+use event::send;
+use sched::yield_cpu;
 
-static CONSOLE: SpinLock<Console> = SpinLock::new(Console::new());
-
-type ConsRingIdx = u32;
-
-#[macro_export]
-macro_rules! println {
-    ($fmt:expr) => {
-        print!(concat!($fmt, "\r\n"))
-    };
-    ($fmt:expr, $($arg:tt)*) => {
-        print!(concat!($fmt, "\r\n"), $($arg)*)
-    }
-}
-
-#[macro_export]
-macro_rules! print {
-    ($($arg:tt)*) => {
-        $crate::xen::console::_print(format_args!($($arg)*));
-    }
-}
-
-pub fn _print(fmt: Arguments) {
-    let res = write(&mut *console(), fmt);
-
-    if let Err(e) = res {
-        panic!("Fail to print on the Xen console: {}", e);
-    }
-}
-
-pub fn console<'a>() -> SpinGuard<'a, Console> {
-    CONSOLE.lock()
-}
-
-#[repr(C)]
-pub struct ConsoleInterface {
-    input: [u8; 1024],
-    output: [u8; 2048],
-    in_cons: ConsRingIdx,
-    in_prod: ConsRingIdx,
-    out_cons: ConsRingIdx,
-    out_prod: ConsRingIdx,
-}
+use barrier::wmb;
 
 pub struct Console {
     interface: *mut ConsoleInterface,
-    port: event::EvtchnPort,
+    port: EvtchnPort,
 }
 
 impl Console {
-    pub const fn new() -> Self {
+    pub unsafe fn new(interface: *mut ConsoleInterface,
+                      port: EvtchnPort) -> Self {
         Console {
-            interface: 0 as *mut ConsoleInterface,
-            port: 0,
+            interface: interface,
+            port: port,
         }
-    }
-
-    pub fn set_interface(&mut self, interface: *mut ConsoleInterface) {
-        self.interface = interface
-    }
-
-    pub fn set_port(&mut self, port: event::EvtchnPort) {
-        self.port = port
     }
 
     fn is_output_full(&self) -> bool {
@@ -91,7 +43,7 @@ impl Console {
 
     pub fn flush(&self) -> () {
         while self.out_cons < self.out_prod {
-            sched::yield_cpu();
+            yield_cpu();
         }
     }
 }
@@ -125,19 +77,20 @@ impl Write for Console {
 
         for c in s.as_bytes() {
             while self.is_output_full() {
-                event::send(self.port);
+                send(self.port);
             }
 
             let index = self.out_idx();
 
             self.output[index] = *c;
-            ::arch::barrier::wmb();
+            wmb();
 
             self.out_prod += 1;
         }
 
-        event::send(self.port);
+        send(self.port);
 
         Ok(())
     }
 }
+

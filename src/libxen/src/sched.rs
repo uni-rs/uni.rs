@@ -1,7 +1,7 @@
-use xen::hypercall::hypercall2;
-use xen::hypercall::HyperCalls;
+use hypercall::hypercall2;
+use hypercall::HypercallKind;
 
-use ::arch::defs::Ulong;
+use defs::Ulong;
 
 #[allow(dead_code)]
 enum SchedOp {
@@ -28,8 +28,11 @@ struct SchedShutdown {
     reason: u32,
 }
 
+#[inline]
 fn sched_op(op: SchedOp, sched: Ulong) -> i32 {
-    hypercall2(HyperCalls::SchedOp, op as Ulong, sched) as i32
+    unsafe {
+        hypercall2(HypercallKind::SchedOp, op as Ulong, sched) as i32
+    }
 }
 
 pub fn yield_cpu() -> i32 {
@@ -61,3 +64,4 @@ pub fn poweroff(status: Ulong) -> i32 {
 
     shutdown(ShutdownReason::PowerOff)
 }
+

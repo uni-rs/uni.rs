@@ -1,10 +1,13 @@
+use core::ptr;
 use core::mem::size_of;
 
 use rlibc::memset;
 
 use super::page;
 
-use arch::defs::Ulong;
+use xen::memory::{MmuUpdate, MapFlags};
+use xen::memory::{mmu_update, update_va_mapping};
+
 use arch::defs::TableEntry;
 
 use arch::defs::PAGE_SIZE;
@@ -12,47 +15,13 @@ use arch::defs::PAGE_SHIFT;
 use arch::defs::PAGE_PRESENT;
 use arch::defs::PTE_PER_TABLE;
 
-use xen::hypercall::HyperCalls;
-use xen::hypercall::hypercall4;
 
 macro_rules! div_up {
     ($x:expr, $y:expr) => {
         ($x - 1) / $y + 1 + (if $x % $y == 0 { 1 } else { 0 })
     }
 }
-
-#[repr(C)]
-struct MmuUpdate {
-    ptr: page::Maddr,
-    val: TableEntry,
-}
-
-impl Copy for MmuUpdate {}
-impl Clone for MmuUpdate {
-    fn clone(&self) -> MmuUpdate {
-        *self
-    }
-}
-
-impl MmuUpdate {
-    const fn null() -> MmuUpdate {
-        MmuUpdate {
-            ptr: 0,
-            val: 0,
-        }
-    }
-
-    const fn new(ptr: page::Maddr, val: TableEntry) -> MmuUpdate {
-        MmuUpdate {
-            ptr: ptr,
-            val: val,
-        }
-    }
-}
-
-const MAX_UPDATES: u32 = 100;
-
-const DOMID_SELF: u16 = 0x7FF0;
+const MAX_UPDATES: usize = 100;
 
 /// Helper that creates an identity mapping between physical memory and virtual
 /// memory.
@@ -61,7 +30,7 @@ pub struct IdentityMapper {
     admin_pfn_pool: page::Pfn,
     reg_pfn_pool: page::Pfn,
     updates: [MmuUpdate; 100],
-    nr_update: u32,
+    nr_update: usize,
     pub area_start: page::Vaddr,
     pub area_end: page::Vaddr,
 }
@@ -114,7 +83,8 @@ impl IdentityMapper {
     // table) if this page is mapped somewhere as writable or if it has
     // some non valid entries. This is why we first zero the page, then
     // map it as read only
-    fn add_admin_page(&mut self, table: *const TableEntry, offset: usize) {
+    unsafe fn add_admin_page(&mut self, table: *const TableEntry,
+                             offset: usize) {
         let new_entry_pfn = self.admin_pfn_pool;
         let new_entry_mfn = page::pfn_to_mfn(new_entry_pfn);
         let new_entry_vaddr = page::pfn_to_vaddr(new_entry_pfn);
@@ -122,17 +92,16 @@ impl IdentityMapper {
 
         // We map this new page in our virtual address space so that we
         // can clear it
-        super::update_va_mapping(new_entry_vaddr, new_entry_pte,
-                                 super::MapFlags::InvlpgLocal);
+        update_va_mapping(new_entry_vaddr, new_entry_pte,
+                          MapFlags::InvlpgLocal);
 
         // Clear the page before mapping it
-        unsafe { memset(new_entry_vaddr as *mut u8, 0, PAGE_SIZE); }
+        memset(new_entry_vaddr as *mut u8, 0, PAGE_SIZE);
 
         // We remap it as read only
-        super::update_va_mapping(new_entry_vaddr,
-                                 ((new_entry_mfn as page::Maddr) << PAGE_SHIFT) |
-                                 PAGE_PRESENT,
-                                 super::MapFlags::InvlpgLocal);
+        update_va_mapping(new_entry_vaddr,
+                          ((new_entry_mfn as page::Maddr) << PAGE_SHIFT) |
+                          PAGE_PRESENT, MapFlags::InvlpgLocal);
 
         let table_mfn = page::vaddr_to_mfn(table as page::Vaddr);
         let mut table_mach : page::Maddr;
@@ -146,7 +115,7 @@ impl IdentityMapper {
         self.admin_pfn_pool += 1;
     }
 
-    fn add_mmu_update(&mut self, ptr: page::Maddr, val: TableEntry,
+    unsafe fn add_mmu_update(&mut self, ptr: page::Maddr, val: TableEntry,
                       force_update: bool) {
         self.updates[self.nr_update as usize] = MmuUpdate::new(ptr, val);
 
@@ -157,7 +126,7 @@ impl IdentityMapper {
         }
     }
 
-    fn flush_updates(&mut self) {
+    unsafe fn flush_updates(&mut self) {
         if self.nr_update == 0 {
             return;
         }
@@ -165,9 +134,7 @@ impl IdentityMapper {
         let updates_ptr = &self.updates[0] as *const MmuUpdate;
         let ret: i32;
 
-        ret = hypercall4(HyperCalls::MmuUpdate, updates_ptr as Ulong,
-                         self.nr_update as Ulong, 0,
-                         DOMID_SELF as Ulong) as i32;
+        ret = mmu_update(updates_ptr, self.nr_update, ptr::null_mut());
 
         if ret < 0 {
             panic!("Mmu update failed with err = {}", ret);
