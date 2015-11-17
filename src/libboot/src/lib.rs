@@ -43,8 +43,7 @@ pub extern "C" fn uni_rust_entry() -> ! {
 
     uni::console::console().flush();
 
-    // xen::sched::poweroff(app_ret as xen::defs::Ulong);
+    xen::sched::poweroff(app_ret as xen::defs::Ulong);
 
     panic!("Failed to poweroff the machine !");
 }
-
