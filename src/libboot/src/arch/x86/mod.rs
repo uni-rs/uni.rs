@@ -8,6 +8,7 @@ use xen::defs::{Ulong, StartInfo, SharedInfo, ConsoleInterface};
 #[macro_use]
 mod page;
 mod mapper;
+mod traps;
 
 pub mod defs;
 
