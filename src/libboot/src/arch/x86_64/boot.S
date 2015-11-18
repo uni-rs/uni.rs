@@ -1,3 +1,5 @@
+#define ENTRY(X) .globl X ; X :
+
 .section __xen_guest
     .ascii "GUEST_OS=Uni.rs-x86_64"
     .ascii ",XEN_VER=xen-3.0"
@@ -10,9 +12,9 @@
 .section .boot
 
 .extern rust_stack
-.global _start, shared_info, start_info, hypercall_page
+.global shared_info, start_info, hypercall_page
 
-_start:
+ENTRY(_start)
     cld
     movq _stack(%rip), %rsp
     movq %rsi, start_info(%rip)
