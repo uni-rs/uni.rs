@@ -17,11 +17,6 @@ extern {
     pub static start_info: *const StartInfo;
 }
 
-// XXX: Move somewhere else (libxen)
-extern {
-    pub static _shared_info: SharedInfo;
-}
-
 pub fn init() {
     unsafe {
         let console_vaddr: self::page::Vaddr;
@@ -59,7 +54,7 @@ pub unsafe fn init_memory() -> (usize, usize) {
 
 unsafe fn map_shared_info() {
     let shared_info_pte = pte!((*start_info).shared_info);
-    let shared_info_ptr: *const SharedInfo = &_shared_info;
+    let shared_info_ptr: *const SharedInfo = &xen::shared_info;
 
     // Map shared info
     xen::memory::update_va_mapping(shared_info_ptr as Ulong, shared_info_pte,
