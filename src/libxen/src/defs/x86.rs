@@ -36,3 +36,24 @@ pub struct ArchSharedInfo {
     pub pfn_to_mfn_frame_list_list: Ulong,
     pub nmi_reason: Ulong,
 }
+
+/// struct trap_info
+#[repr(C)]
+pub struct TrapInfo {
+    pub vector: u8,
+    pub flags: u8,
+    pub cs: u16,
+    pub address: unsafe extern "C" fn() -> (),
+}
+
+impl TrapInfo {
+    pub const fn new(vector: u8, flags: u8, cs: u16,
+                     address: unsafe extern "C" fn() -> ()) -> Self {
+        TrapInfo {
+            vector: vector,
+            flags: flags,
+            cs: cs,
+            address: address,
+        }
+    }
+}
