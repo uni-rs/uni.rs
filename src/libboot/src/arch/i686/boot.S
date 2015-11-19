@@ -42,3 +42,98 @@ shared_info:
 
 hypercall_page:
     .org 0x3000
+
+.macro SAVE_REGS
+    pushal
+.endm
+
+.macro RESTORE_REGS
+    popal
+    // Remove callback pointer + error code
+    add $8, %esp
+.endm
+
+.macro error_code callback
+    push \callback
+    jmp traps_entry
+.endm
+
+.macro no_error_code callback
+    pushl $0
+    error_code \callback
+.endm
+
+traps_entry:
+    SAVE_REGS
+
+    // Get the error code
+    mov 36(%esp), %ebx
+    // Get the function pointer to call
+    mov 32(%esp), %eax
+
+    // Second parameter: error code
+    push %ebx
+    // First parameter: saved registers pointer
+    push %esp
+
+    call *%eax
+    addl $8, %esp
+    RESTORE_REGS
+    iret
+
+ENTRY(division_error)
+    no_error_code $do_division_error
+
+ENTRY(debug)
+    no_error_code $do_debug
+
+ENTRY(nmi)
+    no_error_code $do_nmi
+
+ENTRY(breakpoint)
+    no_error_code $do_breakpoint
+
+ENTRY(overflow)
+    no_error_code $do_overflow
+
+ENTRY(bound)
+    no_error_code $do_bound
+
+ENTRY(invalid_opcode)
+    no_error_code $do_invalid_opcode
+
+ENTRY(device_not_available)
+    no_error_code $do_device_not_available
+
+ENTRY(double_fault)
+    error_code $do_double_fault
+
+ENTRY(coproc_seg_overrun)
+    no_error_code $do_coproc_seg_overrun
+
+ENTRY(invalid_tss)
+    error_code $do_invalid_tss
+
+ENTRY(seg_not_present)
+    error_code $do_seg_not_present
+
+ENTRY(stack_seg_fault)
+    error_code $do_stack_seg_fault
+
+ENTRY(gpf)
+    error_code $do_gpf
+
+ENTRY(page_fault)
+    error_code $do_page_fault
+
+ENTRY(fp_exception)
+    no_error_code $do_fp_exception
+
+ENTRY(align_check)
+    error_code $do_align_check
+
+ENTRY(machine_check)
+    no_error_code $do_machine_check
+
+ENTRY(simd_exception)
+    no_error_code $do_simd_exception
