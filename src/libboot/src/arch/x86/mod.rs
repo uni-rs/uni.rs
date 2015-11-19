@@ -8,8 +8,8 @@ use xen::defs::{Ulong, StartInfo, SharedInfo, ConsoleInterface};
 #[macro_use]
 mod page;
 mod mapper;
-mod traps;
 
+pub mod traps;
 pub mod defs;
 
 extern {
@@ -28,6 +28,8 @@ pub fn init() {
 
         uni::console::init(console_vaddr as *mut ConsoleInterface,
                            (*start_info).domu_console.evtchn);
+
+        self::traps::init();
     }
 }
 

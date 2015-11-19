@@ -1,4 +1,5 @@
 #![feature(no_std)]
+#![feature(const_fn)]
 #![no_std]
 #![no_builtins]
 
@@ -6,7 +7,7 @@
 extern crate uni;
 extern crate xen;
 
-mod arch;
+pub mod arch;
 
 pub mod libc;
 
