@@ -10,3 +10,32 @@ pub unsafe extern "C" fn memset(ptr: *mut u8, val: i32, num: usize) -> *mut u8 {
 
     ptr
 }
+
+#[no_mangle]
+pub unsafe extern fn memcpy(dest: *mut u8, src: *const u8,
+                            n: usize) -> *mut u8 {
+    let mut i = 0;
+
+    while i < n {
+        *dest.offset(i as isize) = *src.offset(i as isize);
+        i += 1;
+    }
+
+    dest
+}
+
+#[no_mangle]
+pub unsafe extern fn memmove(dest: *mut u8, src: *const u8,
+                             n: usize) -> *mut u8 {
+    if dest as *const u8 <= src {
+        return memcpy(dest, src, n);
+    }
+
+    let mut i = n;
+    while i != 0 {
+        i -= 1;
+        *dest.offset(i as isize) = *src.offset(i as isize);
+    }
+
+    dest
+}
