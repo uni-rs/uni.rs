@@ -1,6 +1,6 @@
 use heap::FirstFit;
 
-use os::lock::SpinLock;
+use spin::Mutex as SpinLock;
 
 static mut ALLOCATOR: SpinLock<Option<FirstFit>> = SpinLock::new(None);
 

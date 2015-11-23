@@ -3,6 +3,8 @@
 #![feature(lang_items)]
 #![no_std]
 
+extern crate spin;
+
 extern crate heap;
 extern crate xen;
 
@@ -12,6 +14,5 @@ extern crate std;
 #[macro_use]
 pub mod console;
 
-pub mod os;
 pub mod alloc;
 pub mod utils;

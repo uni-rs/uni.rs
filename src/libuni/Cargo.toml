@@ -8,11 +8,11 @@ authors = ["Baptiste Covolato"]
 name = "uni"
 crate-type = [ "lib" ]
 
-[dependencies.heap]
-path = "../libheap"
+[dependencies]
 
-[dependencies.xen]
-path = "../libxen"
+spin = "0.3.1"
+heap = { path = "../libheap" }
+xen = { path = "../libxen" }
 
 [[example]]
 name = "hello"
