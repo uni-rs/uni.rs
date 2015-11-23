@@ -5,14 +5,21 @@
 
 extern crate spin;
 
-extern crate heap;
 extern crate xen;
 
 #[cfg(test)]
 extern crate std;
 
+extern crate alloc_uni;
+
+pub mod alloc {
+    pub use alloc_uni;
+    pub unsafe fn init(region_start: usize, region_size: usize) {
+        alloc_uni::init(region_start, region_size);
+    }
+}
+
 #[macro_use]
 pub mod console;
 
-pub mod alloc;
 pub mod utils;

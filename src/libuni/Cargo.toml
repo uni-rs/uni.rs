@@ -11,7 +11,7 @@ crate-type = [ "lib" ]
 [dependencies]
 
 spin = "0.3.1"
-heap = { path = "../libheap" }
+alloc_uni = { path = "../liballoc_uni" }
 xen = { path = "../libxen" }
 
 [[example]]

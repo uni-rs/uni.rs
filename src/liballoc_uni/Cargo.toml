@@ -1,0 +1,14 @@
+[package]
+
+name = "alloc_uni"
+version = "0.0.1"
+authors = ["Baptiste Covolato"]
+
+[lib]
+name = "alloc_uni"
+crate-type = [ "lib" ]
+
+[dependencies]
+
+spin = "0.3.1"
+heap = { path = "../libheap" }

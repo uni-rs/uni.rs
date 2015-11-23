@@ -35,7 +35,7 @@ pub trait Allocator {
     unsafe fn deallocate(&mut self, ptr: *mut u8, old_size: usize, align: usize);
 
     unsafe fn reallocate(&mut self, ptr: *mut u8, old_size: usize, size: usize,
-                  align: usize) -> *mut u8 {
+                         align: usize) -> *mut u8 {
         let new_ptr = self.allocate(size, align);
 
         if new_ptr.is_null() {
