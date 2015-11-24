@@ -69,8 +69,6 @@ hypercall_page:
     pop %rdx
     pop %rcx
     pop %rax
-    // Remove callback pointer + error code
-    addq $16, %rsp
 .endm
 
 .macro error_code callback
@@ -100,6 +98,9 @@ traps_entry:
 
     call *%rax
     RESTORE_REGS
+
+    // Remove callback pointer + error code
+    addq $16, %rsp
 
     // Null flags necessary for the hypercall
     pushq $0x0

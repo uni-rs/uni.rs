@@ -49,8 +49,6 @@ hypercall_page:
 
 .macro RESTORE_REGS
     popal
-    // Remove callback pointer + error code
-    add $8, %esp
 .endm
 
 .macro error_code callback
@@ -79,6 +77,9 @@ traps_entry:
     call *%eax
     addl $8, %esp
     RESTORE_REGS
+
+    // Remove callback pointer + error code
+    add $8, %esp
     iret
 
 ENTRY(division_error)
