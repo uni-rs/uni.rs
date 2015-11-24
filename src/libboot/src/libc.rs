@@ -26,15 +26,14 @@ pub unsafe extern fn memcpy(dest: *mut u8, src: *const u8,
 
 #[no_mangle]
 pub unsafe extern fn memmove(dest: *mut u8, src: *const u8,
-                             n: usize) -> *mut u8 {
+                             mut n: usize) -> *mut u8 {
     if dest as *const u8 <= src {
         return memcpy(dest, src, n);
     }
 
-    let mut i = n;
-    while i != 0 {
-        i -= 1;
-        *dest.offset(i as isize) = *src.offset(i as isize);
+    while n != 0 {
+        n -= 1;
+        *dest.offset(n as isize) = *src.offset(n as isize);
     }
 
     dest
