@@ -42,7 +42,7 @@ pub trait Allocator {
             return ptr::null_mut();
         }
 
-        ptr::copy(ptr, new_ptr, cmp::min(size, old_size));
+        ptr::copy(ptr as *const u8, new_ptr, cmp::min(size, old_size));
 
         self.deallocate(ptr, old_size, align);
 

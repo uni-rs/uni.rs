@@ -110,7 +110,9 @@ pub struct FirstFit {
 impl FirstFit {
     pub unsafe fn new(r_start: *mut u8, mut r_size: usize) -> Self {
         let mut alloc = FirstFit {
-            min_align: mem::size_of::<usize>(),
+            // The minimum size of a block is the size of 2 pointers in order
+            // to store the free list links when the block is free
+            min_align: mem::size_of::<FreeBlock>() - mem::size_of::<Header>(),
             free_blocks: UnsafeList::new(),
         };
 
@@ -300,7 +302,7 @@ impl Allocator for FirstFit {
                 match cursor.as_ref() {
                     None => break,
                     Some(node) => {
-                        if node.elem.size >= size {
+                        if node.elem.size() >= size {
                             break;
                         }
                     }
@@ -341,9 +343,10 @@ mod test {
 
     use core::mem::size_of;
     use core::ptr::null_mut;
+    use core::ptr::write_bytes;
 
     const HEAP_SIZE: usize = 4096;
-    const HEAP_ALIGN: usize = 8;
+    const HEAP_ALIGN: usize = 16;
 
     extern "C" {
         fn memalign(alignment: usize, size: usize) -> *mut u8;
@@ -393,7 +396,7 @@ mod test {
 
         // Be careful when calling this function because this test might fail
         // if the block that the allocator is gonna use cannot be splitted
-        assert_eq!((*hdr).size & !super::SIZE_MASK, real_size);
+        assert_eq!((*hdr).size(), real_size);
         assert!(!(*hdr).free);
 
         hdr
@@ -426,6 +429,27 @@ mod test {
             assert!(allocator.allocate(HEAP_SIZE - size_of::<Header>() -
                                        size_of::<Footer>() - 500, HEAP_ALIGN) !=
                     null_mut());
+
+            free(heap);
+        }
+    }
+
+    #[test]
+    fn test_realloc_first_fit() {
+        unsafe {
+            let (mut allocator, heap) = create_allocator(HEAP_SIZE);
+
+            let mut ptr = allocator.allocate(5, 1);
+
+            write_bytes(ptr, 33, 5);
+
+            ptr = allocator.reallocate(ptr, 5, 10, 1);
+
+            write_bytes(ptr, 34, 10);
+
+            ptr = allocator.reallocate(ptr, 10, 20, 1);
+
+            write_bytes(ptr, 35, 20);
 
             free(heap);
         }
