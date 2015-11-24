@@ -1,16 +1,21 @@
 #![feature(no_std)]
 #![feature(const_fn)]
 #![feature(lang_items)]
+#![feature(collections)]
 #![no_std]
 
-extern crate spin;
+#[macro_use]
+extern crate collections;
 
-extern crate xen;
+pub use collections::*;
 
 #[cfg(test)]
 extern crate std;
 
+extern crate spin;
 extern crate alloc_uni;
+
+extern crate xen;
 
 pub mod alloc {
     pub use alloc_uni;

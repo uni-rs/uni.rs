@@ -72,7 +72,7 @@ distclean: clean
 bin: runtime
 	$(RUSTC) $(RUSTC_FLAGS) $(BIN_PATH) -o $(BIN_OUTPUT)
 
-runtime: $(deps_dir) libcore libboot $(libboot_arch)
+runtime: $(deps_dir) libcore librustc_unicode liballoc libcollections libboot $(libboot_arch)
 
 $(libboot_arch): $(libboot_arch_obj)
 	ar csr $@ $^
@@ -81,6 +81,9 @@ libboot:
 	CARGO_TARGET_DIR=$(output_dir) $(CARGO) rustc $(CARGO_FLAGS) --manifest-path $(src)/libboot/Cargo.toml
 
 libcore: $(deps_dir)/libcore.rlib
+librustc_unicode: $(deps_dir)/librustc_unicode.rlib
+liballoc: $(deps_dir)/liballoc.rlib
+libcollections: $(deps_dir)/libcollections.rlib
 
 $(deps_dir):
 	mkdir -p $@
