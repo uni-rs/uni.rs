@@ -4,7 +4,7 @@
 #![feature(core_str_ext)]
 #![no_std]
 
-mod barrier;
+mod intrinsics;
 mod hypercall;
 
 pub mod defs;

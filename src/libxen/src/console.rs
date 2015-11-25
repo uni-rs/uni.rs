@@ -10,7 +10,7 @@ use defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
 use event::send;
 use sched::yield_cpu;
 
-use barrier::wmb;
+use intrinsics::wmb;
 
 pub struct Console {
     interface: *mut ConsoleInterface,
