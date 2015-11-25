@@ -3,6 +3,8 @@ use hypercall::HypercallKind;
 
 use defs::{Ulong, EvtchnPort};
 
+mod dispatcher;
+
 #[allow(dead_code)]
 enum EventOp {
     BindInterdomain = 0,
