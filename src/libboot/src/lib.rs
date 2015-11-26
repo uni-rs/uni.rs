@@ -7,8 +7,8 @@
 extern crate uni;
 extern crate xen;
 
+pub mod event;
 pub mod arch;
-
 pub mod libc;
 
 extern {
