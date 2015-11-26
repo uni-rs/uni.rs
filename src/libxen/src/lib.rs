@@ -19,5 +19,5 @@ pub mod arch;
 
 extern "C" {
     // This symbol must be present in code using libxen
-    pub static shared_info: self::defs::SharedInfo;
+    pub static mut shared_info: self::defs::SharedInfo;
 }
