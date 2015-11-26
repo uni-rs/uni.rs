@@ -44,3 +44,11 @@ pub fn disable_upcalls() -> u8 {
         ret
     }
 }
+
+pub fn set_upcalls_state(state: u8) {
+    unsafe {
+        self::intrinsics::wmb();
+        shared_info.vcpu_info[0].evtchn_upcall_mask = state;
+        self::intrinsics::wmb();
+    }
+}
