@@ -82,6 +82,16 @@ traps_entry:
     add $8, %esp
     iret
 
+ENTRY(hypervisor_callback)
+    no_error_code $do_hypervisor_callback
+
+ENTRY(failsafe_callback)
+    pop %ds
+    pop %es
+    pop %fs
+    pop %gs
+    iret
+
 ENTRY(division_error)
     no_error_code $do_division_error
 
