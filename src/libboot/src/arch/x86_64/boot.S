@@ -108,6 +108,14 @@ traps_entry:
     // HYPERCALL_IRET
     jmp hypercall_page + (23 * 32)
 
+ENTRY(hypervisor_callback)
+    no_error_code $do_hypervisor_callback
+
+ENTRY(failsafe_callback)
+    popq %rcx
+    popq %r11
+    iretq
+
 ENTRY(division_error)
     no_error_code $do_division_error
 
