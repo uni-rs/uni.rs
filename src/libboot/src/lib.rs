@@ -34,6 +34,8 @@ fn init() {
 
         uni::alloc::init(heap_start, heap_size);
     }
+
+    event::init();
 }
 
 #[no_mangle]
