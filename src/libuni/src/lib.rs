@@ -27,4 +27,5 @@ pub mod alloc {
 #[macro_use]
 pub mod console;
 
+pub mod sync;
 pub mod utils;
