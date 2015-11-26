@@ -3,8 +3,8 @@ use xen::defs::{ConsoleInterface, EvtchnPort};
 
 use core::fmt::{Arguments, write};
 
-use spin::Mutex as SpinLock;
-use spin::MutexGuard as SpinGuard;
+use sync::spin::SpinLock;
+use sync::spin::SpinGuard;
 
 static mut CONSOLE: Option<SpinLock<Console>> = None;
 
