@@ -16,6 +16,22 @@ mod x86 {
              : "volatile");
     }
 
+    pub fn first_bit(data: usize) -> usize {
+        unsafe {
+            let ret;
+
+            asm!("bsf $0, $1\n\t\
+                 jnz 1f\n\t
+                 mov $$0, $0\n\t
+                 1:\n\t"
+                 : "=r" (ret)
+                 : "r" (data)
+                 :: "volatile");
+
+            ret
+        }
+    }
+
     pub fn wmb() {
         unsafe {
             asm!("sfence" ::: "memory" : "volatile");
@@ -53,5 +69,16 @@ mod x86 {
             assert_eq!(array[2], 0x0);
             assert_eq!(array[3], 0x0);
         }
+    }
+
+    #[test]
+    pub fn test_first_bit() {
+        assert_eq!(first_bit(0x0), 0);
+        assert_eq!(first_bit(0x1), 0);
+        assert_eq!(first_bit(0x2), 1);
+        assert_eq!(first_bit(0x3), 0);
+        assert_eq!(first_bit(0x8000), 15);
+        assert_eq!(first_bit(0xFF80), 7);
+        assert_eq!(first_bit(0x80000000), 31);
     }
 }
