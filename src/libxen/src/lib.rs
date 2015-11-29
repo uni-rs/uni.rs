@@ -2,6 +2,7 @@
 #![feature(no_std)]
 #![feature(const_fn)]
 #![feature(core_str_ext)]
+#![feature(core_intrinsics)]
 #![no_std]
 
 mod intrinsics;

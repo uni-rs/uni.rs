@@ -2,6 +2,8 @@
 pub use self::x86::*;
 
 mod x86 {
+    pub use core::intrinsics::atomic_xchg;
+
     pub unsafe fn atomic_set_bit<T>(nr: usize, addr: *mut T) {
         asm!("lock bts $1, $0"
              :: "=*m" (addr as *mut u32), "Ir" (nr)
