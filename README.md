@@ -27,7 +27,3 @@ directory (examples/hello), you would do something like this:
 `BIN_PATH=./examples/hello/main.rs BIN_OUTPUT=hello make bin`
 This will generate an hello binary in the current directory from the
 rust file named `examples/hello/main.rs`.
-
-## Dependencies
-
-- A multirust installation
