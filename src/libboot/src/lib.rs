@@ -36,6 +36,8 @@ fn init() {
     }
 
     event::init();
+
+    xen::enable_upcalls();
 }
 
 #[no_mangle]
@@ -47,6 +49,8 @@ pub extern "C" fn uni_rust_entry() -> ! {
     unsafe {
         app_ret = main(0, core::ptr::null());
     }
+
+    xen::disable_upcalls();
 
     uni::console::console().flush();
 
