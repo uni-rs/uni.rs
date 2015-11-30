@@ -1,5 +1,6 @@
 // TODO: Rethink this in an architecture independent fashion in due time
 
+use xen::event::dispatcher;
 use xen::arch::x86::callbacks::set_callbacks;
 
 extern "C" {
@@ -31,6 +32,8 @@ pub unsafe extern "C" fn do_hypervisor_callback() {
 
 pub fn init() {
     init_callbacks();
+
+    dispatcher().mask_all();
 
     println!("Event subsystem initialized");
 }
