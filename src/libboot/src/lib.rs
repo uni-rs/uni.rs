@@ -37,6 +37,10 @@ fn init() {
 
     event::init();
 
+    unsafe {
+        uni::console::console().init_input();
+    }
+
     xen::enable_upcalls();
 }
 

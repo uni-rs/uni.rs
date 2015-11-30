@@ -7,6 +7,7 @@ use core::mem::size_of;
 
 use defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
 
+use event::dispatcher;
 use event::send;
 use sched::yield_cpu;
 
@@ -18,12 +19,31 @@ pub struct Console {
 }
 
 impl Console {
+    pub fn console_callback(port: EvtchnPort, data: *mut u8) {
+        let console = unsafe { &mut *(data as *mut Console) };
+        let cons = console.in_cons;
+        let prod = console.in_prod;
+
+        if prod - cons > 0 {
+            unimplemented!();
+        }
+
+        send(port);
+    }
+
     pub unsafe fn new(interface: *mut ConsoleInterface,
                       port: EvtchnPort) -> Self {
         Console {
             interface: interface,
             port: port,
         }
+    }
+
+    pub unsafe fn init_input(&mut self) {
+        dispatcher().bind_port(self.port, Console::console_callback,
+                               self as *mut Self as *mut u8);
+        dispatcher().unmask_event(self.port);
+        send(self.port);
     }
 
     fn is_output_full(&self) -> bool {
