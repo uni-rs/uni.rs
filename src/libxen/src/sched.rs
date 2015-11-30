@@ -39,6 +39,10 @@ pub fn yield_cpu() -> i32 {
     sched_op(SchedOp::Yield, 0)
 }
 
+pub fn block() -> i32 {
+    sched_op(SchedOp::Block, 0)
+}
+
 fn shutdown(reason: ShutdownReason) -> i32 {
     let r = SchedShutdown {
         reason: reason as u32,
