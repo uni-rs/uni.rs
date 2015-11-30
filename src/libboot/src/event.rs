@@ -27,7 +27,7 @@ fn init_callbacks() {
 
 #[no_mangle]
 pub unsafe extern "C" fn do_hypervisor_callback() {
-    panic!("Hypercall callback");
+    dispatcher().serve_event();
 }
 
 pub fn init() {
