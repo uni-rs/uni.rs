@@ -62,6 +62,8 @@ hypercall_page:
 .endm
 
 traps_entry:
+    cld
+
     SAVE_REGS
 
     // Get the error code
@@ -82,8 +84,84 @@ traps_entry:
     add $8, %esp
     iret
 
+// This code was taken from Xen-minios
 ENTRY(hypervisor_callback)
-    no_error_code $do_hypervisor_callback
+    cld
+    pushl %eax
+    pushl %ebp
+    pushl %edi
+    pushl %esi
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
+    movl 28(%esp), %eax # 28 = EIP
+    cmpl $scrit, %eax
+    jb 11f
+    cmpl $ecrit, %eax
+    jb critical_region_fixup
+
+11:
+    push %esp
+    xorl %ebp, %ebp
+    call do_hypervisor_callback
+    add  $4, %esp
+    movl shared_info, %esi
+    xorl %eax, %eax
+    movb $0, 1(%esi)
+
+scrit:
+    testb $0xFF, (%esi)
+    jnz 14f
+    pop %ebx
+    pop %ecx
+    pop %edx
+    pop %esi
+    pop %edi
+    pop %ebp
+    pop %eax
+    iret
+
+14:
+    movb $1, 1(%esi)
+    jmp 11b
+ecrit:
+
+critical_region_fixup:
+    addl $critical_fixup_table-scrit, %eax
+    movzbl (%eax), %eax
+    mov %esp, %esi
+    add %eax, %esi
+    mov %esp, %edi
+    add $0x34 ,%edi
+    mov %eax, %ecx
+    shr $2, %ecx
+    je 16f
+
+15:
+    subl $4, %esi
+    subl $4, %edi
+    movl (%esi), %eax
+    movl %eax, (%edi)
+    loop 15b
+
+16:
+    movl %edi, %esp
+    jmp 11b
+
+critical_fixup_table:
+    .byte 0x00,0x00,0x00                  # testb $0xff,(%esi)
+    .byte 0x00,0x00                       # jne  14f
+    .byte 0x00                            # pop  %ebx
+    .byte 0x04                            # pop  %ecx
+    .byte 0x08                            # pop  %edx
+    .byte 0x0c                            # pop  %esi
+    .byte 0x10                            # pop  %edi
+    .byte 0x14                            # pop  %ebp
+    .byte 0x18                            # pop  %eax
+    .byte 0x1C,0x1C,0x1C                  # add  $4,%esp
+    .byte 0x20                            # iret
+    .byte 0x00,0x00,0x00,0x00             # movb $1,1(%esi)
+    .byte 0x00,0x00                       # jmp  11b
 
 ENTRY(failsafe_callback)
     pop %ds
