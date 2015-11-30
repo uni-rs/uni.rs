@@ -1,0 +1,15 @@
+language: rust
+rust:
+    - nightly
+
+sudo: false
+
+env:
+    - arch=x86_64
+    - arch=i686 ASFLAGS='-m32'
+
+os:
+    - linux
+
+script:
+    - make bin
