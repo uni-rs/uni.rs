@@ -5,6 +5,16 @@ use defs::{Ulong, EvtchnPort};
 
 mod dispatcher;
 
+pub use self::dispatcher::Dispatcher;
+
+static mut DISPATCHER: Dispatcher = Dispatcher::new();
+
+pub fn dispatcher<'a>() -> &'a mut Dispatcher {
+    unsafe {
+        &mut DISPATCHER
+    }
+}
+
 #[allow(dead_code)]
 enum EventOp {
     BindInterdomain = 0,
