@@ -22,7 +22,7 @@ mod x86 {
         unsafe {
             let ret;
 
-            asm!("bsf $0, $1\n\t\
+            asm!("bsf $1, $0\n\t\
                  jnz 1f\n\t
                  mov $$0, $0\n\t
                  1:\n\t"
