@@ -24,9 +24,18 @@ pub type Pfn = Ulong;
 
 /// struct arch_vcpu_info
 #[repr(C)]
+#[cfg(target_arch = "x86")]
 pub struct ArchVcpuInfo {
     pub cr2: Ulong,
     pub pad: [Ulong; 5],
+}
+
+/// struct arch_vcpu_info
+#[repr(C)]
+#[cfg(target_arch = "x86_64")]
+pub struct ArchVcpuInfo {
+    pub cr2: Ulong,
+    pub pad: Ulong,
 }
 
 /// struct arch_shared_info
