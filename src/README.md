@@ -2,7 +2,11 @@
 
 The code of the unikernel is separated in different crates/libraries.
 
+- rust-libs: Rust internal libraries
+- deps: External dependencies
+
 - libheap: Crate that contains implementation of different allocators.
+- liballoc_uni: Wrapper that provides an allocator to Uni.rs
 - libxen: Crate that contains helpers and algorithms that ease development
 on the xen platform
 - libuni: Main crate that exports all Uni.rs's API.
