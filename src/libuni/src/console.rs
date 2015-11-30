@@ -3,10 +3,10 @@ use xen::defs::{ConsoleInterface, EvtchnPort};
 
 use core::fmt::{Arguments, write};
 
-use sync::spin::SpinLock;
-use sync::spin::SpinGuard;
+use sync::spin::InterruptSpinLock;
+use sync::spin::InterruptSpinGuard;
 
-static mut CONSOLE: Option<SpinLock<Console>> = None;
+static mut CONSOLE: Option<InterruptSpinLock<Console>> = None;
 
 #[macro_export]
 macro_rules! println {
@@ -34,10 +34,10 @@ pub fn _print(fmt: Arguments) {
 }
 
 pub unsafe fn init(interface: *mut ConsoleInterface, port: EvtchnPort) {
-    CONSOLE = Some(SpinLock::new(Console::new(interface, port)));
+    CONSOLE = Some(InterruptSpinLock::new(Console::new(interface, port)));
 }
 
-pub fn console<'a>() -> SpinGuard<'a, Console> {
+pub fn console<'a>() -> InterruptSpinGuard<'a, Console> {
     unsafe {
         CONSOLE.as_mut().expect("Console used before being initialized").lock()
     }
