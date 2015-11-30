@@ -5,8 +5,6 @@ cargo_target ?= $(arch)-unknown-uni
 root = $(PWD)
 src = $(root)/src
 
-deps_dir := $(shell multirust which rustc | \
-			  sed s,bin/rustc,lib/rustlib/$(target)/lib,)
 output_dir = $(root)/target
 
 libuni = $(output_dir)/$(cargo_target)/release/libuni.rlib
@@ -31,7 +29,6 @@ RUSTC_FLAGS = --verbose --target $(target) --crate-type bin \
 			  -L $(output_dir)/$(cargo_target)/release/deps \
 			  -C link-args='$(LDFLAGS)' -l static=boot_arch
 
-RUSTC_DEPS_FLAGS = --verbose --target $(target) -O --out-dir $(deps_dir)
 CARGO_FLAGS = --verbose --target $(target) --release
 
 .PHONY: $(BIN_OBJ)
@@ -77,21 +74,10 @@ test:
 bin: runtime
 	$(RUSTC) $(RUSTC_FLAGS) $(BIN_PATH) -o $(BIN_OUTPUT)
 
-runtime: $(deps_dir) libcore librustc_unicode liballoc libcollections libboot $(libboot_arch)
+runtime: libboot $(libboot_arch)
 
 $(libboot_arch): $(libboot_arch_obj)
 	ar csr $@ $^
 
 libboot:
 	CARGO_TARGET_DIR=$(output_dir) $(CARGO) rustc $(CARGO_FLAGS) --manifest-path $(src)/libboot/Cargo.toml
-
-libcore: $(deps_dir)/libcore.rlib
-librustc_unicode: $(deps_dir)/librustc_unicode.rlib
-liballoc: $(deps_dir)/liballoc.rlib
-libcollections: $(deps_dir)/libcollections.rlib
-
-$(deps_dir):
-	mkdir -p $@
-
-$(deps_dir)/%.rlib: $(root)/rust/src/%/lib.rs
-	$(RUSTC) $(RUSTC_DEPS_FLAGS) $<

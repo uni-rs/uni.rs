@@ -8,8 +8,8 @@ authors = ["Baptiste Covolato"]
 name = "boot"
 crate-type = [ "lib" ]
 
-[dependencies.uni]
-path = "../libuni"
+[dependencies]
 
-[dependencies.xen]
-path = "../libxen"
+core = { path = "../rust-libs/core" }
+uni = { path = "../libuni" }
+xen = { path = "../libxen" }

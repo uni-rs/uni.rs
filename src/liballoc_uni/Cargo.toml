@@ -10,5 +10,6 @@ crate-type = [ "lib" ]
 
 [dependencies]
 
-spin = "0.3.1"
+core = { path = "../rust-libs/core" }
+spin = { path = "../deps/spinlock-rs" }
 heap = { path = "../libheap" }

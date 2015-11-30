@@ -1,0 +1,10 @@
+[package]
+name = "collections"
+version = "0.0.1"
+authors = ["Baptiste Covolato"]
+
+[dependencies]
+
+core = { path = "../core" }
+rustc_unicode = { path = "../rustc_unicode" }
+alloc = { path = "../alloc" }

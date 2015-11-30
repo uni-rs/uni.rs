@@ -1,11 +1,8 @@
 [package]
-
-name = "heap"
+name = "rustc_unicode"
 version = "0.0.1"
 authors = ["Baptiste Covolato"]
 
-[lib]
-name = "heap"
-
 [dependencies]
-core = { path = "../rust-libs/core" }
+
+core = { path = "../core" }

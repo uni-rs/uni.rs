@@ -7,3 +7,6 @@ authors = ["Baptiste Covolato"]
 [lib]
 name = "xen"
 crate-type = [ "lib" ]
+
+[dependencies]
+core = { path = "../rust-libs/core" }
