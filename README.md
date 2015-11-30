@@ -1,4 +1,4 @@
-# Uni.rs [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+# Uni.rs [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) [![Build Status](https://travis-ci.org/uni-rs/uni.rs.svg)](https://travis-ci.org/uni-rs/uni.rs)
 
 Uni.rs is an experimental [unikernel](https://en.wikipedia.org/wiki/Unikernel)
 written in rust.
