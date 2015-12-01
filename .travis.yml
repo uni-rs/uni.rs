@@ -13,3 +13,6 @@ os:
 
 script:
     - make bin
+
+    # Only test for x86_64 because i686 runtime libraries are missing
+    - if [ $arch = "x86_64" ]; then make test; fi
