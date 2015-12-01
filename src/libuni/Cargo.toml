@@ -14,7 +14,7 @@ core = { path = "../rust-libs/core" }
 collections = { path = "../rust-libs/collections" }
 spin = { path = "../deps/spinlock-rs" }
 alloc_uni = { path = "../liballoc_uni" }
-xen = { path = "../libxen" }
+xen = { path = "../libxen", features = [ "with-core" ] }
 
 [[example]]
 name = "hello"

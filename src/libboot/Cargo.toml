@@ -11,5 +11,5 @@ crate-type = [ "lib" ]
 [dependencies]
 
 core = { path = "../rust-libs/core" }
+xen = { path = "../libxen", features = [ "with-core" ] }
 uni = { path = "../libuni" }
-xen = { path = "../libxen" }

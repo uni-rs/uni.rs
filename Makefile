@@ -1,6 +1,7 @@
 arch ?= x86_64
 target ?= $(arch)-unknown-uni.json
 cargo_target ?= $(arch)-unknown-uni
+test_target ?= $(arch)-unknown-linux-gnu
 
 root = $(PWD)
 src = $(root)/src
@@ -68,8 +69,8 @@ distclean: clean
 	rm -rf $(BIN_OUTPUT)
 
 test:
-	$(CARGO) test --manifest-path $(src)/libheap/Cargo.toml
-	$(CARGO) test --manifest-path $(src)/libxen/Cargo.toml
+	$(CARGO) test --target $(test_target) --verbose --manifest-path $(src)/libheap/Cargo.toml
+	$(CARGO) test --target $(test_target) --verbose --manifest-path $(src)/libxen/Cargo.toml
 
 bin: runtime
 	$(RUSTC) $(RUSTC_FLAGS) $(BIN_PATH) -o $(BIN_OUTPUT)

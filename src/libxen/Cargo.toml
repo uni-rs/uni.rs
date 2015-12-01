@@ -8,5 +8,10 @@ authors = ["Baptiste Covolato"]
 name = "xen"
 crate-type = [ "lib" ]
 
+[features]
+
+with-core = [ "core" ]
+
 [dependencies]
-core = { path = "../rust-libs/core" }
+
+core = { path = "../rust-libs/core", optional = true }
