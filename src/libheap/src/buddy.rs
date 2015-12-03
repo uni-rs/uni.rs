@@ -9,6 +9,7 @@ use Allocator;
 use types::{UnsafeList, Link, PhantomNode};
 
 pub type FreeBlock = PhantomNode;
+pub type FreeList = UnsafeList<FreeBlock>;
 
 #[allow(dead_code)]
 pub struct Buddy<'a> {
@@ -16,13 +17,13 @@ pub struct Buddy<'a> {
     min_block_order: u32,
     max_order: u32,
     heap_base: *mut u8,
-    free_lists: &'a mut [UnsafeList<FreeBlock>],
+    free_lists: &'a mut [FreeList]
 }
 
 impl<'a> Buddy<'a> {
     pub unsafe fn new(mut r_start: usize, r_size: usize, min_block_size: usize,
                       max_order: u32,
-                      free_lists: &'a mut [UnsafeList<FreeBlock>]) -> Self {
+                      free_lists: &'a mut [FreeList]) -> Self {
         let max_block_size = min_block_size * 2usize.pow(max_order);
         let r_limit = r_start + r_size;
 
@@ -206,9 +207,7 @@ mod test {
 
     use Allocator;
 
-    use super::{Buddy, FreeBlock};
-
-    use types::UnsafeList;
+    use super::{Buddy, FreeList};
 
     const HEAP_ALIGN: usize = 4096;
     const HEAP_SIZE: usize = 4096;
@@ -216,8 +215,6 @@ mod test {
     // HEAP_ORDER = 5 & MIN_BLOCK_SIZE = 32 => max alloc 1024
     const HEAP_ORDER: u32 = 5;
     const MIN_BLOCK_SIZE: usize = 32;
-
-    type FreeList = UnsafeList<FreeBlock>;
 
     extern "C" {
         fn memalign(alignment: usize, size: usize) -> *mut u8;

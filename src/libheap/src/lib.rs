@@ -28,7 +28,7 @@ macro_rules! align_up {
 mod types;
 
 mod fit;
-mod buddy;
+pub mod buddy;
 
 pub use fit::FirstFit;
 pub use buddy::Buddy;
