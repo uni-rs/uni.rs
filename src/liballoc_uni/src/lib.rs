@@ -1,4 +1,4 @@
-//! Integration crate to use heap::FirstFit as Uni.rs allocator
+//! Integration crate to use heap::Buddy as Uni.rs allocator
 
 #![feature(no_std)]
 #![feature(allocator)]
@@ -10,16 +10,45 @@
 extern crate heap;
 extern crate spin;
 
-use heap::{Allocator, FirstFit};
+use heap::{Allocator, Buddy};
+use heap::buddy::FreeList;
 
 use spin::Mutex as SpinLock;
 
-static mut ALLOCATOR: SpinLock<Option<FirstFit>> = SpinLock::new(None);
+static mut ALLOCATOR: SpinLock<Option<Buddy<'static>>> = SpinLock::new(None);
+
+const MIN_BLOCK_SIZE: usize = 16;
+
+// 1MB
+const MAX_ORDER: u32 = 16;
+
+// XXX: Not pretty
+static mut FREE_LISTS: [FreeList; (MAX_ORDER + 1) as usize] =
+[
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new(),
+    FreeList::new()
+];
 
 pub unsafe fn init(region_start: usize, region_size: usize) {
     let mut guard = ALLOCATOR.lock();
 
-    *guard = Some(FirstFit::new(region_start as *mut u8, region_size));
+    *guard = Some(Buddy::new(region_start, region_size, MIN_BLOCK_SIZE,
+                             MAX_ORDER, &mut FREE_LISTS[..]));
 }
 
 #[no_mangle]
