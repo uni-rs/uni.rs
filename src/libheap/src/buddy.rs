@@ -1,6 +1,7 @@
 //! An implementation of a buddy allocator.
 
 use core::ptr;
+use core::mem;
 
 use Allocator;
 
@@ -15,6 +16,29 @@ pub struct Buddy<'a> {
     free_lists: &'a mut [UnsafeList<FreeBlock>],
 }
 
+impl<'a> Buddy<'a> {
+    #[allow(exceeding_bitshifts)]
+    pub fn next_power_of_two(mut num: usize) -> usize {
+        if num == 0 {
+            return 1;
+        }
+
+        num -= 1;
+
+        num |= num >> 1;
+        num |= num >> 2;
+        num |= num >> 4;
+        num |= num >> 8;
+        num |= num >> 16;
+
+        if mem::size_of::<usize>() == mem::size_of::<u64>() {
+            num |= num >> 32;
+        }
+
+        num + 1
+    }
+}
+
 impl<'a> Allocator for Buddy<'a> {
     unsafe fn allocate(&mut self, mut _size: usize, _align: usize) -> *mut u8 {
         ptr::null_mut()
@@ -23,5 +47,19 @@ impl<'a> Allocator for Buddy<'a> {
     unsafe fn deallocate(&mut self, _ptr: *mut u8, _old_size: usize,
                          _align: usize) {
 
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::Buddy;
+
+    #[test]
+    fn test_buddy_next_power_of_two() {
+        assert_eq!(Buddy::next_power_of_two(0), 1);
+        assert_eq!(Buddy::next_power_of_two(2), 2);
+        assert_eq!(Buddy::next_power_of_two(3), 4);
+        assert_eq!(Buddy::next_power_of_two(5678), 8192);
+        assert_eq!(Buddy::next_power_of_two(8192), 8192);
     }
 }
