@@ -26,7 +26,7 @@ impl<'a> Buddy<'a> {
         let max_block_size = min_block_size * 2usize.pow(max_order);
         let r_limit = r_start + r_size;
 
-        assert!(min_block_size > ::core::mem::size_of::<FreeBlock>());
+        assert!(min_block_size >= ::core::mem::size_of::<FreeBlock>());
 
         let mut ret = Buddy {
             min_block_size: min_block_size,
