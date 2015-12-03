@@ -32,6 +32,19 @@ impl<T> UnsafeList<T> where T: Node<T> {
         self.head = elem;
     }
 
+    pub unsafe fn pop_front(&mut self) -> Link<T> {
+        if self.head == Link::none() {
+            return Link::none();
+        }
+
+        let ret = self.head.clone();
+        let head = self.head.clone();
+
+        self.pop(head);
+
+        ret
+    }
+
     pub unsafe fn pop(&mut self, mut elem: Link<T>) {
         if let Some(node) = elem.as_mut() {
             if let Some(prev) = node.prev_mut().as_mut() {
