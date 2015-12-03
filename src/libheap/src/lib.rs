@@ -1,5 +1,6 @@
 //! Implementation of various allocator algorithm:
 //! - First Fit
+//! - Buddy system
 
 #![feature(no_std)]
 #![feature(const_fn)]
