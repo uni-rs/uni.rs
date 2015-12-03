@@ -37,6 +37,22 @@ impl<'a> Buddy<'a> {
 
         num + 1
     }
+
+    pub fn log2(mut num: usize) -> usize {
+        let mut res = 0;
+
+        loop {
+            num >>= 1;
+
+            if num == 0 {
+                break;
+            }
+
+            res += 1;
+        }
+
+        res
+    }
 }
 
 impl<'a> Allocator for Buddy<'a> {
@@ -61,5 +77,16 @@ mod test {
         assert_eq!(Buddy::next_power_of_two(3), 4);
         assert_eq!(Buddy::next_power_of_two(5678), 8192);
         assert_eq!(Buddy::next_power_of_two(8192), 8192);
+    }
+
+    #[test]
+    fn test_buddy_log2() {
+        assert_eq!(Buddy::log2(0), 0);
+        assert_eq!(Buddy::log2(1), 0);
+        assert_eq!(Buddy::log2(2), 1);
+        assert_eq!(Buddy::log2(4), 2);
+        assert_eq!(Buddy::log2(8), 3);
+        assert_eq!(Buddy::log2(16), 4);
+        assert_eq!(Buddy::log2(0x87654321), 31);
     }
 }
