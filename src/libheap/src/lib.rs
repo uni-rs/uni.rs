@@ -30,6 +30,7 @@ mod fit;
 mod buddy;
 
 pub use fit::FirstFit;
+pub use buddy::Buddy;
 
 /// Trait implemented by every allocator
 pub trait Allocator {
