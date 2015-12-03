@@ -2,6 +2,7 @@
 //! - First Fit
 
 #![feature(no_std)]
+#![feature(const_fn)]
 #![feature(ptr_as_ref)]
 
 #![no_std]
@@ -23,9 +24,9 @@ macro_rules! align_up {
     }
 }
 
-mod fit;
-
 mod types;
+
+mod fit;
 
 pub use fit::FirstFit;
 

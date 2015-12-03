@@ -17,7 +17,7 @@ use core::cmp;
 
 use super::Allocator;
 
-use super::types::{UnsafeList, Node, Link};
+use super::types::{UnsafeList, DataNode, Link};
 
 const PREVIOUS_BIT: usize = 1;
 const NEXT_BIT: usize = 2;
@@ -100,11 +100,11 @@ struct Footer {
 
 /// A free block is linked with other free block. The extra space used does not
 /// matter because the block is free.
-type FreeBlock = Node<Header>;
+type FreeBlock = DataNode<Header>;
 
 pub struct FirstFit {
     min_align: usize,
-    free_blocks: UnsafeList<Header>,
+    free_blocks: UnsafeList<FreeBlock>,
 }
 
 impl FirstFit {
@@ -168,8 +168,8 @@ impl FirstFit {
                    self.min_align;
 
         // The block is not large enough to be splitted
-        if blk.elem.size() < min_size {
-            blk.elem.free = false;
+        if blk.data().size() < min_size {
+            blk.data_mut().free = false;
 
             return res
         }
@@ -178,17 +178,17 @@ impl FirstFit {
             // Craft the free block (b2)
             let free_offset = size + mem::size_of::<Header>() +
                               mem::size_of::<Footer>();
-            let free_size = blk.elem.size() - free_offset;
+            let free_size = blk.data().size() - free_offset;
             let free_blk_ptr = blk_ptr.offset(free_offset as isize);
 
             let mut free_blk = FirstFit::create_block(free_blk_ptr, free_size, true);
             let free_blk_mut = free_blk.as_mut().unwrap();
 
             // Previous block is b1
-            free_blk_mut.elem.set_prev();
+            free_blk_mut.data_mut().set_prev();
 
-            if blk.elem.has_next() {
-                free_blk_mut.elem.set_next();
+            if blk.data().has_next() {
+                free_blk_mut.data_mut().set_next();
             }
 
             self.free_blocks.push_front(free_blk);
@@ -199,16 +199,16 @@ impl FirstFit {
             // We just need to craft it, it is not added in any list. Useful
             // information will be retrieved from the header when the block
             // is freed
-            let has_prev = blk.elem.has_prev();
+            let has_prev = blk.data_mut().has_prev();
 
             FirstFit::create_block(blk_ptr, size, false);
 
             if has_prev {
-                blk.elem.set_prev();
+                blk.data_mut().set_prev();
             }
 
             // Next block is b2
-            blk.elem.set_next();
+            blk.data_mut().set_next();
         }
 
         res
@@ -302,7 +302,7 @@ impl Allocator for FirstFit {
                 match cursor.as_ref() {
                     None => break,
                     Some(node) => {
-                        if node.elem.size() >= size {
+                        if node.data().size() >= size {
                             break;
                         }
                     }
@@ -341,6 +341,8 @@ mod test {
     use super::{Header, Footer, FreeBlock};
     use super::super::Allocator;
 
+    use types::Node;
+
     use core::mem::size_of;
     use core::ptr::null_mut;
     use core::ptr::write_bytes;
@@ -362,12 +364,12 @@ mod test {
         // Verify the init block
         let init_block = (heap as *const FreeBlock).as_ref().unwrap();
 
-        assert!(init_block.elem.free);
-        assert!(!init_block.elem.has_next());
-        assert!(!init_block.elem.has_prev());
-        assert!(init_block.next.is_null());
-        assert!(init_block.prev.is_null());
-        assert_eq!(init_block.elem.size, actual_size);
+        assert!(init_block.data().free);
+        assert!(!init_block.data().has_next());
+        assert!(!init_block.data().has_prev());
+        assert!(init_block.next().is_null());
+        assert!(init_block.prev().is_null());
+        assert_eq!(init_block.data().size, actual_size);
 
         (allocator, heap)
     }
