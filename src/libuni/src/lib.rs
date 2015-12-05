@@ -13,6 +13,7 @@ pub use collections::*;
 extern crate std;
 
 extern crate spin;
+extern crate intrusive;
 extern crate alloc_uni;
 
 extern crate xen;

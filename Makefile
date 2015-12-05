@@ -70,6 +70,7 @@ distclean: clean
 
 test:
 	$(CARGO) test --target $(test_target) --verbose --manifest-path $(src)/libheap/Cargo.toml
+	$(CARGO) test --target $(test_target) --verbose --manifest-path $(src)/libintrusive/Cargo.toml
 	$(CARGO) test --target $(test_target) --verbose --manifest-path $(src)/libxen/Cargo.toml
 
 bin: runtime

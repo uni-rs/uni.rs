@@ -7,6 +7,7 @@ The code of the unikernel is separated in different crates/libraries.
 
 - libheap: Crate that contains implementation of different allocators.
 - liballoc_uni: Wrapper that provides an allocator to Uni.rs
+- libintrusive: Implementation of various intrusive containers
 - libxen: Crate that contains helpers and algorithms that ease development
 on the xen platform
 - libuni: Main crate that exports all Uni.rs's API.

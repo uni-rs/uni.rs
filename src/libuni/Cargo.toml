@@ -12,6 +12,7 @@ crate-type = [ "lib" ]
 
 core = { path = "../rust-libs/core" }
 collections = { path = "../rust-libs/collections" }
+intrusive = { path = "../libintrusive", features = [ "with-core" ] }
 spin = { path = "../deps/spinlock-rs" }
 alloc_uni = { path = "../liballoc_uni" }
 xen = { path = "../libxen", features = [ "with-core" ] }

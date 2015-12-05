@@ -1,0 +1,13 @@
+[package]
+
+name = "intrusive"
+version = "0.0.1"
+authors = ["Baptiste Covolato"]
+
+[features]
+
+with-core = [ "core" ]
+
+[dependencies]
+
+core = { path = "../rust-libs/core", optional = true }
