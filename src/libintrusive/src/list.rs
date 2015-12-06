@@ -53,7 +53,7 @@ impl<T, U> List<T, U> where T: Owner<U>, U: Node {
         self.tail.as_mut()
     }
 
-    pub fn is_empty(&mut self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.head == Link::none()
     }
 
