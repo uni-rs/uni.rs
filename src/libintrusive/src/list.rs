@@ -1,5 +1,6 @@
 //! Implementation of intrusive doubly linked list
 
+use core::ptr::Unique;
 use core::marker::PhantomData;
 
 use link::Link;
@@ -129,6 +130,25 @@ impl<T, U> List<T, U> where T: Owner<U>, U: Node {
     }
 }
 
+impl<T> Owner<T> for Unique<T> where T: Node {
+    #[inline]
+    fn get(&self) -> &T {
+        unsafe { self.get() }
+    }
+
+    #[inline]
+    fn get_mut(&mut self) -> &mut T {
+        unsafe { self.get_mut() }
+    }
+
+    #[inline]
+    fn take(self) {}
+
+    unsafe fn from_raw_ptr(ptr: *mut T) -> Self {
+        Unique::new(ptr)
+    }
+}
+
 #[cfg(test)]
 impl<T> Owner<T> for ::std::boxed::Box<T> where T: Node {
     #[inline]
@@ -153,6 +173,8 @@ impl<T> Owner<T> for ::std::boxed::Box<T> where T: Node {
 
 #[cfg(test)]
 mod test {
+    use core::ptr::Unique;
+
     use std::boxed::Box;
 
     use list::{List, Node};
@@ -195,6 +217,41 @@ mod test {
 
     impl PartialEq for UsizeNode {
         fn eq(&self, rhs: &Self) -> bool { self.data == rhs.data }
+    }
+
+    #[test]
+    fn test_unique() {
+        let one = Box::new(UsizeNode::new(1));
+        let two = Box::new(UsizeNode::new(2));
+        let three = Box::new(UsizeNode::new(3));
+
+        let one_ptr = Box::into_raw(one);
+        let two_ptr = Box::into_raw(two);
+        let three_ptr = Box::into_raw(three);
+
+        let one_unique = unsafe { Unique::new(one_ptr) };
+        let two_unique = unsafe { Unique::new(two_ptr) };
+        let three_unique = unsafe { Unique::new(three_ptr) };
+
+        let mut list = List::<Unique<UsizeNode>, UsizeNode>::new();
+
+        list.push_front(three_unique);
+        list.push_front(two_unique);
+        list.push_front(one_unique);
+
+        unsafe {
+            assert_eq!(list.pop_back().unwrap().get_mut().data, 3);
+            assert_eq!(list.pop_back().unwrap().get_mut().data, 2);
+            assert_eq!(list.pop_back().unwrap().get_mut().data, 1);
+            assert!(list.pop_back().is_none());
+        }
+
+        // Cleanup
+        unsafe {
+            Box::from_raw(one_ptr);
+            Box::from_raw(two_ptr);
+            Box::from_raw(three_ptr);
+        }
     }
 
     #[test]
