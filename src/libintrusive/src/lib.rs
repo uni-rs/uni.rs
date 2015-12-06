@@ -1,5 +1,6 @@
 //! Implementation of various intrusive containers:
 //! - Doubly Linked List
+//! - Queue
 
 #![feature(no_std)]
 #![feature(unique)]
@@ -11,3 +12,4 @@ extern crate std;
 pub mod link;
 
 pub mod list;
+pub mod queue;
