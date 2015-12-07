@@ -193,6 +193,28 @@ impl<'a, T, U> Cursor<'a, T, U> where T: Owner<U> + 'a, U: Node + 'a {
             Some(p) => p.next_mut().as_mut(),
         }
     }
+
+    pub fn remove(&mut self) -> Option<T> {
+        match self.pos.as_mut() {
+            // Start of the list or empty
+            None => self.list.pop_front(),
+            Some(p) => match p.next_mut().take().as_mut() {
+                // End of the list
+                None => None,
+                Some(n) => {
+                    match n.next_mut().as_mut() {
+                        None => self.list.tail = Link::some(p),
+                        Some(next) => {
+                            *next.prev_mut() = Link::some(p);
+                            *p.next_mut() = Link::some(next);
+                        }
+                    }
+
+                    Some(unsafe { T::from_raw_ptr(n) })
+                }
+            }
+        }
+    }
 }
 
 impl<T> Owner<T> for Unique<T> where T: Node {
@@ -424,5 +446,29 @@ mod test {
         assert_eq!(cursor.prev().unwrap().data, 1);
         assert_eq!(cursor.prev().unwrap().data, 0);
         assert!(cursor.prev().is_none());
+    }
+
+    #[test]
+    fn test_cursor_remove() {
+        let mut list = List::<Box<UsizeNode>, UsizeNode>::new();
+
+        list.push_back(Box::new(UsizeNode::new(0)));
+        list.push_back(Box::new(UsizeNode::new(1)));
+        list.push_back(Box::new(UsizeNode::new(2)));
+        list.push_back(Box::new(UsizeNode::new(3)));
+
+        {
+            let mut cursor = list.cursor();
+
+            assert_eq!(cursor.remove().unwrap().data, 0);
+            assert_eq!(cursor.next().unwrap().data, 1);
+            assert_eq!(cursor.remove().unwrap().data, 2);
+            assert_eq!(cursor.remove().unwrap().data, 3);
+            assert!(cursor.remove().is_none());
+        }
+
+        assert_eq!(list.front().unwrap().data, list.back().unwrap().data);
+        assert_eq!(list.cursor().remove().unwrap().data, 1);
+        assert!(list.is_empty());
     }
 }
