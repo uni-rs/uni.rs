@@ -3,6 +3,7 @@
 //! - Buddy system
 
 #![feature(no_std)]
+#![feature(unique)]
 #![feature(const_fn)]
 #![feature(ptr_as_ref)]
 
@@ -11,6 +12,8 @@
 #[cfg(test)]
 #[macro_use]
 extern crate std;
+
+extern crate intrusive;
 
 use core::ptr;
 use core::cmp;
@@ -24,8 +27,6 @@ macro_rules! align_up {
         }
     }
 }
-
-mod types;
 
 mod fit;
 pub mod buddy;

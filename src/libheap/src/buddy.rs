@@ -4,12 +4,13 @@ use core::ptr;
 use core::mem;
 use core::cmp;
 
+use intrusive::link::Link;
+use intrusive::list::{List, Node};
+
 use Allocator;
 
-use types::{UnsafeList, Link, PhantomNode};
-
 pub type FreeBlock = PhantomNode;
-pub type FreeList = UnsafeList<FreeBlock>;
+pub type FreeList = List<ptr::Unique<FreeBlock>, FreeBlock>;
 
 #[allow(dead_code)]
 pub struct Buddy<'a> {
@@ -90,7 +91,7 @@ impl<'a> Buddy<'a> {
     }
 
     unsafe fn add_block(&mut self, order: u32, start: *mut u8) {
-        let link = Link::some(start as *mut FreeBlock);
+        let link = ptr::Unique::new(start as *mut FreeBlock);
 
         self.free_lists[order as usize].push_front(link);
     }
@@ -121,7 +122,7 @@ impl<'a> Buddy<'a> {
         let mut found = false;
 
         loop {
-            match cursor.as_ref() {
+            match cursor.next_peek() {
                 None => break,
                 Some(blk) => {
                     if blk as *const FreeBlock as *const u8 == buddy_ptr {
@@ -167,7 +168,7 @@ impl<'a> Allocator for Buddy<'a> {
             let mut tmp = self.free_lists[i as usize].pop_front();
 
             if let Some(block) = tmp.as_mut() {
-                let ptr = block as *mut FreeBlock as *mut u8;
+                let ptr = block.get_mut() as *mut FreeBlock as *mut u8;
 
                 if i > order {
                     self.split_block(ptr, i, order);
@@ -197,6 +198,29 @@ impl<'a> Allocator for Buddy<'a> {
         }
 
         self.add_block(order, ptr);
+    }
+}
+
+struct PhantomNode {
+    prev: Link<PhantomNode>,
+    next: Link<PhantomNode>,
+}
+
+impl Node for PhantomNode {
+    fn prev(&self) -> &Link<PhantomNode> {
+        &self.prev
+    }
+
+    fn next(&self) -> &Link<PhantomNode> {
+        &self.next
+    }
+
+    fn prev_mut(&mut self) -> &mut Link<PhantomNode> {
+        &mut self.prev
+    }
+
+    fn next_mut(&mut self) -> &mut Link<PhantomNode> {
+        &mut self.next
     }
 }
 

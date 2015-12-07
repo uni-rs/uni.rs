@@ -15,9 +15,10 @@ use core::ptr;
 use core::mem;
 use core::cmp;
 
-use super::Allocator;
+use intrusive::link::Link;
+use intrusive::list::{List, Node};
 
-use super::types::{UnsafeList, DataNode, Link};
+use super::Allocator;
 
 const PREVIOUS_BIT: usize = 1;
 const NEXT_BIT: usize = 2;
@@ -104,7 +105,7 @@ type FreeBlock = DataNode<Header>;
 
 pub struct FirstFit {
     min_align: usize,
-    free_blocks: UnsafeList<FreeBlock>,
+    free_blocks: List<ptr::Unique<FreeBlock>, FreeBlock>,
 }
 
 impl FirstFit {
@@ -113,7 +114,7 @@ impl FirstFit {
             // The minimum size of a block is the size of 2 pointers in order
             // to store the free list links when the block is free
             min_align: mem::size_of::<FreeBlock>() - mem::size_of::<Header>(),
-            free_blocks: UnsafeList::new(),
+            free_blocks: List::new(),
         };
 
         r_size -= mem::size_of::<Header>() + mem::size_of::<Footer>();
@@ -126,7 +127,7 @@ impl FirstFit {
     }
 
     unsafe fn create_block(start: *mut u8, size: usize,
-                           free: bool) -> Link<FreeBlock>{
+                           free: bool) -> ptr::Unique<FreeBlock> {
         let blk = start as *mut FreeBlock;
 
         let footer_off = size + mem::size_of::<Header>();
@@ -136,7 +137,7 @@ impl FirstFit {
 
         (*footer).header_off = footer as usize - start as usize;
 
-        Link::some(blk)
+        ptr::Unique::new(blk)
     }
 
     // Split the blk block given in parameter in 2 blocks:
@@ -181,7 +182,7 @@ impl FirstFit {
             let free_size = blk.data().size() - free_offset;
             let free_blk_ptr = blk_ptr.offset(free_offset as isize);
 
-            let mut free_blk = FirstFit::create_block(free_blk_ptr, free_size, true);
+            let free_blk = FirstFit::create_block(free_blk_ptr, free_size, true);
             let free_blk_mut = free_blk.as_mut().unwrap();
 
             // Previous block is b1
@@ -214,6 +215,24 @@ impl FirstFit {
         res
     }
 
+    unsafe fn remove_from_free_list(&mut self, block: *mut FreeBlock) {
+        let mut list_cursor = self.free_blocks.cursor();
+
+        loop {
+            if let Some(elem) = list_cursor.next_peek() {
+                if elem as *mut FreeBlock == block {
+                    break;
+                }
+            } else {
+                break;
+            }
+
+            list_cursor.next();
+        }
+
+        list_cursor.remove();
+    }
+
     unsafe fn merge_with_prev(&mut self, hdr: &mut Header) -> *mut Header {
         let mut res = hdr as *mut Header;
 
@@ -227,7 +246,7 @@ impl FirstFit {
                                mem::size_of::<Header>() +
                                mem::size_of::<Footer>();
 
-                self.free_blocks.pop(Link::some(prev as *mut FreeBlock));
+                self.remove_from_free_list(prev as *mut FreeBlock);
 
                 // We don't care about the result of the call because we
                 // already know the beginning of the block (prev)
@@ -261,7 +280,7 @@ impl FirstFit {
                                mem::size_of::<Footer>();
                 let hdr_ptr = hdr as *mut Header;
 
-                self.free_blocks.pop(Link::some(hdr_ptr as *mut FreeBlock));
+                self.remove_from_free_list(hdr_ptr as *mut FreeBlock);
 
                 // We don't care about the result of the call because we
                 // already know the beginning of the block (hdr)
@@ -278,14 +297,14 @@ impl FirstFit {
         }
     }
 
-    unsafe fn merge(&mut self, mut hdr: *mut Header) -> Link<FreeBlock> {
+    unsafe fn merge(&mut self, mut hdr: *mut Header) -> ptr::Unique<FreeBlock> {
         // Try to merge with previous block if it exists and is free.
         hdr = self.merge_with_prev(hdr.as_mut().unwrap());
 
         // Try to merge with next if it exists and is free
         self.merge_with_next(hdr.as_mut().unwrap());
 
-        Link::some(hdr as *mut FreeBlock)
+        ptr::Unique::new(hdr as *mut FreeBlock)
     }
 }
 
@@ -299,7 +318,7 @@ impl Allocator for FirstFit {
             let mut cursor = self.free_blocks.cursor();
 
             loop {
-                match cursor.as_ref() {
+                match cursor.next_peek() {
                     None => break,
                     Some(node) => {
                         if node.data().size() >= size {
@@ -316,7 +335,7 @@ impl Allocator for FirstFit {
 
         match blk_link.as_mut() {
             None => ptr::null_mut(),
-            Some(blk) => self.split_block(blk, size),
+            Some(blk) => self.split_block(blk.get_mut(), size),
         }
     }
 
@@ -335,17 +354,59 @@ impl Allocator for FirstFit {
     }
 }
 
+pub struct DataNode<T> {
+    elem: T,
+    prev: Link<DataNode<T>>,
+    next: Link<DataNode<T>>,
+}
+
+impl<T> DataNode<T> {
+    pub fn new(elem: T) -> Self {
+        DataNode {
+            elem: elem,
+            prev: Link::none(),
+            next: Link::none(),
+        }
+    }
+
+    pub fn data(&self) -> &T {
+        &self.elem
+    }
+
+    pub fn data_mut(&mut self) -> &mut T {
+        &mut self.elem
+    }
+}
+
+impl<T> Node for DataNode<T> {
+    fn prev(&self) -> &Link<DataNode<T>> {
+        &self.prev
+    }
+
+    fn next(&self) -> &Link<DataNode<T>> {
+        &self.next
+    }
+
+    fn prev_mut(&mut self) -> &mut Link<DataNode<T>> {
+        &mut self.prev
+    }
+
+    fn next_mut(&mut self) -> &mut Link<DataNode<T>> {
+        &mut self.next
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::FirstFit;
     use super::{Header, Footer, FreeBlock};
     use super::super::Allocator;
 
-    use types::Node;
-
     use core::mem::size_of;
     use core::ptr::null_mut;
     use core::ptr::write_bytes;
+
+    use intrusive::list::Node;
 
     const HEAP_SIZE: usize = 4096;
     const HEAP_ALIGN: usize = 16;
@@ -367,8 +428,8 @@ mod test {
         assert!(init_block.data().free);
         assert!(!init_block.data().has_next());
         assert!(!init_block.data().has_prev());
-        assert!(init_block.next().is_null());
-        assert!(init_block.prev().is_null());
+        assert!(init_block.next().as_ref().is_none());
+        assert!(init_block.prev().as_ref().is_none());
         assert_eq!(init_block.data().size, actual_size);
 
         (allocator, heap)

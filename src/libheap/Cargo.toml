@@ -14,3 +14,4 @@ with-core = [ "core" ]
 [dependencies]
 
 core = { path = "../rust-libs/core", optional = true }
+intrusive = { path = "../libintrusive" }
