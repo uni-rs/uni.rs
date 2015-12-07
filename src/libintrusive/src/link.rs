@@ -41,6 +41,14 @@ impl<T> Link<T> {
     }
 }
 
+impl<T> Clone for Link<T> {
+    fn clone(&self) -> Self {
+        Link {
+            ptr: self.ptr,
+        }
+    }
+}
+
 impl<T> PartialEq for Link<T> {
     fn eq(&self, rhs: &Self) -> bool {
         self.ptr == rhs.ptr
