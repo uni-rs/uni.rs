@@ -1,5 +1,7 @@
 //! Implementation of intrusive doubly linked list
 
+use core::mem;
+
 use core::ptr::Unique;
 use core::marker::PhantomData;
 
@@ -127,6 +129,69 @@ impl<T, U> List<T, U> where T: Owner<U>, U: Node {
 
             Some(unsafe { T::from_raw_ptr(t) })
         })
+    }
+
+    pub fn cursor<'a>(&'a mut self) -> Cursor<'a, T, U> {
+        Cursor {
+            list: self,
+            pos: Link::none(),
+        }
+    }
+}
+
+pub struct Cursor<'a, T, U> where T: Owner<U> + 'a, U: Node + 'a {
+    list: &'a mut List<T, U>,
+    pos: Link<U>,
+}
+
+impl<'a, T, U> Cursor<'a, T, U> where T: Owner<U> + 'a, U: Node + 'a {
+    pub fn prev(&mut self) -> Option<&mut U> {
+        match self.pos.take().as_mut() {
+            None => {
+                self.pos = self.list.tail.clone();
+                None
+            }
+            Some(p) => {
+                self.pos = p.prev().clone();
+                Some(unsafe { mem::transmute(p) })
+            }
+        }
+    }
+
+    pub fn next(&mut self) -> Option<&mut U> {
+        match self.pos.take().as_mut() {
+            None => match self.list.head.as_mut() {
+                // Empty list
+                None => None,
+                // We are at the head of the list
+                Some(h) => {
+                    self.pos = Link::some(h);
+                    self.pos.as_mut()
+                }
+            },
+            Some (p) => match p.next_mut().as_mut() {
+                // End of the list
+                None => {
+                    self.pos = Link::none();
+                    None
+                }
+                Some(n) => {
+                    self.pos = Link::some(n);
+                    self.pos.as_mut()
+                }
+            },
+        }
+    }
+
+    pub fn prev_peek(&mut self) -> Option<&mut U> {
+        self.pos.as_mut()
+    }
+
+    pub fn next_peek(&mut self) -> Option<&mut U> {
+        match self.pos.as_mut() {
+            None => self.list.front_mut(),
+            Some(p) => p.next_mut().as_mut(),
+        }
     }
 }
 
@@ -317,5 +382,47 @@ mod test {
         assert!(list.pop_back().is_none());
 
         assert!(list.is_empty());
+    }
+
+    #[test]
+    fn test_basic_cursor() {
+        let mut list = List::<Box<UsizeNode>, UsizeNode>::new();
+
+        {
+            let mut cursor = list.cursor();
+
+            assert!(cursor.next().is_none());
+            assert!(cursor.prev().is_none());
+            assert!(cursor.prev().is_none());
+            assert!(cursor.next().is_none());
+        }
+
+        list.push_back(Box::new(UsizeNode::new(0)));
+        list.push_back(Box::new(UsizeNode::new(1)));
+        list.push_back(Box::new(UsizeNode::new(2)));
+        list.push_back(Box::new(UsizeNode::new(3)));
+
+        assert_eq!(list.front().unwrap().data, 0);
+        assert_eq!(list.back().unwrap().data, 3);
+
+        let mut cursor = list.cursor();
+
+        assert!(cursor.prev_peek().is_none());
+        assert_eq!(cursor.next_peek().unwrap().data, 0);
+
+        assert_eq!(cursor.next().unwrap().data, 0);
+        assert_eq!(cursor.next().unwrap().data, 1);
+        assert_eq!(cursor.next().unwrap().data, 2);
+        assert_eq!(cursor.next().unwrap().data, 3);
+        assert!(cursor.next().is_none());
+        assert_eq!(cursor.next().unwrap().data, 0);
+
+        assert_eq!(cursor.prev().unwrap().data, 0);
+        assert!(cursor.prev().is_none());
+        assert_eq!(cursor.prev().unwrap().data, 3);
+        assert_eq!(cursor.prev().unwrap().data, 2);
+        assert_eq!(cursor.prev().unwrap().data, 1);
+        assert_eq!(cursor.prev().unwrap().data, 0);
+        assert!(cursor.prev().is_none());
     }
 }
