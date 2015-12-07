@@ -7,7 +7,7 @@ pub struct Queue<T, U> where T: Owner<U>, U: Node {
 }
 
 impl<T, U> Queue<T, U> where T: Owner<U>, U: Node {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Queue {
             list: List::new(),
         }
