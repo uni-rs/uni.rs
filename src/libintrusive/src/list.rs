@@ -31,7 +31,7 @@ pub struct List<T, U> where T: Owner<U>, U: Node {
 }
 
 impl<T, U> List<T, U> where T: Owner<U>, U: Node {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         List {
             head: Link::none(),
             tail: Link::none(),

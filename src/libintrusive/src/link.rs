@@ -8,13 +8,13 @@ pub struct Link<T> {
 
 /// Non owner raw link base on *mut pointers
 impl<T> Link<T> {
-    pub fn none() -> Self {
+    pub const fn none() -> Self {
         Link {
             ptr: ptr::null_mut(),
         }
     }
 
-    pub fn some(ptr: *mut T) -> Self {
+    pub const fn some(ptr: *mut T) -> Self {
         Link {
             ptr: ptr,
         }

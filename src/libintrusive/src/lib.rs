@@ -4,6 +4,7 @@
 
 #![feature(no_std)]
 #![feature(unique)]
+#![feature(const_fn)]
 #![no_std]
 
 #[cfg(test)]
