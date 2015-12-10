@@ -32,7 +32,7 @@ fn init() {
     unsafe {
         let (heap_start, heap_size) = arch::init_memory();
 
-        uni::alloc::init(heap_start, heap_size);
+        uni::allocator::init(heap_start, heap_size);
     }
 
     event::init();

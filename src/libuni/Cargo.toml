@@ -9,6 +9,7 @@ authors = ["Baptiste Covolato"]
 
 core = { path = "../rust-libs/core" }
 collections = { path = "../rust-libs/collections" }
+alloc = { path = "../rust-libs/alloc" }
 intrusive = { path = "../libintrusive", features = [ "with-core" ] }
 spin = { path = "../deps/spinlock-rs" }
 alloc_uni = { path = "../liballoc_uni" }

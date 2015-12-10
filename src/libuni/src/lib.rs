@@ -1,3 +1,4 @@
+#![feature(alloc)]
 #![feature(no_std)]
 #![feature(const_fn)]
 #![feature(lang_items)]
@@ -15,10 +16,11 @@ extern crate std;
 extern crate spin;
 extern crate intrusive;
 extern crate alloc_uni;
+extern crate alloc;
 
 extern crate xen;
 
-pub mod alloc {
+pub mod allocator {
     pub use alloc_uni;
     pub unsafe fn init(region_start: usize, region_size: usize) {
         alloc_uni::init(region_start, region_size);
