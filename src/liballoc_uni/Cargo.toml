@@ -4,10 +4,6 @@ name = "alloc_uni"
 version = "0.0.1"
 authors = ["Baptiste Covolato"]
 
-[lib]
-name = "alloc_uni"
-crate-type = [ "lib" ]
-
 [dependencies]
 
 core = { path = "../rust-libs/core" }

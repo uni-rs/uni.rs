@@ -9,8 +9,8 @@ src = $(root)/src
 output_dir = $(root)/target
 
 libuni = $(output_dir)/$(cargo_target)/release/libuni.rlib
-libboot = $(output_dir)/$(cargo_target)/release/libboot.rlib
-libboot_arch = $(output_dir)/$(cargo_target)/release/libboot_arch.a
+libboot = $(output_dir)/$(cargo_target)/release/libuni_boot.rlib
+libboot_arch = $(output_dir)/$(cargo_target)/release/libuni_boot_arch.a
 
 libboot_arch_src = $(wildcard $(src)/libboot/src/arch/$(arch)/*.S)
 libboot_arch_obj = $(libboot_arch_src:.S=.o)
@@ -28,7 +28,7 @@ LDFLAGS = -n -nostdlib -static -T $(src)/libboot/src/arch/$(arch)/linker.ld -Wl,
 RUSTC_FLAGS = --verbose --target $(target) --crate-type bin \
 			  -L $(output_dir)/$(cargo_target)/release \
 			  -L $(output_dir)/$(cargo_target)/release/deps \
-			  -C link-args='$(LDFLAGS)' -l static=boot_arch
+			  -C link-args='$(LDFLAGS)' -l static=uni_boot_arch
 
 CARGO_FLAGS = --verbose --target $(target) --release
 

@@ -4,10 +4,6 @@ name = "xen"
 version = "0.0.1"
 authors = ["Baptiste Covolato"]
 
-[lib]
-name = "xen"
-crate-type = [ "lib" ]
-
 [features]
 
 with-core = [ "core" ]

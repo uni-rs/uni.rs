@@ -4,10 +4,6 @@ name = "uni-boot"
 version = "0.0.1"
 authors = ["Baptiste Covolato"]
 
-[lib]
-name = "boot"
-crate-type = [ "lib" ]
-
 [dependencies]
 
 core = { path = "../rust-libs/core" }

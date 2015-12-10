@@ -4,9 +4,6 @@ name = "uni"
 version = "0.0.1"
 authors = ["Baptiste Covolato"]
 
-[lib]
-name = "uni"
-crate-type = [ "lib" ]
 
 [dependencies]
 
@@ -16,8 +13,3 @@ intrusive = { path = "../libintrusive", features = [ "with-core" ] }
 spin = { path = "../deps/spinlock-rs" }
 alloc_uni = { path = "../liballoc_uni" }
 xen = { path = "../libxen", features = [ "with-core" ] }
-
-[[example]]
-name = "hello"
-build = "build.rs"
-path = "examples/hello/main.rs"
