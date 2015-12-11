@@ -1,11 +1,12 @@
 //! Scheduling primitives for Uni.rs.
 
-use alloc::boxed::Box;
+use alloc::boxed::{Box, FnBox};
 
 use intrusive::link::Link;
 use intrusive::list::{Node, Owner};
 
 use self::stack::Stack;
+use self::context::Context;
 
 mod stack;
 mod context;
@@ -37,8 +38,8 @@ impl Builder {
         self
     }
 
-    pub fn spawn<F>(self, _fun: F) -> Thread where F: Fn() -> () {
-        let thread_impl = Box::new(ThreadImpl::new(self.stack_size));
+    pub fn spawn<F>(self, fun: F) -> Thread where F: Fn() -> () {
+        let thread_impl = Box::new(ThreadImpl::new(fun, self.stack_size));
 
         Thread {
             t_impl: thread_impl,
@@ -55,6 +56,7 @@ impl Default for Builder {
 }
 
 struct ThreadImpl {
+    context: Context,
     // On Drop stack is released
     #[allow(dead_code)]
     stack: Stack,
@@ -63,7 +65,7 @@ struct ThreadImpl {
 }
 
 impl ThreadImpl {
-    pub fn new(stack_size: usize) -> Self {
+    pub fn new<F>(fun: F, stack_size: usize) -> Self where F: Fn() -> () {
         let mut stack = unsafe { Stack::new(stack_size) };
 
         if stack.is_null() {
@@ -72,11 +74,24 @@ impl ThreadImpl {
         }
 
         ThreadImpl {
+            context: unsafe { Context::new(thread_wrapper, fun, &mut stack) },
             stack: stack,
             prev: Link::none(),
             next: Link::none(),
         }
     }
+}
+
+extern "C" fn thread_wrapper(f: *mut u8) -> ! {
+    {
+        let boxed_fn: Box<Box<FnBox()>> = unsafe {
+            Box::from_raw(f as *mut Box<FnBox()>)
+        };
+
+        boxed_fn();
+    }
+
+    unimplemented!();
 }
 
 impl Node for ThreadImpl {
