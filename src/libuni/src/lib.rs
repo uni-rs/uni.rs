@@ -1,7 +1,6 @@
 #![feature(alloc)]
 #![feature(fnbox)]
 #![feature(unique)]
-#![feature(no_std)]
 #![feature(const_fn)]
 #![feature(lang_items)]
 #![feature(collections)]

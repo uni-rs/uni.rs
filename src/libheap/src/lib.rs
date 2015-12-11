@@ -2,7 +2,6 @@
 //! - First Fit
 //! - Buddy system
 
-#![feature(no_std)]
 #![feature(unique)]
 #![feature(const_fn)]
 #![feature(ptr_as_ref)]

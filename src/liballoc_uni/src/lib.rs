@@ -1,6 +1,5 @@
 //! Integration crate to use heap::Buddy as Uni.rs allocator
 
-#![feature(no_std)]
 #![feature(allocator)]
 #![feature(const_fn)]
 

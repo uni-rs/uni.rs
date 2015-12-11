@@ -1,4 +1,3 @@
-#![feature(no_std)]
 #![feature(start)]
 #![no_std]
 
