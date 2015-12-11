@@ -55,8 +55,18 @@ impl Default for Builder {
     }
 }
 
+#[derive(PartialEq)]
+enum State {
+    Empty,
+    Ready,
+    Running,
+    Blocked,
+    Terminated,
+}
+
 struct ThreadImpl {
     context: Context,
+    state: State,
     // On Drop stack is released
     #[allow(dead_code)]
     stack: Stack,
@@ -75,6 +85,7 @@ impl ThreadImpl {
 
         ThreadImpl {
             context: unsafe { Context::new(thread_wrapper, fun, &mut stack) },
+            state: State::Ready,
             stack: stack,
             prev: Link::none(),
             next: Link::none(),
