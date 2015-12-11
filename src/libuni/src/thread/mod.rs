@@ -9,6 +9,7 @@ use self::stack::Stack;
 
 mod stack;
 mod context;
+mod scheduler;
 
 const DEFAULT_STACK_SIZE: usize = 8192;
 
