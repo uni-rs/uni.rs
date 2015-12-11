@@ -8,6 +8,8 @@ use intrusive::list::{Node, Owner};
 use self::stack::Stack;
 use self::context::Context;
 
+pub use self::scheduler::Scheduler;
+
 mod stack;
 mod context;
 mod scheduler;
@@ -116,7 +118,7 @@ extern "C" fn thread_wrapper(f: *mut u8) -> ! {
         boxed_fn();
     }
 
-    unimplemented!();
+    Scheduler::terminate();
 }
 
 impl Node for ThreadImpl {
