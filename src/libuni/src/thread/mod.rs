@@ -101,6 +101,10 @@ impl ThreadImpl {
             next: Link::none(),
         }
     }
+
+    pub unsafe fn yield_to(&mut self, thread: &ThreadImpl) {
+        thread.context.switch_with(&mut self.context);
+    }
 }
 
 extern "C" fn thread_wrapper(f: *mut u8) -> ! {
