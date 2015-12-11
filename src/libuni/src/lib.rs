@@ -30,5 +30,6 @@ pub mod allocator {
 #[macro_use]
 pub mod console;
 
+pub mod thread;
 pub mod sync;
 pub mod utils;
