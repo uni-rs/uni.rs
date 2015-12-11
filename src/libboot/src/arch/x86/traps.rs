@@ -88,7 +88,7 @@ gen_trap!(do_machine_check, 18, "MC", "Machine Check");
 gen_trap!(do_simd_exception, 19, "XM/#XF", "SIMD Floating-Point Exception");
 
 fn do_trap(num: u32, short: &str, long: &str, error_code: usize) {
-    panic!("Unresolved trap {} (#{}): {}, error code: 0x{:x}", num, short,
+    panic!("Unresolved trap {} (#{}): {}, error code: {}", num, short,
            long, error_code);
 }
 
