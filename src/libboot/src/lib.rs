@@ -15,6 +15,8 @@ extern {
     fn main(_: isize, _: *const *const u8) -> isize;
 }
 
+use uni::thread::Scheduler;
+
 // 8KB
 const STACK_SIZE: usize = 8192;
 
@@ -23,7 +25,8 @@ const STACK_SIZE: usize = 8192;
 #[link_section=".stack"]
 pub static rust_stack: [u8; STACK_SIZE] = [0; STACK_SIZE];
 
-fn init() {
+#[no_mangle]
+pub extern "C" fn uni_rust_entry() -> ! {
     self::arch::init();
 
     println!("Uni.rs is booting");
@@ -42,23 +45,27 @@ fn init() {
     }
 
     xen::enable_upcalls();
-}
 
-#[no_mangle]
-pub extern "C" fn uni_rust_entry() -> ! {
-    let app_ret;
+    println!("Creating main thread");
 
-    init();
+    // Spawn main thread
+    Scheduler::spawn(|| {
+        let app_ret = unsafe {
+            main(0, core::ptr::null())
+        };
 
-    unsafe {
-        app_ret = main(0, core::ptr::null());
-    }
+        xen::disable_upcalls();
 
-    xen::disable_upcalls();
+        uni::console::console().flush();
 
-    uni::console::console().flush();
+        xen::sched::poweroff(app_ret as xen::defs::Ulong);
 
-    xen::sched::poweroff(app_ret as xen::defs::Ulong);
+        panic!("Failed to poweroff the machine !");
+    });
 
-    panic!("Failed to poweroff the machine !");
+    println!("Starting scheduler");
+
+    Scheduler::schedule();
+
+    unreachable!();
 }
