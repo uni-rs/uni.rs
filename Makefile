@@ -56,6 +56,7 @@ help:
 	@echo 'rust file named `examples/hello/main.rs`.'
 	@echo
 	@echo 'Other targets:'
+	@echo -e 'doc\t\t - Generate uni.rs documentation'
 	@echo -e 'test\t\t - Test uni.rs libraries'
 	@echo -e 'runtime\t\t - Generate uni.rs libraries'
 	@echo -e 'clean\t\t - Remove build temporary files'
@@ -67,6 +68,9 @@ clean:
 
 distclean: clean
 	rm -rf $(BIN_OUTPUT)
+
+doc:
+	CARGO_TARGET_DIR=$(output_dir) $(CARGO) doc --verbose --manifest-path $(src)/libuni/Cargo.toml
 
 test:
 	CARGO_TARGET_DIR=$(output_dir) $(CARGO) test --target $(test_target) --verbose --manifest-path $(src)/libheap/Cargo.toml
