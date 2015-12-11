@@ -5,6 +5,10 @@ use alloc::boxed::Box;
 use intrusive::link::Link;
 use intrusive::list::{Node, Owner};
 
+use self::stack::Stack;
+
+mod stack;
+
 const DEFAULT_STACK_SIZE: usize = 8192;
 
 pub struct Thread {
@@ -32,7 +36,7 @@ impl Builder {
     }
 
     pub fn spawn<F>(self, _fun: F) -> Thread where F: Fn() -> () {
-        let thread_impl = Box::new(ThreadImpl::new());
+        let thread_impl = Box::new(ThreadImpl::new(self.stack_size));
 
         Thread {
             t_impl: thread_impl,
@@ -49,13 +53,24 @@ impl Default for Builder {
 }
 
 struct ThreadImpl {
+    // On Drop stack is released
+    #[allow(dead_code)]
+    stack: Stack,
     prev: Link<ThreadImpl>,
     next: Link<ThreadImpl>,
 }
 
 impl ThreadImpl {
-    pub fn new() -> Self {
+    pub fn new(stack_size: usize) -> Self {
+        let mut stack = unsafe { Stack::new(stack_size) };
+
+        if stack.is_null() {
+            panic!("Cannot allocate a stack (size: {}) for a new thread",
+                   stack_size);
+        }
+
         ThreadImpl {
+            stack: stack,
             prev: Link::none(),
             next: Link::none(),
         }
