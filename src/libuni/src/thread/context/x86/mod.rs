@@ -1,5 +1,10 @@
 use super::WrapperFn;
 
+extern "C" {
+    pub fn registers_switch(to_save: *mut Registers,
+                            to_load: *const Registers);
+}
+
 #[repr(C)]
 #[derive(Debug)]
 pub struct Registers {
