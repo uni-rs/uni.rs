@@ -8,6 +8,7 @@ use intrusive::list::{Node, Owner};
 use self::stack::Stack;
 
 mod stack;
+mod context;
 
 const DEFAULT_STACK_SIZE: usize = 8192;
 
