@@ -1,4 +1,5 @@
 #![feature(alloc)]
+#![feature(fnbox)]
 #![feature(no_std)]
 #![feature(const_fn)]
 #![feature(lang_items)]
