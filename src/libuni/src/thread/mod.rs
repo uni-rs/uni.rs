@@ -13,6 +13,7 @@ pub use self::scheduler::Scheduler;
 mod stack;
 mod context;
 mod scheduler;
+mod wait_queue;
 
 const DEFAULT_STACK_SIZE: usize = 8192;
 
