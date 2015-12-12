@@ -36,8 +36,8 @@ impl Context {
         }
     }
 
-    pub unsafe fn new<F>(wrapper: WrapperFn, mut f: F,
-                         stack: &mut Stack) -> Self where F: FnMut() -> () {
+    pub unsafe fn new<F>(wrapper: WrapperFn, mut f: F, stack: &mut Stack) -> Self
+        where F: FnMut() -> (), F: Send + 'static {
         let fun = || {
             f();
         };

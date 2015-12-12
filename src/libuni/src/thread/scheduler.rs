@@ -40,7 +40,7 @@ impl Scheduler {
 
     /// Spawn a new thread and add it to the scheduler right away
     pub fn spawn<F>(fun: F)
-        where F: Fn() -> ()
+        where F: FnMut() -> (), F: Send + 'static
     {
         Scheduler::ready(Builder::new().spawn(fun));
     }

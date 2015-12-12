@@ -22,7 +22,8 @@ pub struct Thread {
 }
 
 impl Thread {
-    pub fn spawn<F>(fun: F) -> Thread where F: FnMut() -> () {
+    pub fn spawn<F>(fun: F) -> Thread
+        where F: FnMut() -> (), F: Send + 'static {
         Builder::new().spawn(fun)
     }
 }
@@ -41,7 +42,8 @@ impl Builder {
         self
     }
 
-    pub fn spawn<F>(self, fun: F) -> Thread where F: FnMut() -> () {
+    pub fn spawn<F>(self, fun: F) -> Thread
+        where F: FnMut() -> (), F: Send + 'static{
         let thread_impl = Box::new(ThreadImpl::new(fun, self.stack_size));
 
         Thread {
@@ -88,7 +90,8 @@ impl ThreadImpl {
         }
     }
 
-    pub fn new<F>(fun: F, stack_size: usize) -> Self where F: FnMut() -> () {
+    pub fn new<F>(fun: F, stack_size: usize) -> Self
+        where F: FnMut() -> (), F: Send + 'static {
         let mut stack = unsafe { Stack::new(stack_size) };
 
         if stack.is_null() {
