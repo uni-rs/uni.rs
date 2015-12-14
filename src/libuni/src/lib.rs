@@ -21,6 +21,7 @@ extern crate alloc;
 
 extern crate xen;
 
+#[doc(hidden)]
 pub mod allocator {
     pub use alloc_uni;
     pub unsafe fn init(region_start: usize, region_size: usize) {
@@ -33,4 +34,6 @@ pub mod console;
 
 pub mod thread;
 pub mod sync;
+
+#[doc(hidden)]
 pub mod utils;
