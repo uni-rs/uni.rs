@@ -38,7 +38,7 @@ impl Context {
 
     pub unsafe fn new<F>(wrapper: WrapperFn, mut f: F, stack: &mut Stack) -> Self
         where F: FnMut() -> (), F: Send + 'static {
-        let fun = || {
+        let fun = move || {
             f();
         };
         let boxed_fun: Box<FnBox()> = Box::new(fun);
