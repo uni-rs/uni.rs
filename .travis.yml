@@ -16,6 +16,7 @@ os:
 script:
     - BIN_PATH=./examples/hello/main.rs BIN_OUTPUT=hello make bin
     - BIN_PATH=./examples/thread/main.rs BIN_OUTPUT=thread make bin
+    - BIN_PATH=./examples/thread/queue.rs BIN_OUTPUT=queue make bin
 
     # Only test for x86_64 because i686 runtime libraries are missing
     - if [ $arch = "x86_64" ]; then make test; fi
