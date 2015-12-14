@@ -65,7 +65,7 @@ impl SchedulerImpl {
 
     /// Mark a thread as ready, and queue it to the ready queue of the
     /// scheduler
-    pub fn ready(&mut self, mut thread: Thread) {
+    pub fn ready(&self, mut thread: Thread) {
         thread.t_impl.state = State::Ready;
 
         self.ready_list.lock().enqueue(thread.t_impl);

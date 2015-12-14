@@ -39,6 +39,6 @@ pub unsafe fn init(interface: *mut ConsoleInterface, port: EvtchnPort) {
 
 pub fn console<'a>() -> InterruptSpinGuard<'a, Console> {
     unsafe {
-        CONSOLE.as_mut().expect("Console used before being initialized").lock()
+        CONSOLE.as_ref().expect("Console used before being initialized").lock()
     }
 }
