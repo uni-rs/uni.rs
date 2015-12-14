@@ -9,6 +9,7 @@ use sync::spin::InterruptSpinLock;
 use intrusive::queue::Queue;
 
 use super::{Thread, Builder, ThreadImpl, State};
+use super::wait_queue::WaitQueue;
 
 static mut SCHEDULER: SchedulerImpl = SchedulerImpl::new();
 
@@ -31,6 +32,14 @@ impl Scheduler {
         }
     }
 
+    /// Block the current thread inside a wait queue. Same as queue.block()
+    pub fn block(queue: &WaitQueue) {
+        unsafe {
+            SCHEDULER.block(queue);
+        }
+    }
+
+    #[doc(hidden)]
     /// Terminate the execution of the current thread
     pub fn terminate() -> ! {
         unsafe {
@@ -151,6 +160,18 @@ impl SchedulerImpl {
                 }
             };
         }
+    }
+
+    pub unsafe fn block(&mut self, queue: &WaitQueue) {
+        if let Some(ref mut t) = self.running {
+            t.get_mut().state = State::Blocked;
+
+            queue.block_thread(Thread {
+                t_impl: Box::from_raw(t.get_mut()),
+            });
+        }
+
+        self.schedule();
     }
 
     pub unsafe fn terminate(&mut self) -> ! {

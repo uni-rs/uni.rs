@@ -9,6 +9,7 @@ use self::stack::Stack;
 use self::context::Context;
 
 pub use self::scheduler::Scheduler;
+pub use self::wait_queue::WaitQueue;
 
 mod stack;
 mod context;
