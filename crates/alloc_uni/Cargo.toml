@@ -11,7 +11,7 @@ with-core = [ "core", "spin/with-core", "heap/with-core" ]
 
 [dependencies]
 
-spin = { path = "../deps/spinlock-rs", optional = true }
-heap = { path = "../libheap", optional = true }
+spin = { path = "../../src/deps/spinlock-rs", optional = true }
+heap = { path = "../heap", optional = true }
 
-core = { path = "../rust-libs/core", optional = true }
+core = { path = "../../src/rust-libs/core", optional = true }
