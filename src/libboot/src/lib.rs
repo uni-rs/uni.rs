@@ -9,6 +9,8 @@ pub mod event;
 pub mod arch;
 pub mod libc;
 
+use uni::hal::{local_irq_enable, local_irq_disable};
+
 extern {
     fn main(_: isize, _: *const *const u8) -> isize;
 }
@@ -42,7 +44,7 @@ pub extern "C" fn uni_rust_entry() -> ! {
         uni::console::console().init_input();
     }
 
-    uni::hal::xen::enable_upcalls();
+    local_irq_enable();
 
     println!("Creating main thread");
 
@@ -52,7 +54,7 @@ pub extern "C" fn uni_rust_entry() -> ! {
             main(0, core::ptr::null())
         };
 
-        uni::hal::xen::disable_upcalls();
+        local_irq_disable();
 
         uni::console::console().flush();
 

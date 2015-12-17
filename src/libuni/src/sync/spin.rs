@@ -5,7 +5,7 @@ use core::cell::UnsafeCell;
 use core::ops::{Deref, DerefMut};
 use core::sync::atomic::{AtomicBool, Ordering};
 
-use hal::xen::{disable_upcalls, set_upcalls_state};
+use hal::{local_irq_save, local_irq_restore};
 
 pub use spin::Mutex as SpinLock;
 pub use spin::MutexGuard as SpinGuard;
@@ -18,7 +18,7 @@ pub struct InterruptSpinLock<T> {
 pub struct InterruptSpinGuard<'a, T: 'a> {
     lock: &'a AtomicBool,
     data: &'a UnsafeCell<T>,
-    upcalls_state: u8,
+    irq_state: usize,
 }
 
 impl<T> InterruptSpinLock<T> {
@@ -30,7 +30,7 @@ impl<T> InterruptSpinLock<T> {
     }
 
     pub fn lock<'a>(&'a self) -> InterruptSpinGuard<'a, T> {
-        let state = disable_upcalls();
+        let state = local_irq_save();
 
         while self.lock.compare_and_swap(false, true, Ordering::SeqCst) {
         }
@@ -38,7 +38,7 @@ impl<T> InterruptSpinLock<T> {
         InterruptSpinGuard {
             lock: &self.lock,
             data: &self.data,
-            upcalls_state: state,
+            irq_state: state,
         }
     }
 }
@@ -63,6 +63,6 @@ impl<'a, T> DerefMut for InterruptSpinGuard<'a, T> {
 impl<'a, T> Drop for InterruptSpinGuard<'a, T> {
     fn drop(&mut self) {
         self.lock.store(false, Ordering::SeqCst);
-        set_upcalls_state(self.upcalls_state);
+        local_irq_restore(self.irq_state);
     }
 }

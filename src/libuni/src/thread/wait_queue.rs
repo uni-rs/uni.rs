@@ -1,5 +1,7 @@
 use alloc::boxed::Box;
 
+use hal::local_irq_disable;
+
 use sync::spin::InterruptSpinLock;
 use intrusive::queue::Queue;
 
@@ -22,7 +24,7 @@ impl WaitQueue {
     #[inline]
     /// Block the current thread
     pub fn block(&self) {
-        ::hal::xen::disable_upcalls();
+        local_irq_disable();
         Scheduler::block(self.queue.lock());
     }
 

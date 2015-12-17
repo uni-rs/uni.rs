@@ -3,7 +3,7 @@
 use core::ptr;
 use core::mem;
 
-use hal::xen::{disable_upcalls, enable_upcalls};
+use hal::{local_irq_disable, local_irq_enable};
 
 use alloc::boxed::Box;
 
@@ -141,7 +141,7 @@ impl SchedulerImpl {
         self.running = Some(t);
 
         // Called with interruptions disabled
-        enable_upcalls();
+        local_irq_enable();
 
         (*t_ptr).context.load();
     }
@@ -163,7 +163,7 @@ impl SchedulerImpl {
         }
 
         loop {
-            disable_upcalls();
+            local_irq_disable();
 
             let next = self.elect_next();
 
@@ -171,7 +171,7 @@ impl SchedulerImpl {
             // the current thread is running and there is no other thread ready
             // to be scheduled. In this case let the current thread continue
             if self.running.is_some() {
-                enable_upcalls();
+                local_irq_enable();
                 break;
             }
 
@@ -180,7 +180,7 @@ impl SchedulerImpl {
                     // If no threads can be run wait for an interruption. An
                     // interruption might wake up a thread for us to run
                     ::hal::xen::sched::block();
-                    enable_upcalls();
+                    local_irq_enable();
                 }
                 Some(next) => {
                     self.switch_to_next(next);
@@ -221,7 +221,7 @@ impl SchedulerImpl {
             None => {
                 // See comment in schedule()
                 ::hal::xen::sched::block();
-                enable_upcalls();
+                local_irq_enable();
             }
             Some(next) => {
                 self.switch_to_next(next);
