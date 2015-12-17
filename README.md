@@ -3,7 +3,7 @@
 Uni.rs is an experimental [unikernel](https://en.wikipedia.org/wiki/Unikernel)
 written in rust.
 
-The project is a work in progress and therefore is highly instable and subject
+The project is a work in progress and therefore is highly unstable and subject
 to design, API, ... changes.
 
 ## Supported plaforms
@@ -12,18 +12,32 @@ to design, API, ... changes.
 | ------------- | ------------- |
 | Xen           | x86, x86_64   |
 
-## Build Instructions
+## Usage
 
-The build system will ease you the task of building your applications using the
-Uni.rs unikernel. In order to do so, a target called `bin` is responsible to
-build all Uni.rs libraries and link your code with it.
+### Building examples
 
-This target can be customized by 2 variables:
-- BIN_PATH: path to your main .rs file
-- BIN_OUTPUT: path to the output file
+You can find several examples in this source tree inside the directory named
+`examples`. Uni.rs is using cargo to build the libraries and examples. At the
+moment examples do not have separated Cargo.toml files. Indeed they can be
+built using the root Cargo.toml file. Here is the list of example name
+associated with source files in the examples directory.
 
-For example if you want to generate the hello binary from the example
-directory (examples/hello), you would do something like this:
-`BIN_PATH=./examples/hello/main.rs BIN_OUTPUT=hello make bin`
-This will generate an hello binary in the current directory from the
-rust file named `examples/hello/main.rs`.
+- hello => examples/hello/main.rs
+- thread => examples/thread/main.rs
+- queue => examples/thread/queue.rs
+
+In order to build the example you might need to add the feature `with-core`.
+Since we use a custom target, the core library probably does not exist in your
+environment. As a convenience this feature will build the necessary
+dependencies from the rust sources. Here is the command that one might use to
+build the `hello` example.
+
+```
+$ cargo build --target x86_64-unknown-uni.json --release --features with-core --example hello
+```
+
+### Using in your own projects
+
+Since Uni.rs is using cargo as its build system you simply need to properly
+setup your Cargo.toml to use this repository. You also *MUST* build your code
+using the custom targets that are available in this repository.
