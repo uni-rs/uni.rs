@@ -22,7 +22,7 @@ impl WaitQueue {
     #[inline]
     /// Block the current thread
     pub fn block(&self) {
-        ::xen::disable_upcalls();
+        ::hal::xen::disable_upcalls();
         Scheduler::block(self.queue.lock());
     }
 

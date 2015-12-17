@@ -1,4 +1,4 @@
-use xen::defs::Ulong;
+use hal::xen::defs::Ulong;
 
 #[allow(dead_code)]
 pub enum HypercallKind {

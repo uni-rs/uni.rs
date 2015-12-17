@@ -1,6 +1,6 @@
 use core::fmt;
 
-use xen::sched;
+use hal::xen::sched;
 
 use console;
 

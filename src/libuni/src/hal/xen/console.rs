@@ -2,13 +2,13 @@ use core::ops::{Deref, DerefMut};
 use core::fmt::{Write, Result};
 use core::mem::size_of;
 
-use xen::defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
+use hal::xen::defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
 
-use xen::event::dispatcher;
-use xen::event::send;
-use xen::sched::yield_cpu;
+use hal::xen::event::dispatcher;
+use hal::xen::event::send;
+use hal::xen::sched::yield_cpu;
 
-use xen::intrinsics::wmb;
+use hal::xen::intrinsics::wmb;
 
 pub struct Console {
     interface: *mut ConsoleInterface,

@@ -29,7 +29,7 @@ pub mod allocator {
 #[macro_use]
 pub mod console;
 
-pub mod xen;
+pub mod hal;
 pub mod thread;
 pub mod sync;
 

@@ -2,13 +2,13 @@
 
 use core::ptr::null_mut;
 
-use xen::shared_info;
+use hal::xen::shared_info;
 
-use xen::defs::EvtchnPort;
-use xen::defs::ULONG_SIZE;
+use hal::xen::defs::EvtchnPort;
+use hal::xen::defs::ULONG_SIZE;
 
-use xen::intrinsics::{first_bit, wmb};
-use xen::intrinsics::{atomic_set_bit, atomic_clear_bit, atomic_xchg};
+use hal::xen::intrinsics::{first_bit, wmb};
+use hal::xen::intrinsics::{atomic_set_bit, atomic_clear_bit, atomic_xchg};
 
 const NUMBER_OF_EVENTS: usize = 1024;
 

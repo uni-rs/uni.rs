@@ -1,5 +1,5 @@
-use xen::console::Console;
-use xen::defs::{ConsoleInterface, EvtchnPort};
+use hal::xen::console::Console;
+use hal::xen::defs::{ConsoleInterface, EvtchnPort};
 
 use core::fmt::{Arguments, write};
 

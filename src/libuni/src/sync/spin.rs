@@ -5,7 +5,7 @@ use core::cell::UnsafeCell;
 use core::ops::{Deref, DerefMut};
 use core::sync::atomic::{AtomicBool, Ordering};
 
-use xen::{disable_upcalls, set_upcalls_state};
+use hal::xen::{disable_upcalls, set_upcalls_state};
 
 pub use spin::Mutex as SpinLock;
 pub use spin::MutexGuard as SpinGuard;

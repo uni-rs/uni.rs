@@ -1,9 +1,9 @@
 use uni;
-use uni::xen;
+use uni::hal::xen;
 
-use uni::xen::memory::MapFlags;
+use uni::hal::xen::memory::MapFlags;
 
-use uni::xen::defs::{Ulong, StartInfo, SharedInfo, ConsoleInterface};
+use uni::hal::xen::defs::{Ulong, StartInfo, SharedInfo, ConsoleInterface};
 
 #[macro_use]
 mod page;

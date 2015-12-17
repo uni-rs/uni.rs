@@ -42,7 +42,7 @@ pub extern "C" fn uni_rust_entry() -> ! {
         uni::console::console().init_input();
     }
 
-    uni::xen::enable_upcalls();
+    uni::hal::xen::enable_upcalls();
 
     println!("Creating main thread");
 
@@ -52,11 +52,11 @@ pub extern "C" fn uni_rust_entry() -> ! {
             main(0, core::ptr::null())
         };
 
-        uni::xen::disable_upcalls();
+        uni::hal::xen::disable_upcalls();
 
         uni::console::console().flush();
 
-        uni::xen::sched::poweroff(app_ret as uni::xen::defs::Ulong);
+        uni::hal::xen::sched::poweroff(app_ret as uni::hal::xen::defs::Ulong);
 
         panic!("Failed to poweroff the machine !");
     });

@@ -6,7 +6,7 @@ use super::defs::PageTableEntry;
 
 use super::defs::{OFFSET_MASK, PTE_MASK, PAGE_SHIFT};
 
-use uni::xen::defs::MACH2PHYS_VIRT_START;
+use uni::hal::xen::defs::MACH2PHYS_VIRT_START;
 
 macro_rules! pte {
     ($x:expr) => {
