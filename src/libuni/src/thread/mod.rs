@@ -63,7 +63,6 @@ impl Default for Builder {
 
 #[derive(PartialEq)]
 enum State {
-    Empty,
     Ready,
     Running,
     Blocked,
@@ -81,16 +80,6 @@ struct ThreadImpl {
 }
 
 impl ThreadImpl {
-    pub unsafe fn empty() -> Self {
-        ThreadImpl {
-            context: Context::empty(),
-            state: State::Empty,
-            stack: Stack::null(),
-            prev: Link::none(),
-            next: Link::none(),
-        }
-    }
-
     pub fn new<F>(fun: F, stack_size: usize) -> Self
         where F: FnMut() -> (), F: Send + 'static {
         let mut stack = unsafe { Stack::new(stack_size) };
@@ -107,10 +96,6 @@ impl ThreadImpl {
             prev: Link::none(),
             next: Link::none(),
         }
-    }
-
-    pub unsafe fn yield_to(&mut self, thread: &ThreadImpl) {
-        thread.context.switch_with(&mut self.context);
     }
 }
 

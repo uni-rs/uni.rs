@@ -5,8 +5,10 @@ use intrusive::queue::Queue;
 
 use super::{Thread, ThreadImpl, Scheduler};
 
+pub type InternalQueue = Queue<Box<ThreadImpl>, ThreadImpl>;
+
 pub struct WaitQueue {
-    queue: InterruptSpinLock<Queue<Box<ThreadImpl>, ThreadImpl>>,
+    queue: InterruptSpinLock<InternalQueue>,
 }
 
 impl WaitQueue {
@@ -18,16 +20,10 @@ impl WaitQueue {
     }
 
     #[inline]
-    /// Block the current thread. Equivalent to Scheduler::block(self)
+    /// Block the current thread
     pub fn block(&self) {
-        Scheduler::block(self);
-    }
-
-    #[inline(never)]
-    #[doc(hidden)]
-    /// Enqueue a thread in the wait queue. Should only be called internally
-    pub fn block_thread(&self, thread: Thread) {
-        self.queue.lock().enqueue(thread.t_impl);
+        ::xen::disable_upcalls();
+        Scheduler::block(self.queue.lock());
     }
 
     #[inline]

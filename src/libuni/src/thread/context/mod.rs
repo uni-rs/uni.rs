@@ -30,12 +30,6 @@ pub struct Context {
 }
 
 impl Context {
-    pub unsafe fn empty() -> Self {
-        Context {
-            regs: imp::Registers::empty(),
-        }
-    }
-
     pub unsafe fn new<F>(wrapper: WrapperFn, mut f: F, stack: &mut Stack) -> Self
         where F: FnMut() -> (), F: Send + 'static {
         let fun = move || {
@@ -48,12 +42,6 @@ impl Context {
         Context {
             regs: imp::Registers::new(wrapper, fun_ptr, stack.top().unwrap()),
         }
-    }
-
-    /// Replace the current context with ourself and save the current inside
-    /// out_context.
-    pub unsafe fn switch_with(&self, out_context: &mut Context) {
-        imp::registers_switch(&mut out_context.regs, &self.regs);
     }
 
     /// Load the current context to the CPU

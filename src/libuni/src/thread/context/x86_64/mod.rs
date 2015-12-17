@@ -1,8 +1,6 @@
 use super::WrapperFn;
 
 extern "C" {
-    pub fn registers_switch(to_save: *mut Registers,
-                            to_load: *const Registers);
     pub fn registers_load(to_load: *const Registers) -> !;
     pub fn registers_save(to_save: *mut Registers) -> bool;
 }
@@ -31,29 +29,6 @@ pub struct Registers {
 }
 
 impl Registers {
-    pub const unsafe fn empty() -> Self {
-        Registers {
-            rax: 0,
-            rbx: 0,
-            rcx: 0,
-            rdx: 0,
-            rip: 0,
-            rbp: 0,
-            rsp: 0,
-            rsi: 0,
-            rdi: 0,
-            r8: 0,
-            r9: 0,
-            r10: 0,
-            r11: 0,
-            r12: 0,
-            r13: 0,
-            r14: 0,
-            r15: 0,
-            rflags: 0,
-        }
-    }
-
     pub unsafe fn new(wrapper: WrapperFn, f: *mut u8,
                       stack_top: *mut u8) -> Self {
         // wrapper is the function that is going to be called when we switch
