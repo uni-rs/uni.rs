@@ -6,9 +6,11 @@ authors = ["Baptiste Covolato"]
 
 [features]
 
-with-core = [ "core" ]
+default = [ "intrusive" ]
+with-core = [ "core", "intrusive/with-core" ]
 
 [dependencies]
 
+intrusive = { path = "../libintrusive", optional = true }
+
 core = { path = "../rust-libs/core", optional = true }
-intrusive = { path = "../libintrusive" }

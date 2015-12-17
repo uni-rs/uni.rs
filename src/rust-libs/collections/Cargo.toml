@@ -3,8 +3,14 @@ name = "collections"
 version = "0.0.1"
 authors = ["Baptiste Covolato"]
 
+[features]
+
+default = [ "alloc", "rustc_unicode" ]
+with-core = [ "core", "alloc/with-core", "rustc_unicode/with-core" ]
+
 [dependencies]
 
-core = { path = "../core" }
-rustc_unicode = { path = "../rustc_unicode" }
-alloc = { path = "../alloc" }
+alloc = { path = "../alloc", optional = true }
+rustc_unicode = { path = "../rustc_unicode", optional = true }
+
+core = { path = "../core", optional = true }

@@ -4,8 +4,14 @@ name = "alloc_uni"
 version = "0.0.1"
 authors = ["Baptiste Covolato"]
 
+[features]
+
+default = [ "spin", "heap" ]
+with-core = [ "core", "spin/with-core", "heap/with-core" ]
+
 [dependencies]
 
-core = { path = "../rust-libs/core" }
-spin = { path = "../deps/spinlock-rs" }
-heap = { path = "../libheap", features = [ "with-core" ] }
+spin = { path = "../deps/spinlock-rs", optional = true }
+heap = { path = "../libheap", optional = true }
+
+core = { path = "../rust-libs/core", optional = true }

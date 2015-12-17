@@ -9,15 +9,22 @@
 #![no_std]
 
 #[macro_use]
+#[cfg(not(test))]
 extern crate collections;
 
+#[cfg(not(test))]
 pub use collections::*;
 
 extern crate spin;
 extern crate intrusive;
+
+#[cfg(not(test))]
 extern crate alloc_uni;
+
+#[cfg(not(test))]
 extern crate alloc;
 
+#[cfg(not(test))]
 #[doc(hidden)]
 pub mod allocator {
     pub use alloc_uni;
@@ -30,6 +37,8 @@ pub mod allocator {
 pub mod console;
 
 pub mod hal;
+
+#[cfg(not(test))]
 pub mod thread;
 pub mod sync;
 

@@ -3,6 +3,10 @@ name = "alloc"
 version = "0.0.1"
 authors = ["Baptiste Covolato"]
 
+[features]
+
+with-core = [ "core" ]
+
 [dependencies]
 
-core = { path = "../core" }
+core = { path = "../core", optional = true }
