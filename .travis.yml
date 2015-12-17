@@ -20,3 +20,9 @@ script:
 
     - cargo build --verbose --target $target --release --features with-core --example queue
     - cargo build --verbose --target $target --features with-core --example queue
+
+    # Only test for x86_64 because i686 runtime libraries are missing
+    - if [ $target = "x86_64-unknown-uni.json" ]; then
+        cargo test --verbose --target x86_64-unknown-linux-gnu --manifest-path crates/heap/Cargo.toml;
+        cargo test --verbose --target x86_64-unknown-linux-gnu --manifest-path crates/intrusive/Cargo.toml;
+      fi
