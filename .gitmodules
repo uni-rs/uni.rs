@@ -1,6 +1,6 @@
 [submodule "rust"]
-	path = src/rust-libs/rust
+	path = rust-libs/rust
 	url = https://github.com/rust-lang/rust
 [submodule "src/deps/spinlock-rs"]
-	path = src/deps/spinlock-rs
+	path = deps/spinlock-rs
 	url = https://github.com/uni-rs/spinlock-rs.git

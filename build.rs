@@ -52,7 +52,7 @@ fn copy_linker_script(out_path: &str) {
     let out_dir = Path::new(&out_path);
     let linker_dir = Path::new("src/libuni/src/hal/xen/boot/arch/").join(arch);
 
-    fs::copy(linker_dir.join("linker.ld"), out_dir.join("linker.ld"));
+    fs::copy(linker_dir.join("linker.ld"), out_dir.join("linker.ld")).unwrap();
 }
 
 fn main() {

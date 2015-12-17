@@ -26,13 +26,13 @@ with-core = [
 
 [dependencies]
 
-spin = { path = "src/deps/spinlock-rs", optional = true }
-alloc = { path = "src/rust-libs/alloc", optional = true }
-collections = { path = "src/rust-libs/collections", optional = true }
+spin = { path = "deps/spinlock-rs", optional = true }
+alloc = { path = "rust-libs/alloc", optional = true }
+collections = { path = "rust-libs/collections", optional = true }
 intrusive = { path = "crates/intrusive", optional = true }
 alloc_uni = { path = "crates/alloc_uni", optional = true }
 
-core = { path = "src/rust-libs/core", optional = true }
+core = { path = "rust-libs/core", optional = true }
 
 [[example]]
 name = "hello"
