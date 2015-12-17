@@ -3,6 +3,8 @@ use super::WrapperFn;
 extern "C" {
     pub fn registers_switch(to_save: *mut Registers,
                             to_load: *const Registers);
+    pub fn registers_load(to_load: *const Registers) -> !;
+    pub fn registers_save(to_save: *mut Registers) -> bool;
 }
 
 #[repr(C)]

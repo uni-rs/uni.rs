@@ -55,4 +55,28 @@ impl Context {
     pub unsafe fn switch_with(&self, out_context: &mut Context) {
         imp::registers_switch(&mut out_context.regs, &self.regs);
     }
+
+    /// Load the current context to the CPU
+    pub fn load(&self) -> ! {
+        unsafe {
+            imp::registers_load(&self.regs);
+        }
+    }
+
+    #[inline(always)]
+    /// Save the current context. This function will actually return twice.
+    /// The first return is just after saving the context and will return false
+    /// The second time is when the saved context gets restored and will return
+    /// true
+    ///
+    /// This function is always inlined because otherwise the stack frame gets
+    /// corrupted as this will return twice. The second time the function
+    /// returns the stack frame will most likely be corrupted. To avoid that
+    /// inline the function to merge the stack frame of this function with
+    /// the caller's.
+    pub fn save(&mut self) -> bool {
+        unsafe {
+            imp::registers_save(&mut self.regs)
+        }
+    }
 }

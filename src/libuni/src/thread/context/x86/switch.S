@@ -1,4 +1,53 @@
-.global registers_switch
+.global registers_switch, registers_load, registers_save
+
+// registers_load(to_load: *const Registers) -> !;
+registers_load:
+    // to_load -> ecx
+    mov 4(%esp), %ecx
+
+    mov 4(%ecx), %ebx
+    mov 28(%ecx), %esi
+    mov 32(%ecx), %edi
+    mov 20(%ecx), %ebp
+    mov 24(%ecx), %esp
+    mov 36(%ecx), %eax // eflags
+
+    push %eax
+    popfl
+
+    mov 16(%ecx), %ecx // eip
+
+    // See comment in Context::save()
+    mov $1, %eax
+
+    jmp *%ecx
+
+// registers_save(to_save: *mut Registers) -> bool;
+registers_save:
+    // to_save -> ecx
+    mov 4(%esp), %ecx
+
+    // The stack contains the return address which will be our saved rip
+    pop %edx
+
+    // x86 calling convention states that these registers must be preserved:
+    // ebx, esi, edi, ebp, esp
+    mov %ebx, 4(%ecx)
+    mov %esi, 28(%ecx)
+    mov %edi, 32(%ecx)
+    mov %ebp, 20(%ecx)
+    mov %esp, 24(%ecx)
+    mov %edx, 16(%ecx) // eip
+
+    pushfl
+    pop %eax
+
+    mov %eax, 36(%ecx) // eflags
+
+    // See comment in Context::save()
+    mov $0, %eax
+
+    jmp *%edx
 
 // registers_switch(to_save: *mut Registers, to_load: *const Registers);
 registers_switch:
