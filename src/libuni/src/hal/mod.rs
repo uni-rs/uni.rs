@@ -15,21 +15,26 @@ mod hw_imp {
     use super::xen;
 
     #[inline]
+    /// Disable local interrupt delivery
     pub fn local_irq_disable() {
         xen::disable_upcalls();
     }
 
     #[inline]
+    /// Enable local interrupt delivery
     pub fn local_irq_enable() {
         xen::enable_upcalls();
     }
 
     #[inline]
+    /// Disable local interrupt delivery and return the previous state of
+    /// interrupt delivery
     pub fn local_irq_save() -> usize {
         xen::disable_upcalls() as usize
     }
 
     #[inline]
+    /// Restore a local interrupt delivery state
     pub fn local_irq_restore(state: usize) {
         xen::set_upcalls_state(state as u8);
     }
