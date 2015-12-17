@@ -7,5 +7,4 @@ authors = ["Baptiste Covolato"]
 [dependencies]
 
 core = { path = "../rust-libs/core" }
-xen = { path = "../libxen", features = [ "with-core" ] }
-uni = { path = "../libuni" }
+uni = { path = "../libuni", features = [ "with-core" ] }

@@ -86,7 +86,7 @@ doc:
 test:
 	CARGO_TARGET_DIR=$(output_dir) $(CARGO) test --target $(test_target) --verbose --manifest-path $(src)/libheap/Cargo.toml
 	CARGO_TARGET_DIR=$(output_dir) $(CARGO) test --target $(test_target) --verbose --manifest-path $(src)/libintrusive/Cargo.toml
-	CARGO_TARGET_DIR=$(output_dir) $(CARGO) test --target $(test_target) --verbose --manifest-path $(src)/libxen/Cargo.toml
+	# CARGO_TARGET_DIR=$(output_dir) $(CARGO) test --target $(test_target) --verbose --manifest-path $(src)/libuni/Cargo.toml
 
 bin: runtime
 	$(RUSTC) $(RUSTC_FLAGS) $(BIN_PATH) -o $(BIN_OUTPUT)

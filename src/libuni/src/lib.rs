@@ -1,9 +1,11 @@
+#![feature(asm)]
 #![feature(alloc)]
 #![feature(fnbox)]
 #![feature(unique)]
 #![feature(const_fn)]
 #![feature(lang_items)]
 #![feature(collections)]
+#![feature(core_intrinsics)]
 #![no_std]
 
 #[macro_use]
@@ -11,15 +13,10 @@ extern crate collections;
 
 pub use collections::*;
 
-#[cfg(test)]
-extern crate std;
-
 extern crate spin;
 extern crate intrusive;
 extern crate alloc_uni;
 extern crate alloc;
-
-extern crate xen;
 
 #[doc(hidden)]
 pub mod allocator {
@@ -32,6 +29,7 @@ pub mod allocator {
 #[macro_use]
 pub mod console;
 
+pub mod xen;
 pub mod thread;
 pub mod sync;
 

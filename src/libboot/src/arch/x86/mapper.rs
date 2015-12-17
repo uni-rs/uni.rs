@@ -5,8 +5,8 @@ use libc::memset;
 
 use super::page;
 
-use xen::memory::{MmuUpdate, MapFlags};
-use xen::memory::{mmu_update, update_va_mapping};
+use uni::xen::memory::{MmuUpdate, MapFlags};
+use uni::xen::memory::{mmu_update, update_va_mapping};
 
 use super::defs::PageTableEntry;
 

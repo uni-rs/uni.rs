@@ -1,7 +1,7 @@
-use hypercall::hypercall2;
-use hypercall::HypercallKind;
+use xen::hypercall::hypercall2;
+use xen::hypercall::HypercallKind;
 
-use defs::Ulong;
+use xen::defs::Ulong;
 
 #[allow(dead_code)]
 enum SchedOp {

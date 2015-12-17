@@ -1,7 +1,7 @@
 //! Set callbacks necessary to the hypervisor to perform upcalls
 
-use defs::Ulong;
-use hypercall::HypercallKind;
+use xen::defs::Ulong;
+use xen::hypercall::HypercallKind;
 
 pub type CallbackType = unsafe extern "C" fn() -> ();
 
@@ -10,7 +10,7 @@ pub unsafe fn set_callbacks(hypervisor_callback_cs: u16,
                             hypervisor_callback: CallbackType,
                             failsafe_callback_cs: u16,
                             failsafe_callback: CallbackType) {
-    use hypercall::hypercall4;
+    use xen::hypercall::hypercall4;
 
     let hypervisor_callback = hypervisor_callback as *const u8 as Ulong;
     let failsafe_callback = failsafe_callback as *const u8 as Ulong;
@@ -24,7 +24,7 @@ pub unsafe fn set_callbacks(hypervisor_callback_cs: u16,
 pub unsafe fn set_callbacks(hypervisor_callback: CallbackType,
                             failsafe_callback: CallbackType,
                             syscall_callback_opt: Option<CallbackType>) {
-    use hypercall::hypercall3;
+    use xen::hypercall::hypercall3;
 
     let hypervisor_callback = hypervisor_callback as *const u8 as Ulong;
     let failsafe_callback = failsafe_callback as *const u8 as Ulong;

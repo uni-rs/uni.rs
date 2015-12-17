@@ -2,8 +2,8 @@
 
 use core::mem;
 
-use xen::defs::{TrapInfo, FLAT_KERNEL_CS};
-use xen::arch::x86::traps::set_trap_table;
+use uni::xen::defs::{TrapInfo, FLAT_KERNEL_CS};
+use uni::xen::arch::x86::traps::set_trap_table;
 
 use libc::memset;
 

@@ -1,9 +1,9 @@
-use hypercall::{hypercall3, hypercall4};
-use hypercall::HypercallKind;
-
-use defs::{Ulong, DOMID_SELF};
-
 use core::mem;
+
+use xen::hypercall::{hypercall3, hypercall4};
+use xen::hypercall::HypercallKind;
+
+use xen::defs::{Ulong, DOMID_SELF};
 
 pub enum MapFlags {
     None = 0,

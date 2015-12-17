@@ -1,7 +1,7 @@
-use hypercall::hypercall2;
-use hypercall::HypercallKind;
+use xen::hypercall::hypercall2;
+use xen::hypercall::HypercallKind;
 
-use defs::{Ulong, EvtchnPort};
+use xen::defs::{Ulong, EvtchnPort};
 
 mod dispatcher;
 

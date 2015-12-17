@@ -1,17 +1,14 @@
-use core::ops::Deref;
-use core::ops::DerefMut;
-
+use core::ops::{Deref, DerefMut};
 use core::fmt::{Write, Result};
-
 use core::mem::size_of;
 
-use defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
+use xen::defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
 
-use event::dispatcher;
-use event::send;
-use sched::yield_cpu;
+use xen::event::dispatcher;
+use xen::event::send;
+use xen::sched::yield_cpu;
 
-use intrinsics::wmb;
+use xen::intrinsics::wmb;
 
 pub struct Console {
     interface: *mut ConsoleInterface,

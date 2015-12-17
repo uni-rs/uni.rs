@@ -4,7 +4,6 @@
 
 #[macro_use]
 extern crate uni;
-extern crate xen;
 
 pub mod event;
 pub mod arch;
@@ -43,7 +42,7 @@ pub extern "C" fn uni_rust_entry() -> ! {
         uni::console::console().init_input();
     }
 
-    xen::enable_upcalls();
+    uni::xen::enable_upcalls();
 
     println!("Creating main thread");
 
@@ -53,11 +52,11 @@ pub extern "C" fn uni_rust_entry() -> ! {
             main(0, core::ptr::null())
         };
 
-        xen::disable_upcalls();
+        uni::xen::disable_upcalls();
 
         uni::console::console().flush();
 
-        xen::sched::poweroff(app_ret as xen::defs::Ulong);
+        uni::xen::sched::poweroff(app_ret as uni::xen::defs::Ulong);
 
         panic!("Failed to poweroff the machine !");
     });

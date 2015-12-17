@@ -1,13 +1,14 @@
 //! Main utility to dispatch and manage Xen events
 
-use shared_info;
-
 use core::ptr::null_mut;
 
-use defs::EvtchnPort;
-use defs::ULONG_SIZE;
+use xen::shared_info;
 
-use intrinsics::{atomic_set_bit, atomic_clear_bit, atomic_xchg, first_bit, wmb};
+use xen::defs::EvtchnPort;
+use xen::defs::ULONG_SIZE;
+
+use xen::intrinsics::{first_bit, wmb};
+use xen::intrinsics::{atomic_set_bit, atomic_clear_bit, atomic_xchg};
 
 const NUMBER_OF_EVENTS: usize = 1024;
 
