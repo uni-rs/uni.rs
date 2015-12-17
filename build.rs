@@ -32,7 +32,7 @@ fn target_arch_get() -> &'static str {
 fn build_lib_boot() {
     let arch = target_arch_get();
 
-    let src_dir = Path::new("src/libuni/src/hal/xen/boot/arch/").join(arch);
+    let src_dir = Path::new("src/hal/xen/boot/arch/").join(arch);
 
     gcc::compile_library("libboot.a",
                          &[src_dir.join("boot.S").to_str().unwrap()]);
@@ -41,7 +41,7 @@ fn build_lib_boot() {
 fn build_lib_switch() {
     let arch = switch_arch_get();
 
-    let src_dir = Path::new("src/libuni/src/thread/context").join(arch);
+    let src_dir = Path::new("src/thread/context").join(arch);
 
     gcc::compile_library("libswitch.a",
                          &[src_dir.join("switch.S").to_str().unwrap()]);
@@ -50,7 +50,7 @@ fn build_lib_switch() {
 fn copy_linker_script(out_path: &str) {
     let arch = target_arch_get();
     let out_dir = Path::new(&out_path);
-    let linker_dir = Path::new("src/libuni/src/hal/xen/boot/arch/").join(arch);
+    let linker_dir = Path::new("src/hal/xen/boot/arch/").join(arch);
 
     fs::copy(linker_dir.join("linker.ld"), out_dir.join("linker.ld")).unwrap();
 }
