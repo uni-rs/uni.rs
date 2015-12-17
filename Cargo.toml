@@ -1,0 +1,47 @@
+[package]
+
+name = "uni"
+version = "0.0.1"
+authors = ["Baptiste Covolato"]
+build = "build.rs"
+
+[lib]
+
+path = "src/libuni/src/lib.rs"
+
+[build-dependencies]
+gcc = "0.3.20"
+
+[features]
+
+default = [ "spin", "alloc", "collections", "intrusive", "alloc_uni" ]
+with-core = [
+    "core",
+    "spin/with-core",
+    "alloc/with-core",
+    "collections/with-core",
+    "intrusive/with-core",
+    "alloc_uni/with-core"
+]
+
+[dependencies]
+
+spin = { path = "src/deps/spinlock-rs", optional = true }
+alloc = { path = "src/rust-libs/alloc", optional = true }
+collections = { path = "src/rust-libs/collections", optional = true }
+intrusive = { path = "src/libintrusive", optional = true }
+alloc_uni = { path = "src/liballoc_uni", optional = true }
+
+core = { path = "src/rust-libs/core", optional = true }
+
+[[example]]
+name = "hello"
+path = "examples/hello/main.rs"
+
+[[example]]
+name = "thread"
+path = "examples/thread/main.rs"
+
+[[example]]
+name = "queue"
+path = "examples/thread/queue.rs"

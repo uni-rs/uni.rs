@@ -1,9 +1,8 @@
-use uni;
-use uni::hal::xen;
+use hal::xen;
 
-use uni::hal::xen::memory::MapFlags;
+use hal::xen::memory::MapFlags;
 
-use uni::hal::xen::defs::{Ulong, StartInfo, SharedInfo, ConsoleInterface};
+use hal::xen::defs::{Ulong, StartInfo, SharedInfo, ConsoleInterface};
 
 #[macro_use]
 mod page;
@@ -26,7 +25,7 @@ pub fn init() {
 
         console_vaddr = page::mfn_to_vaddr((*start_info).domu_console.mfn);
 
-        uni::console::init(console_vaddr as *mut ConsoleInterface,
+        ::console::init(console_vaddr as *mut ConsoleInterface,
                            (*start_info).domu_console.evtchn);
 
         self::traps::init();

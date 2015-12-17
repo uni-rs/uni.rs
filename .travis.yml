@@ -5,18 +5,18 @@ rust:
 sudo: false
 
 env:
-    - arch=x86_64
-    - arch=i686 ASFLAGS='-m32'
-    - arch=x86_64 DEBUG=1
-    - arch=i686 ASFLAGS='-m32' DEBUG=1
+    - target=i686-unknown-uni.json
+    - target=x86_64-unknown-uni.json
 
 os:
     - linux
 
 script:
-    - BIN_PATH=./examples/hello/main.rs BIN_OUTPUT=hello make bin
-    - BIN_PATH=./examples/thread/main.rs BIN_OUTPUT=thread make bin
-    - BIN_PATH=./examples/thread/queue.rs BIN_OUTPUT=queue make bin
+    - cargo build --verbose --target $target --release --features with-core --example hello
+    - cargo build --verbose --target $target --features with-core --example hello
 
-    # Only test for x86_64 because i686 runtime libraries are missing
-    - if [ $arch = "x86_64" ]; then make test; fi
+    - cargo build --verbose --target $target --release --features with-core --example thread
+    - cargo build --verbose --target $target --features with-core --example thread
+
+    - cargo build --verbose --target $target --release --features with-core --example queue
+    - cargo build --verbose --target $target --features with-core --example queue

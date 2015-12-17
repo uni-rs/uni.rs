@@ -1,19 +1,19 @@
 use core::ptr;
 use core::mem::size_of;
 
-use libc::memset;
+use hal::xen::boot::libc::memset;
 
 use super::page;
 
-use uni::hal::xen::memory::{MmuUpdate, MapFlags};
-use uni::hal::xen::memory::{mmu_update, update_va_mapping};
+use hal::xen::memory::{MmuUpdate, MapFlags};
+use hal::xen::memory::{mmu_update, update_va_mapping};
 
 use super::defs::PageTableEntry;
 
-use arch::defs::PAGE_SIZE;
-use arch::defs::PAGE_SHIFT;
-use arch::defs::PAGE_PRESENT;
-use arch::defs::PTE_PER_TABLE;
+use super::defs::PAGE_SIZE;
+use super::defs::PAGE_SHIFT;
+use super::defs::PAGE_PRESENT;
+use super::defs::PTE_PER_TABLE;
 
 macro_rules! div_up {
     ($x:expr, $y:expr) => {

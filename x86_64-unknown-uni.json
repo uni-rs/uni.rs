@@ -7,7 +7,13 @@
     "executables": true,
     "features": "-sse3,-ssse3,-sse4.1,-sse4.2,-3dnow,-3dnowa,-avx,-avx2",
     "arch": "x86_64",
-    "pre-link-args": [ "-m64" ],
+    "pre-link-args": [
+        "-n",
+        "-m64",
+        "-nostdlib",
+        "-static",
+        "-Tlinker.ld"
+    ],
     "code_model": "kernel",
     "disable-redzone": true,
     "no-compiler-rt": true,

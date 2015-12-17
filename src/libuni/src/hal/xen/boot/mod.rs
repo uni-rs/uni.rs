@@ -1,21 +1,14 @@
-#![feature(const_fn)]
-#![no_std]
-#![no_builtins]
-
-#[macro_use]
-extern crate uni;
-
 pub mod event;
 pub mod arch;
 pub mod libc;
 
-use uni::hal::{local_irq_enable, local_irq_disable};
+use hal::{local_irq_enable, local_irq_disable};
 
 extern {
     fn main(_: isize, _: *const *const u8) -> isize;
 }
 
-use uni::thread::Scheduler;
+use thread::Scheduler;
 
 // 8KB
 const STACK_SIZE: usize = 8192;
@@ -35,13 +28,13 @@ pub extern "C" fn uni_rust_entry() -> ! {
     unsafe {
         let (heap_start, heap_size) = arch::init_memory();
 
-        uni::allocator::init(heap_start, heap_size);
+        ::allocator::init(heap_start, heap_size);
     }
 
     event::init();
 
     unsafe {
-        uni::console::console().init_input();
+        ::console::console().init_input();
     }
 
     local_irq_enable();
@@ -51,14 +44,14 @@ pub extern "C" fn uni_rust_entry() -> ! {
     // Spawn main thread
     Scheduler::spawn(|| {
         let app_ret = unsafe {
-            main(0, core::ptr::null())
+            main(0, ::core::ptr::null())
         };
 
         local_irq_disable();
 
-        uni::console::console().flush();
+        ::console::console().flush();
 
-        uni::hal::xen::sched::poweroff(app_ret as uni::hal::xen::defs::Ulong);
+        ::hal::xen::sched::poweroff(app_ret as ::hal::xen::defs::Ulong);
 
         panic!("Failed to poweroff the machine !");
     });

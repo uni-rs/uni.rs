@@ -6,12 +6,13 @@ use super::defs::PageTableEntry;
 
 use super::defs::{OFFSET_MASK, PTE_MASK, PAGE_SHIFT};
 
-use uni::hal::xen::defs::MACH2PHYS_VIRT_START;
+use hal::xen::defs::MACH2PHYS_VIRT_START;
 
 macro_rules! pte {
     ($x:expr) => {
-        (($x as $crate::arch::defs::PageTableEntry) &
-         !$crate::arch::defs::PTE_FLAGS_MASK) | $crate::arch::defs::PTE_FLAGS;
+        (($x as $crate::hal::xen::boot::arch::defs::PageTableEntry) &
+         !$crate::hal::xen::boot::arch::defs::PTE_FLAGS_MASK) |
+        $crate::hal::xen::boot::arch::defs::PTE_FLAGS;
     }
 }
 
@@ -69,17 +70,17 @@ pub fn pfn_to_pte(pfn: Pfn) -> PageTableEntry {
 }
 
 pub fn pml4_offset(vaddr: Vaddr) -> usize {
-    ((vaddr >> ::arch::defs::PML4_OFFSET_SHIFT) & OFFSET_MASK) as usize
+    ((vaddr >> ::hal::xen::boot::arch::defs::PML4_OFFSET_SHIFT) & OFFSET_MASK) as usize
 }
 
 pub fn pdp_offset(vaddr: Vaddr) -> usize {
-    ((vaddr >> ::arch::defs::PDP_OFFSET_SHIFT) & OFFSET_MASK) as usize
+    ((vaddr >> ::hal::xen::boot::arch::defs::PDP_OFFSET_SHIFT) & OFFSET_MASK) as usize
 }
 
 pub fn pd_offset(vaddr: Vaddr) -> usize {
-    ((vaddr >> ::arch::defs::PD_OFFSET_SHIFT) & OFFSET_MASK) as usize
+    ((vaddr >> ::hal::xen::boot::arch::defs::PD_OFFSET_SHIFT) & OFFSET_MASK) as usize
 }
 
 pub fn pt_offset(vaddr: Vaddr) -> usize {
-    ((vaddr >> ::arch::defs::PT_OFFSET_SHIFT) & OFFSET_MASK) as usize
+    ((vaddr >> ::hal::xen::boot::arch::defs::PT_OFFSET_SHIFT) & OFFSET_MASK) as usize
 }

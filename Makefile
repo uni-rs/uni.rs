@@ -91,10 +91,7 @@ test:
 bin: runtime
 	$(RUSTC) $(RUSTC_FLAGS) $(BIN_PATH) -o $(BIN_OUTPUT)
 
-runtime: libboot $(libboot_arch)
+runtime: libuni
 
-$(libboot_arch): $(libboot_arch_obj)
-	ar csr $@ $^
-
-libboot:
-	CARGO_TARGET_DIR=$(output_dir) $(CARGO) rustc $(CARGO_FLAGS) --manifest-path $(src)/libboot/Cargo.toml
+libuni:
+	CARGO_TARGET_DIR=$(output_dir) $(CARGO) rustc $(CARGO_FLAGS) --features with-core --manifest-path $(src)/libuni/Cargo.toml

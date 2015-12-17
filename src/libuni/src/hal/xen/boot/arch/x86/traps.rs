@@ -2,10 +2,10 @@
 
 use core::mem;
 
-use uni::hal::xen::defs::{TrapInfo, FLAT_KERNEL_CS};
-use uni::hal::xen::arch::x86::traps::set_trap_table;
+use hal::xen::defs::{TrapInfo, FLAT_KERNEL_CS};
+use hal::xen::arch::x86::traps::set_trap_table;
 
-use libc::memset;
+use hal::xen::boot::libc::memset;
 
 extern "C" {
     fn division_error();

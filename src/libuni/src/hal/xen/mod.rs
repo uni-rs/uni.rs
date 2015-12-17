@@ -4,6 +4,7 @@ mod hypercall;
 
 pub mod defs;
 
+pub mod boot;
 pub mod memory;
 pub mod event;
 pub mod sched;

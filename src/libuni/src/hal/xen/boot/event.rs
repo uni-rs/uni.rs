@@ -1,7 +1,7 @@
 // TODO: Rethink this in an architecture independent fashion in due time
 
-use uni::hal::xen::event::dispatcher;
-use uni::hal::xen::arch::x86::callbacks::set_callbacks;
+use hal::xen::event::dispatcher;
+use hal::xen::arch::x86::callbacks::set_callbacks;
 
 extern "C" {
     fn hypervisor_callback();
@@ -11,7 +11,7 @@ extern "C" {
 #[cfg(target_arch = "x86")]
 fn init_callbacks() {
     unsafe {
-        use uni::hal::xen::defs::FLAT_KERNEL_CS;
+        use hal::xen::defs::FLAT_KERNEL_CS;
 
         set_callbacks(FLAT_KERNEL_CS, hypervisor_callback,
                       FLAT_KERNEL_CS, failsafe_callback);

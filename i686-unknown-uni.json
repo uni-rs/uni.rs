@@ -7,7 +7,13 @@
     "executables": true,
     "features": "-mmx,-sse,-sse2,-sse3,-ssse3",
     "arch": "x86",
-    "pre-link-args": [ "-m32" ],
+    "pre-link-args": [
+        "-n",
+        "-m32",
+        "-nostdlib",
+        "-static",
+        "-Tlinker.ld"
+    ],
     "code_model": "kernel",
     "no-compiler-rt": true,
     "eliminate-frame-pointer": false,

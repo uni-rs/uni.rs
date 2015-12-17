@@ -7,6 +7,7 @@
 #![feature(collections)]
 #![feature(core_intrinsics)]
 #![no_std]
+#![no_builtins]
 
 #[macro_use]
 #[cfg(not(test))]
