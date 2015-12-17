@@ -8,7 +8,7 @@ use hal::xen::event::dispatcher;
 use hal::xen::event::send;
 use hal::xen::sched::yield_cpu;
 
-use hal::xen::intrinsics::wmb;
+use hal::intrinsics::wmb;
 
 pub struct Console {
     interface: *mut ConsoleInterface,

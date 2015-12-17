@@ -1,4 +1,5 @@
-mod intrinsics;
+use hal::intrinsics::wmb;
+
 mod hypercall;
 
 pub mod defs;
@@ -20,9 +21,9 @@ pub fn enable_upcalls() -> u8 {
     unsafe {
         let ret = shared_info.vcpu_info[0].evtchn_upcall_mask;
 
-        self::intrinsics::wmb();
+        wmb();
         shared_info.vcpu_info[0].evtchn_upcall_mask = 0;
-        self::intrinsics::wmb();
+        wmb();
 
         ret
     }
@@ -33,7 +34,7 @@ pub fn disable_upcalls() -> u8 {
         let ret = shared_info.vcpu_info[0].evtchn_upcall_mask;
 
         shared_info.vcpu_info[0].evtchn_upcall_mask = 1;
-        self::intrinsics::wmb();
+        wmb();
 
         ret
     }
@@ -41,8 +42,8 @@ pub fn disable_upcalls() -> u8 {
 
 pub fn set_upcalls_state(state: u8) {
     unsafe {
-        self::intrinsics::wmb();
+        wmb();
         shared_info.vcpu_info[0].evtchn_upcall_mask = state;
-        self::intrinsics::wmb();
+        wmb();
     }
 }
