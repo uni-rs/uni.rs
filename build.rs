@@ -4,19 +4,6 @@ use std::fs;
 use std::env;
 use std::path::Path;
 
-// XXX: Merge with target_arch_get()
-fn switch_arch_get() -> &'static str {
-    let target = env::var("TARGET").unwrap();
-
-    if target.starts_with("x86_64") {
-        "x86_64"
-    } else if target.starts_with("i686") {
-        "x86"
-    } else {
-        panic!("Unsupported architecture: {}", target);
-    }
-}
-
 fn target_arch_get() -> &'static str {
     let target = env::var("TARGET").unwrap();
 
@@ -39,7 +26,7 @@ fn build_lib_boot() {
 }
 
 fn build_lib_switch() {
-    let arch = switch_arch_get();
+    let arch = target_arch_get();
 
     let src_dir = Path::new("src/thread/context").join(arch);
 

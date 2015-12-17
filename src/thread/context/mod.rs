@@ -3,14 +3,14 @@ use alloc::boxed::{Box, FnBox};
 use super::stack::Stack;
 
 #[cfg(target_arch = "x86")]
-mod x86;
+mod i686;
 
 #[cfg(target_arch = "x86_64")]
 mod x86_64;
 
 mod imp {
     #[cfg(target_arch = "x86")]
-    pub use super::x86::*;
+    pub use super::i686::*;
 
     #[cfg(target_arch = "x86_64")]
     pub use super::x86_64::*;
