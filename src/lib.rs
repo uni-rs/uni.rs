@@ -5,11 +5,13 @@
 #![feature(const_fn)]
 #![feature(lang_items)]
 #![feature(collections)]
+#![feature(macro_reexport)]
 #![feature(core_intrinsics)]
 #![no_std]
 
+
 #[cfg(not(test))]
-#[macro_use]
+#[macro_reexport(vec)]
 extern crate collections;
 
 #[cfg(not(test))]
