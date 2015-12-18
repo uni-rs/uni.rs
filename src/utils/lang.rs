@@ -1,5 +1,7 @@
 use core::fmt;
 
+use io::Write;
+
 use hal::xen::sched;
 
 use console;
@@ -20,7 +22,7 @@ pub fn eh_personality() -> ! {
 #[lang = "panic_fmt"]
 pub extern fn panic_impl(msg: fmt::Arguments, file: &'static str, line: u32) {
     println!("Panic at '{}:{}' with message '{}'", file, line, msg);
-    console::console().flush();
+    console::console().flush().unwrap();
 
     sched::crash();
 

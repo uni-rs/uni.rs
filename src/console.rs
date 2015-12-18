@@ -1,10 +1,12 @@
-use hal::xen::console::Console;
-use hal::xen::defs::{ConsoleInterface, EvtchnPort};
+use core::fmt::Arguments;
 
-use core::fmt::{Arguments, write};
+use io::Write;
 
 use sync::spin::InterruptSpinLock;
 use sync::spin::InterruptSpinGuard;
+
+use hal::xen::console::Console;
+use hal::xen::defs::{ConsoleInterface, EvtchnPort};
 
 static mut CONSOLE: Option<InterruptSpinLock<Console>> = None;
 
@@ -26,10 +28,10 @@ macro_rules! print {
 }
 
 pub fn _print(fmt: Arguments) {
-    let res = write(&mut *console(), fmt);
+    let res = console().write_fmt(fmt);
 
-    if let Err(e) = res {
-        panic!("Fail to print on the Xen console: {}", e);
+    if let Err(..) = res {
+        panic!("Fail to print on the Xen console");
     }
 }
 

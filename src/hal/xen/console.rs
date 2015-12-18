@@ -1,6 +1,8 @@
-use core::ops::{Deref, DerefMut};
-use core::fmt::{Write, Result};
 use core::mem::size_of;
+
+use core::ops::{Deref, DerefMut};
+
+use io::{Read, Write, Result};
 
 use hal::xen::defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
 
@@ -57,12 +59,6 @@ impl Console {
 
         (self.out_prod & size_of_output) as usize
     }
-
-    pub fn flush(&self) -> () {
-        while self.out_cons < self.out_prod {
-            yield_cpu();
-        }
-    }
 }
 
 impl Deref for Console {
@@ -89,10 +85,15 @@ impl DerefMut for Console {
     }
 }
 
-impl Write for Console {
-    fn write_str(&mut self, s: &str) -> Result {
+impl Read for Console {
+    fn read(&mut self, _: &mut [u8]) -> Result<usize> {
+        unimplemented!();
+    }
+}
 
-        for c in s.as_bytes() {
+impl Write for Console {
+    fn write(&mut self, buf: &[u8]) -> Result<usize> {
+        for c in buf {
             while self.is_output_full() {
                 send(self.port);
             }
@@ -107,7 +108,14 @@ impl Write for Console {
 
         send(self.port);
 
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> Result<()> {
+        while self.out_cons < self.out_prod {
+            yield_cpu();
+        }
+
         Ok(())
     }
 }
-

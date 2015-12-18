@@ -1,3 +1,5 @@
+use io::Write;
+
 use hal::{
     local_irq_enable,
     local_irq_disable
@@ -92,7 +94,7 @@ pub extern "C" fn uni_rust_entry() -> ! {
 
         local_irq_disable();
 
-        ::console::console().flush();
+        ::console::console().flush().unwrap();
 
         sched::poweroff(app_ret as ::hal::xen::defs::Ulong);
 
