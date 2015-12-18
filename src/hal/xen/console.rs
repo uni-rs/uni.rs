@@ -12,6 +12,18 @@ use hal::xen::sched::yield_cpu;
 
 use hal::intrinsics::wmb;
 
+static mut CONSOLE: Option<Console> = None;
+
+pub fn console<'a>() -> &'a mut Console {
+    unsafe {
+        CONSOLE.as_mut().expect("Using console before initialization")
+    }
+}
+
+pub unsafe fn init(interface: *mut ConsoleInterface, port: EvtchnPort) {
+    CONSOLE = Some((Console::new(interface, port)));
+}
+
 pub struct Console {
     interface: *mut ConsoleInterface,
     port: EvtchnPort,
@@ -84,6 +96,8 @@ impl DerefMut for Console {
         }
     }
 }
+
+impl ::hal::Console for Console {}
 
 impl Read for Console {
     fn read(&mut self, _: &mut [u8]) -> Result<usize> {

@@ -9,10 +9,19 @@
 pub use self::hw_imp::*;
 pub use self::arch_imp::*;
 
+pub trait Console: ::io::Read + ::io::Write {}
+
+#[cfg(feature = "xen")]
 pub mod xen;
 
+#[cfg(feature = "xen")]
 mod hw_imp {
     use super::xen;
+
+    #[inline]
+    pub fn console<'a>() -> &'a mut super::Console {
+        xen::console::console()
+    }
 
     #[inline]
     /// Disable local interrupt delivery

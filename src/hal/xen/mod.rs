@@ -9,6 +9,23 @@ use hal::intrinsics::wmb;
 
 use thread::Scheduler;
 
+// In order to use stdout, heap must be initialized, so "raw" console is used
+// before that
+macro_rules! raw_println {
+    ($fmt:expr) => {
+        raw_print!(concat!($fmt, "\r\n"))
+    };
+    ($fmt:expr, $($arg:tt)*) => {
+        raw_print!(concat!($fmt, "\r\n"), $($arg)*)
+    }
+}
+
+macro_rules! raw_print {
+    ($($arg:tt)*) => {
+        $crate::hal::console().write_fmt(format_args!($($arg)*)).unwrap();
+    }
+}
+
 mod hypercall;
 
 pub mod defs;
@@ -67,7 +84,7 @@ extern {
 pub extern "C" fn uni_rust_entry() -> ! {
     boot::init();
 
-    println!("Uni.rs is booting");
+    raw_println!("Uni.rs is booting");
 
     // Memory initialization is unsafe
     unsafe {
@@ -79,7 +96,7 @@ pub extern "C" fn uni_rust_entry() -> ! {
     boot::event::init();
 
     unsafe {
-        ::console::console().init_input();
+        console::console().init_input();
     }
 
     local_irq_enable();
@@ -94,7 +111,7 @@ pub extern "C" fn uni_rust_entry() -> ! {
 
         local_irq_disable();
 
-        ::console::console().flush().unwrap();
+        ::hal::console().flush().unwrap();
 
         sched::poweroff(app_ret as ::hal::xen::defs::Ulong);
 

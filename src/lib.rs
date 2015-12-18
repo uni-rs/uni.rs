@@ -35,7 +35,6 @@ pub mod allocator {
 }
 
 #[macro_use]
-pub mod console;
 pub mod io;
 
 pub mod hal;

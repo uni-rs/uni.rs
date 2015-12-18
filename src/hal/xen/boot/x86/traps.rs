@@ -103,5 +103,5 @@ pub fn init() {
         set_trap_table(trap_begin);
     }
 
-    println!("Uni.rs traps handlers installed");
+    raw_println!("Uni.rs traps handlers installed");
 }

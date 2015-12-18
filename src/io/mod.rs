@@ -3,6 +3,39 @@
 use core::fmt;
 use core::result;
 
+mod lazy;
+mod stdio;
+
+pub use self::stdio::stdout;
+
+#[macro_export]
+macro_rules! println {
+    ($fmt:expr) => {
+        print!(concat!($fmt, "\r\n"))
+    };
+    ($fmt:expr, $($arg:tt)*) => {
+        print!(concat!($fmt, "\r\n"), $($arg)*)
+    }
+}
+
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => {
+        $crate::io::_print(format_args!($($arg)*));
+    }
+}
+
+#[doc(hidden)]
+pub fn _print(fmt: fmt::Arguments) {
+    let out = stdout();
+    let mut out_locked = out.lock();
+    let res = out_locked.write_fmt(fmt);
+
+    if let Err(..) = res {
+        panic!("Fail to print on the Xen console");
+    }
+}
+
 pub type Result<T> = result::Result<T, ()>;
 
 pub trait Read {

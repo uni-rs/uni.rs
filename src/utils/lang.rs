@@ -2,9 +2,8 @@ use core::fmt;
 
 use io::Write;
 
+use hal::console;
 use hal::xen::sched;
-
-use console;
 
 #[cfg(not(test))]
 #[lang = "stack_exhausted"]
@@ -21,8 +20,10 @@ pub fn eh_personality() -> ! {
 #[cfg(not(test))]
 #[lang = "panic_fmt"]
 pub extern fn panic_impl(msg: fmt::Arguments, file: &'static str, line: u32) {
-    println!("Panic at '{}:{}' with message '{}'", file, line, msg);
-    console::console().flush().unwrap();
+    // Use raw console to be sure to not be locked
+    console().write_fmt(format_args!("Panic at '{}:{}' with message '{}'\n\r",
+                                     file, line, msg)).unwrap();
+    console().flush().unwrap();
 
     sched::crash();
 

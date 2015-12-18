@@ -1,7 +1,5 @@
 use hal::xen;
-
 use hal::xen::memory::MapFlags;
-
 use hal::xen::defs::{Ulong, StartInfo, SharedInfo, ConsoleInterface};
 
 #[macro_use]
@@ -24,8 +22,8 @@ pub fn init() {
 
         console_vaddr = page::mfn_to_vaddr((*start_info).domu_console.mfn);
 
-        ::console::init(console_vaddr as *mut ConsoleInterface,
-                           (*start_info).domu_console.evtchn);
+        ::hal::xen::console::init(console_vaddr as *mut ConsoleInterface,
+                                  (*start_info).domu_console.evtchn);
 
         self::traps::init();
     }
@@ -39,14 +37,13 @@ pub unsafe fn init_memory() -> (usize, usize) {
     let mut mapper = mapper::IdentityMapper::new(pt_base, nr_pt_frames,
                                                  nr_pages);
 
-    println!("start info: 0x{:x}", start_info as usize);
-    println!("number of pages: {}", (*start_info).nr_pages);
-    println!("pt_base: 0x{:x}", (*start_info).pt_base);
-    println!("nr_pt_frames: {}", (*start_info).nr_pt_frames);
-
-    println!("Allocating heap 0x{:x}-0x{:x} ({} kB)", mapper.area_start,
-             mapper.area_end,
-             (mapper.area_end - mapper.area_start) / 1024);
+    raw_println!("start info: 0x{:x}", start_info as usize);
+    raw_println!("number of pages: {}", (*start_info).nr_pages);
+    raw_println!("pt_base: 0x{:x}", (*start_info).pt_base);
+    raw_println!("nr_pt_frames: {}", (*start_info).nr_pt_frames);
+    raw_println!("Allocating heap 0x{:x}-0x{:x} ({} kB)",
+                 mapper.area_start, mapper.area_end,
+                 (mapper.area_end - mapper.area_start) / 1024);
 
     mapper.map();
 
