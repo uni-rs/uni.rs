@@ -6,12 +6,12 @@ use rlibc::memset;
 use super::page;
 
 use hal::x86::{PAGE_SIZE, PAGE_SHIFT};
-use hal::x86::PageFlags;
+use hal::x86::{PageEntry, PageFlags};
 
 use hal::xen::memory::{MmuUpdate, MapFlags};
 use hal::xen::memory::{mmu_update, update_va_mapping};
 
-use super::defs::{PageTableEntry, PTE_PER_TABLE};
+use super::defs::PTE_PER_TABLE;
 
 macro_rules! div_up {
     ($x:expr, $y:expr) => {
@@ -24,7 +24,7 @@ const MAX_UPDATES: usize = 100;
 /// Helper that creates an identity mapping between physical memory and virtual
 /// memory.
 pub struct IdentityMapper {
-    top_level_table: *const PageTableEntry,
+    top_level_table: *const PageEntry<u64>,
     admin_pfn_pool: page::Pfn,
     reg_pfn_pool: page::Pfn,
     updates: [MmuUpdate; 100],
@@ -66,7 +66,7 @@ impl IdentityMapper {
         let nr_page_to_map = nr_pages - reg_pfn_base;
 
         IdentityMapper {
-            top_level_table: pt_base as *const PageTableEntry,
+            top_level_table: pt_base as *const PageEntry<u64>,
             admin_pfn_pool: pfn_base + nr_pt_frames,
             reg_pfn_pool: reg_pfn_base,
             updates: [MmuUpdate::null(); 100],
@@ -81,7 +81,7 @@ impl IdentityMapper {
     // table) if this page is mapped somewhere as writable or if it has
     // some non valid entries. This is why we first zero the page, then
     // map it as read only
-    unsafe fn add_admin_page(&mut self, table: *const PageTableEntry,
+    unsafe fn add_admin_page(&mut self, table: *const PageEntry<u64>,
                              offset: usize) {
         let new_entry_pfn = self.admin_pfn_pool;
         let new_entry_mfn = page::pfn_to_mfn(new_entry_pfn);
@@ -90,7 +90,7 @@ impl IdentityMapper {
 
         // We map this new page in our virtual address space so that we
         // can clear it
-        update_va_mapping(new_entry_vaddr, new_entry_pte,
+        update_va_mapping(new_entry_vaddr, new_entry_pte.value(),
                           MapFlags::InvlpgLocal);
 
         // Clear the page before mapping it
@@ -105,7 +105,7 @@ impl IdentityMapper {
         let mut table_mach : page::Maddr;
 
         table_mach = (table_mfn as page::Maddr) << PAGE_SHIFT;
-        table_mach += (offset * size_of::<PageTableEntry>()) as page::Maddr;
+        table_mach += (offset * size_of::<PageEntry<u64>>()) as page::Maddr;
 
         // We add a new page to the table
         self.add_mmu_update(table_mach, new_entry_pte, true);
@@ -113,9 +113,9 @@ impl IdentityMapper {
         self.admin_pfn_pool += 1;
     }
 
-    unsafe fn add_mmu_update(&mut self, ptr: page::Maddr, val: PageTableEntry,
-                      force_update: bool) {
-        self.updates[self.nr_update as usize] = MmuUpdate::new(ptr, val);
+    unsafe fn add_mmu_update(&mut self, ptr: page::Maddr, val: PageEntry<u64>,
+                             force_update: bool) {
+        self.updates[self.nr_update as usize] = MmuUpdate::new(ptr, val.value());
 
         self.nr_update += 1;
 
@@ -141,19 +141,19 @@ impl IdentityMapper {
         self.nr_update = 0;
     }
 
-    unsafe fn extract_entry(&mut self, table: *const PageTableEntry,
-                            offset: usize) -> *const PageTableEntry {
+    unsafe fn extract_entry(&mut self, table: *const PageEntry<u64>,
+                            offset: usize) -> *const PageEntry<u64> {
         let mut entry = *table.offset(offset as isize);
 
-        if (entry & PageFlags::Present as u64) == 0 {
+        if !entry.has(PageFlags::Present) {
             self.add_admin_page(table, offset);
             entry = *table.offset(offset as isize);
-            if (entry & PageFlags::Present as u64) == 0 {
+            if !entry.has(PageFlags::Present) {
                 panic!("BUG: Admin page was not added properly");
             }
         }
 
-        page::pte_to_vaddr(entry) as *const PageTableEntry
+        page::pte_to_vaddr(entry) as *const PageEntry<u64>
     }
 
     pub unsafe fn map(&mut self) {
@@ -185,12 +185,12 @@ impl IdentityMapper {
             let mut page_table_addr: page::Maddr;
 
             pt_offset = page::pt_offset(current_addr) as usize;
-            pt_offset *= size_of::<PageTableEntry>();
+            pt_offset *= size_of::<PageEntry<u64>>();
 
             page_table_addr = (page_table_mfn as page::Maddr) << PAGE_SHIFT;
             page_table_addr += pt_offset as page::Maddr;
 
-            self.add_mmu_update(page_table_addr, new_pte as PageTableEntry,
+            self.add_mmu_update(page_table_addr, new_pte as PageEntry<u64>,
                                 false);
 
             self.reg_pfn_pool += 1;

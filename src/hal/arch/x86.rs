@@ -1,12 +1,54 @@
 //! Definition of various functions, constants and types useful only for
 //! x86 architectures
 
-use core::ops::BitOr;
+use core::ops::{BitAnd, BitOr};
 
 pub const PAGE_SHIFT: usize = 12;
 
 /// Size of a page
 pub const PAGE_SIZE: usize = 1 << PAGE_SHIFT;
+
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct PageEntry<T = usize> {
+    entry: T,
+}
+
+// XXX: Is there a better solution than that ?
+impl<T> PageEntry<T> where T: BitOr<T> + From<<T as BitOr>::Output>,
+                           T: BitAnd<T> + From<<T as BitAnd>::Output>,
+                           T: PartialEq<T> + From<PageFlags> + Copy {
+    #[inline]
+    pub fn new(entry: T) -> Self {
+        PageEntry {
+            entry: entry
+        }
+    }
+
+    #[inline]
+    pub fn value(&self) -> T {
+        self.entry
+    }
+
+    #[inline]
+    pub fn mask(mut self, mask: T) -> Self {
+        self.entry = T::from(self.entry & mask);
+        self
+    }
+
+    #[inline]
+    pub fn set(mut self, flag: PageFlags) -> Self {
+        self.entry = T::from(self.entry | T::from(flag));
+        self
+    }
+
+    #[inline]
+    pub fn has(&self, flags: PageFlags) -> bool {
+        let flags = T::from(flags);
+
+        T::from(self.entry & flags) == flags
+    }
+}
 
 #[allow(dead_code)]
 pub enum PageFlags {
@@ -17,12 +59,24 @@ pub enum PageFlags {
     CacheDisabled = 0x10,
 }
 
-impl BitOr for PageFlags {
-    type Output = usize;
-
+impl From<PageFlags> for usize {
     #[inline]
-    fn bitor(self, rhs: PageFlags) -> Self::Output {
-        self as usize | rhs as usize
+    fn from(flags: PageFlags) -> Self {
+        flags as usize
+    }
+}
+
+impl From<PageFlags> for u32 {
+    #[inline]
+    fn from(flags: PageFlags) -> Self {
+        flags as u32
+    }
+}
+
+impl From<PageFlags> for u64 {
+    #[inline]
+    fn from(flags: PageFlags) -> Self {
+        flags as u64
     }
 }
 

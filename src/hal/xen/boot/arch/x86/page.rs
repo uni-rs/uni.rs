@@ -1,24 +1,26 @@
 //! Page index and address manipulation
 
+use hal::x86::PageEntry;
 use hal::x86::PAGE_SHIFT;
+
+use hal::xen::defs::MACH2PHYS_VIRT_START;
 
 use super::start_info;
 
-use super::defs::PageTableEntry;
 
 use super::defs::{OFFSET_MASK, PTE_MASK};
 
-use hal::xen::defs::MACH2PHYS_VIRT_START;
 
 macro_rules! pte {
     ($x:expr) => {{
         use $crate::hal::x86::PageFlags;
 
-        use $crate::hal::xen::boot::arch::defs::PageTableEntry;
+        use $crate::hal::x86::PageEntry;
         use $crate::hal::xen::boot::arch::defs::PTE_FLAGS_MASK;
 
-        (($x as PageTableEntry) & !PTE_FLAGS_MASK) |
-        (PageFlags::Present | PageFlags::Writable) as u64
+        PageEntry::<u64>::new($x as u64 & !PTE_FLAGS_MASK)
+            .set(PageFlags::Present)
+            .set(PageFlags::Writable)
     }}
 }
 
@@ -59,19 +61,19 @@ pub fn vaddr_to_mfn(vaddr: Vaddr) -> Mfn {
     pfn_to_mfn(vaddr_to_pfn(vaddr))
 }
 
-pub fn pte_to_vaddr(entry: PageTableEntry) -> Vaddr {
+pub fn pte_to_vaddr(entry: PageEntry<u64>) -> Vaddr {
     mfn_to_vaddr(pte_to_mfn(entry))
 }
 
-pub fn pte_to_mfn(entry: PageTableEntry) -> Mfn {
-    ((entry & PTE_MASK) >> PAGE_SHIFT as PageTableEntry) as Mfn
+pub fn pte_to_mfn(entry: PageEntry<u64>) -> Mfn {
+    PageEntry::new(entry.mask(PTE_MASK).value() >> PAGE_SHIFT).value() as Mfn
 }
 
-pub fn mfn_to_pte(mfn: Mfn) -> PageTableEntry {
-    pte!((mfn as PageTableEntry) << PAGE_SHIFT)
+pub fn mfn_to_pte(mfn: Mfn) -> PageEntry<u64> {
+    pte!((mfn as u64) << PAGE_SHIFT)
 }
 
-pub fn pfn_to_pte(pfn: Pfn) -> PageTableEntry {
+pub fn pfn_to_pte(pfn: Pfn) -> PageEntry<u64> {
     mfn_to_pte(pfn_to_mfn(pfn))
 }
 

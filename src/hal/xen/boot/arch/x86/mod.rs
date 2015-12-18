@@ -60,6 +60,6 @@ unsafe fn map_shared_info() {
 
     // Map shared info
     assert_eq!(xen::memory::update_va_mapping(shared_info_ptr as Ulong,
-                                              shared_info_pte,
+                                              shared_info_pte.value(),
                                               MapFlags::InvlpgLocal), 0)
 }

@@ -2,8 +2,6 @@
 
 use hal::x86::PAGE_SIZE;
 
-pub type PageTableEntry = u64;
-
 // Page table entry flags
 pub const PTE_MASK: u64 = (1 << 44) - 1;
 pub const PTE_FLAGS_MASK: u64 = (PAGE_SIZE - 1) as u64;
