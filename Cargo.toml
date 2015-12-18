@@ -45,3 +45,7 @@ path = "examples/thread/main.rs"
 [[example]]
 name = "queue"
 path = "examples/thread/queue.rs"
+
+[[example]]
+name = "echo"
+path = "examples/console/echo.rs"
