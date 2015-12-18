@@ -12,14 +12,14 @@ os:
     - linux
 
 script:
-    - cargo build --verbose --target $target --release --features with-core --example hello
-    - cargo build --verbose --target $target --features with-core --example hello
+    - cargo build --verbose --target $target --release --features xen --example hello
+    - cargo build --verbose --target $target --features xen --example hello
 
-    - cargo build --verbose --target $target --release --features with-core --example thread
-    - cargo build --verbose --target $target --features with-core --example thread
+    - cargo build --verbose --target $target --release --features xen --example thread
+    - cargo build --verbose --target $target --features xen --example thread
 
-    - cargo build --verbose --target $target --release --features with-core --example queue
-    - cargo build --verbose --target $target --features with-core --example queue
+    - cargo build --verbose --target $target --release --features xen --example queue
+    - cargo build --verbose --target $target --features xen --example queue
 
     # Only test for x86_64 because i686 runtime libraries are missing
     - if [ $target = "x86_64-unknown-uni.json" ]; then

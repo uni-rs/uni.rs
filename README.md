@@ -26,14 +26,16 @@ associated with source files in the examples directory.
 - thread => examples/thread/main.rs
 - queue => examples/thread/queue.rs
 
-In order to build the example you might need to add the feature `with-core`.
-Since we use a custom target, the core library probably does not exist in your
-environment. As a convenience this feature will build the necessary
-dependencies from the rust sources. Here is the command that one might use to
-build the `hello` example.
+In order to build the example you might need to add the feature corresponding
+to the platform targeted. Here we will be using `xen`. This platform feature
+will also trigger a special target named with-core. Indeed, since we use a
+custom target, the core library probably does not exist in your environment.
+As a convenience this feature will build the necessary dependencies from the
+rust sources. So, here is the command that one might use to build the `hello`
+example for xen.
 
 ```
-$ cargo build --target x86_64-unknown-uni.json --release --features with-core --example hello
+$ cargo build --target x86_64-unknown-uni.json --release --features xen --example hello
 ```
 
 ### Using in your own projects

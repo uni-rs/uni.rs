@@ -12,6 +12,7 @@ gcc = "0.3.20"
 
 default = [ "rlibc", "spin", "alloc", "collections", "intrusive", "alloc_uni" ]
 
+xen = [ "with-core" ]
 with-core = [
     "core",
     "rlibc/with-core",
