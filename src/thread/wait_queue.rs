@@ -1,9 +1,10 @@
 use alloc::boxed::Box;
 
+use intrusive::queue::Queue;
+
 use hal::local_irq_disable;
 
-use sync::spin::InterruptSpinLock;
-use intrusive::queue::Queue;
+use sync::spin::{InterruptSpinLock, InterruptSpinGuard};
 
 use super::{Thread, ThreadImpl, Scheduler};
 
@@ -19,6 +20,11 @@ impl WaitQueue {
         WaitQueue {
             queue: InterruptSpinLock::new(Queue::new()),
         }
+    }
+
+    #[doc(hidden)]
+    pub fn lock(&self) -> InterruptSpinGuard<InternalQueue> {
+        self.queue.lock()
     }
 
     #[inline]

@@ -1,14 +1,16 @@
-use core::mem::size_of;
-
+use core::cmp;
+use core::mem;
 use core::ops::{Deref, DerefMut};
 
 use io::{Read, Write, Result};
 
-use hal::xen::defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
+use thread::{Scheduler, WaitQueue};
 
-use hal::xen::event::dispatcher;
-use hal::xen::event::send;
+use hal::{local_irq_disable, local_irq_enable};
+
 use hal::xen::sched::yield_cpu;
+use hal::xen::event::{dispatcher, send};
+use hal::xen::defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
 
 use hal::intrinsics::wmb;
 
@@ -27,6 +29,7 @@ pub unsafe fn init(interface: *mut ConsoleInterface, port: EvtchnPort) {
 pub struct Console {
     interface: *mut ConsoleInterface,
     port: EvtchnPort,
+    queue: WaitQueue,
 }
 
 impl Console {
@@ -36,7 +39,7 @@ impl Console {
         let prod = console.in_prod;
 
         if prod - cons > 0 {
-            unimplemented!();
+            console.queue.unblock();
         }
 
         send(port);
@@ -47,6 +50,7 @@ impl Console {
         Console {
             interface: interface,
             port: port,
+            queue: WaitQueue::new(),
         }
     }
 
@@ -63,13 +67,19 @@ impl Console {
         data = self.out_prod - self.out_cons;
 
         // size_of output field
-        (data as usize) >= size_of::<[u8; 2048]>()
+        (data as usize) >= mem::size_of::<[u8; 2048]>()
     }
 
     fn out_idx(&self) -> usize {
-        let size_of_output = (size_of::<[u8; 2048]>() - 1) as u32;
+        let size_of_output = (mem::size_of::<[u8; 2048]>() - 1) as u32;
 
         (self.out_prod & size_of_output) as usize
+    }
+
+    fn in_idx(&self) -> usize {
+        let size_of_input = (mem::size_of::<[u8; 1024]>() - 1) as u32;
+
+        (self.in_cons & size_of_input) as usize
     }
 }
 
@@ -100,8 +110,35 @@ impl DerefMut for Console {
 impl ::hal::Console for Console {}
 
 impl Read for Console {
-    fn read(&mut self, _: &mut [u8]) -> Result<usize> {
-        unimplemented!();
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
+        loop {
+            local_irq_disable();
+
+            let queue = self.queue.lock();
+
+            if self.in_cons - self.in_prod > 0 {
+                local_irq_enable();
+                break;
+            }
+
+            Scheduler::block(queue);
+        }
+
+        let i = 0;
+
+        let size = cmp::min((self.in_cons - self.in_prod) as usize, buf.len());
+
+        while i < buf.len() && self.in_cons < self.in_prod {
+            let index = self.in_idx();
+
+            buf[i] = self.input[index];
+
+            self.in_cons += 1;
+
+            wmb();
+        }
+
+        Ok(size)
     }
 }
 
