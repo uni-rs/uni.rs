@@ -9,6 +9,7 @@
 pub use self::hw_imp::*;
 pub use self::arch_imp::*;
 
+/// Trait implemented by the hardware console
 pub trait Console: ::io::Read + ::io::Write {}
 
 #[cfg(feature = "xen")]
@@ -19,6 +20,13 @@ mod hw_imp {
     use super::xen;
 
     #[inline]
+    /// Unprotected access to the hardware console
+    ///
+    /// This *SHOULD NOT* be used as is.
+    ///
+    /// Instead use [`io::stdout()`][stdout].
+    ///
+    /// [stdout]: ../io/fn.stdout.html
     pub fn console<'a>() -> &'a mut super::Console {
         xen::console::console()
     }
@@ -70,6 +78,7 @@ mod arch_imp {
         pub use hal::arch::wmb;
     }
 
+    /// Various definitions related to the architecture
     pub mod defs {
         pub use hal::arch::PAGE_SIZE;
     }
