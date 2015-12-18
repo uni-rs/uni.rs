@@ -11,11 +11,15 @@ use super::defs::{OFFSET_MASK, PTE_MASK};
 use hal::xen::defs::MACH2PHYS_VIRT_START;
 
 macro_rules! pte {
-    ($x:expr) => {
-        (($x as $crate::hal::xen::boot::arch::defs::PageTableEntry) &
-         !$crate::hal::xen::boot::arch::defs::PTE_FLAGS_MASK) |
-        $crate::hal::xen::boot::arch::defs::PTE_FLAGS;
-    }
+    ($x:expr) => {{
+        use $crate::hal::x86::PageFlags;
+
+        use $crate::hal::xen::boot::arch::defs::PageTableEntry;
+        use $crate::hal::xen::boot::arch::defs::PTE_FLAGS_MASK;
+
+        (($x as PageTableEntry) & !PTE_FLAGS_MASK) |
+        (PageFlags::Present | PageFlags::Writable) as u64
+    }}
 }
 
 pub type Vaddr = usize;

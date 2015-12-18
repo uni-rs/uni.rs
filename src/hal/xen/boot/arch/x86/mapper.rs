@@ -5,15 +5,13 @@ use rlibc::memset;
 
 use super::page;
 
+use hal::x86::{PAGE_SIZE, PAGE_SHIFT};
+use hal::x86::PageFlags;
+
 use hal::xen::memory::{MmuUpdate, MapFlags};
 use hal::xen::memory::{mmu_update, update_va_mapping};
 
-use super::defs::PageTableEntry;
-
-use hal::x86::{PAGE_SIZE, PAGE_SHIFT};
-
-use super::defs::PAGE_PRESENT;
-use super::defs::PTE_PER_TABLE;
+use super::defs::{PageTableEntry, PTE_PER_TABLE};
 
 macro_rules! div_up {
     ($x:expr, $y:expr) => {
@@ -101,7 +99,7 @@ impl IdentityMapper {
         // We remap it as read only
         update_va_mapping(new_entry_vaddr,
                           ((new_entry_mfn as page::Maddr) << PAGE_SHIFT) |
-                          PAGE_PRESENT, MapFlags::InvlpgLocal);
+                          PageFlags::Present as u64, MapFlags::InvlpgLocal);
 
         let table_mfn = page::vaddr_to_mfn(table as page::Vaddr);
         let mut table_mach : page::Maddr;
@@ -147,10 +145,10 @@ impl IdentityMapper {
                             offset: usize) -> *const PageTableEntry {
         let mut entry = *table.offset(offset as isize);
 
-        if (entry & PAGE_PRESENT) == 0 {
+        if (entry & PageFlags::Present as u64) == 0 {
             self.add_admin_page(table, offset);
             entry = *table.offset(offset as isize);
-            if (entry & PAGE_PRESENT) == 0 {
+            if (entry & PageFlags::Present as u64) == 0 {
                 panic!("BUG: Admin page was not added properly");
             }
         }

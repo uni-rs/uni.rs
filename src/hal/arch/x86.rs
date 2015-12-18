@@ -1,10 +1,30 @@
 //! Definition of various functions, constants and types useful only for
 //! x86 architectures
 
+use core::ops::BitOr;
+
 pub const PAGE_SHIFT: usize = 12;
 
 /// Size of a page
 pub const PAGE_SIZE: usize = 1 << PAGE_SHIFT;
+
+#[allow(dead_code)]
+pub enum PageFlags {
+    Present = 0x1,
+    Writable = 0x2,
+    User = 0x4,
+    WriteThrough = 0x8,
+    CacheDisabled = 0x10,
+}
+
+impl BitOr for PageFlags {
+    type Output = usize;
+
+    #[inline]
+    fn bitor(self, rhs: PageFlags) -> Self::Output {
+        self as usize | rhs as usize
+    }
+}
 
 pub unsafe fn atomic_set_bit<T>(nr: usize, addr: *mut T) {
     asm!("lock bts $1, $0"
