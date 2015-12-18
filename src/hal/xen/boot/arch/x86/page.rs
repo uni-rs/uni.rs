@@ -1,10 +1,12 @@
 //! Page index and address manipulation
 
+use hal::x86::PAGE_SHIFT;
+
 use super::start_info;
 
 use super::defs::PageTableEntry;
 
-use super::defs::{OFFSET_MASK, PTE_MASK, PAGE_SHIFT};
+use super::defs::{OFFSET_MASK, PTE_MASK};
 
 use hal::xen::defs::MACH2PHYS_VIRT_START;
 

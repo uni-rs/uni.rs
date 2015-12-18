@@ -1,3 +1,11 @@
+//! Definition of various functions, constants and types useful only for
+//! x86 architectures
+
+pub const PAGE_SHIFT: usize = 12;
+
+/// Size of a page
+pub const PAGE_SIZE: usize = 1 << PAGE_SHIFT;
+
 pub unsafe fn atomic_set_bit<T>(nr: usize, addr: *mut T) {
     asm!("lock bts $1, $0"
          :: "=*m" (addr as *mut u32), "Ir" (nr)

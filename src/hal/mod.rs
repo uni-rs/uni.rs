@@ -42,9 +42,13 @@ mod hw_imp {
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[path="arch/x86.rs"]
-mod arch;
+mod x86;
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+mod arch {
+    pub use super::x86::*;
+}
+
 mod arch_imp {
     pub mod intrinsics {
         pub use core::intrinsics::atomic_xchg;
@@ -55,5 +59,9 @@ mod arch_imp {
         pub use hal::arch::first_bit;
 
         pub use hal::arch::wmb;
+    }
+
+    pub mod defs {
+        pub use hal::arch::PAGE_SIZE;
     }
 }

@@ -1,9 +1,8 @@
 //! Definition of types and constants related to the x86 architecture
 
-pub type PageTableEntry = u64;
+use hal::x86::PAGE_SIZE;
 
-pub const PAGE_SHIFT: usize = 12;
-pub const PAGE_SIZE: usize = 1 << PAGE_SHIFT;
+pub type PageTableEntry = u64;
 
 pub const PAGE_WRITABLE: u64 = 2;
 pub const PAGE_PRESENT: u64 = 1;

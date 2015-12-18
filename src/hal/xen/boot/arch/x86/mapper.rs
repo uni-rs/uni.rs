@@ -10,8 +10,8 @@ use hal::xen::memory::{mmu_update, update_va_mapping};
 
 use super::defs::PageTableEntry;
 
-use super::defs::PAGE_SIZE;
-use super::defs::PAGE_SHIFT;
+use hal::x86::{PAGE_SIZE, PAGE_SHIFT};
+
 use super::defs::PAGE_PRESENT;
 use super::defs::PTE_PER_TABLE;
 
