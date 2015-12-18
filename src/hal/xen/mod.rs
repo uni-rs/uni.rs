@@ -1,10 +1,6 @@
 use io::Write;
 
-use hal::{
-    local_irq_enable,
-    local_irq_disable
-};
-
+use hal;
 use hal::intrinsics::wmb;
 
 use thread::Scheduler;
@@ -99,7 +95,7 @@ pub extern "C" fn uni_rust_entry() -> ! {
         console::console().init_input();
     }
 
-    local_irq_enable();
+    hal::local_irq_enable();
 
     println!("Creating main thread");
 
@@ -109,11 +105,11 @@ pub extern "C" fn uni_rust_entry() -> ! {
             main(0, ::core::ptr::null())
         };
 
-        local_irq_disable();
+        hal::local_irq_disable();
 
-        ::hal::console().flush().unwrap();
+        hal::console().flush().unwrap();
 
-        sched::poweroff(app_ret as ::hal::xen::defs::Ulong);
+        hal::app::exit(app_ret);
 
         panic!("Failed to poweroff the machine !");
     });

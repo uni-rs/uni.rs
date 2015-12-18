@@ -55,6 +55,38 @@ mod hw_imp {
     pub fn local_irq_restore(state: usize) {
         xen::set_upcalls_state(state as u8);
     }
+
+    /// Work with the state of the application
+    pub mod app {
+        use hal::xen;
+
+        /// Block the application until an interruption arrives
+        #[inline]
+        pub fn block() {
+            xen::sched::block();
+        }
+
+        /// Crash the application
+        ///
+        /// On certain platform this might be equivalent to
+        /// [`exit()`][exit]
+        ///
+        /// [exit]: fn.exit.html
+        #[inline]
+        pub fn crash() {
+            xen::sched::crash();
+        }
+
+        /// Exit the application
+        ///
+        /// This will also power off the system.
+        ///
+        /// Note that the error code might be ignored on certain platforms
+        #[inline]
+        pub fn exit(code: isize) {
+            xen::sched::poweroff(code as xen::defs::Ulong);
+        }
+    }
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]

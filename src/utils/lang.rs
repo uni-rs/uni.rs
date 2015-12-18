@@ -2,8 +2,7 @@ use core::fmt;
 
 use io::Write;
 
-use hal::console;
-use hal::xen::sched;
+use hal::{app, console};
 
 #[cfg(not(test))]
 #[lang = "stack_exhausted"]
@@ -25,7 +24,7 @@ pub extern fn panic_impl(msg: fmt::Arguments, file: &'static str, line: u32) {
                                      file, line, msg)).unwrap();
     console().flush().unwrap();
 
-    sched::crash();
+    app::crash();
 
     loop {}
 }

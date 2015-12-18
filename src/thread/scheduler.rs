@@ -3,6 +3,7 @@
 use core::ptr;
 use core::mem;
 
+use hal::app;
 use hal::{local_irq_disable, local_irq_enable};
 
 use alloc::boxed::Box;
@@ -179,7 +180,7 @@ impl SchedulerImpl {
                 None => {
                     // If no threads can be run wait for an interruption. An
                     // interruption might wake up a thread for us to run
-                    ::hal::xen::sched::block();
+                    app::block();
                     local_irq_enable();
                 }
                 Some(next) => {
@@ -220,7 +221,7 @@ impl SchedulerImpl {
         match next {
             None => {
                 // See comment in schedule()
-                ::hal::xen::sched::block();
+                app::block();
                 local_irq_enable();
             }
             Some(next) => {
