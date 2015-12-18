@@ -10,9 +10,11 @@ gcc = "0.3.20"
 
 [features]
 
-default = [ "spin", "alloc", "collections", "intrusive", "alloc_uni" ]
+default = [ "rlibc", "spin", "alloc", "collections", "intrusive", "alloc_uni" ]
+
 with-core = [
     "core",
+    "rlibc/with-core",
     "spin/with-core",
     "alloc/with-core",
     "collections/with-core",
@@ -22,6 +24,7 @@ with-core = [
 
 [dependencies]
 
+rlibc = { path = "deps/rlibc", optional = true }
 spin = { path = "deps/spinlock-rs", optional = true }
 alloc = { path = "rust-libs/alloc", optional = true }
 collections = { path = "rust-libs/collections", optional = true }

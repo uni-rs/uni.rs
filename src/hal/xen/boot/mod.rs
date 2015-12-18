@@ -1,6 +1,5 @@
 pub mod event;
 pub mod arch;
-pub mod libc;
 
 use hal::{local_irq_enable, local_irq_disable};
 

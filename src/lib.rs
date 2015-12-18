@@ -7,23 +7,23 @@
 #![feature(collections)]
 #![feature(core_intrinsics)]
 #![no_std]
-#![no_builtins]
 
-#[macro_use]
 #[cfg(not(test))]
+#[macro_use]
 extern crate collections;
+
+#[cfg(not(test))]
+extern crate alloc;
 
 #[cfg(not(test))]
 pub use collections::*;
 
+extern crate rlibc;
 extern crate spin;
-extern crate intrusive;
 
 #[cfg(not(test))]
 extern crate alloc_uni;
-
-#[cfg(not(test))]
-extern crate alloc;
+extern crate intrusive;
 
 #[cfg(not(test))]
 #[doc(hidden)]

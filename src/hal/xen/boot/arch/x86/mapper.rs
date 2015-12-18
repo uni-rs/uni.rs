@@ -1,7 +1,7 @@
 use core::ptr;
 use core::mem::size_of;
 
-use hal::xen::boot::libc::memset;
+use rlibc::memset;
 
 use super::page;
 

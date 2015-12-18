@@ -4,3 +4,6 @@
 [submodule "src/deps/spinlock-rs"]
 	path = deps/spinlock-rs
 	url = https://github.com/uni-rs/spinlock-rs.git
+[submodule "deps/rlibc"]
+	path = deps/rlibc
+	url = https://github.com/uni-rs/rlibc.git
