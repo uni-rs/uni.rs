@@ -6,7 +6,8 @@ use core::result;
 mod lazy;
 mod stdio;
 
-pub use self::stdio::stdout;
+pub use self::stdio::{stdin, stdout};
+pub use self::stdio::{Stdin, Stdout, StdinLock, StdoutLock};
 
 #[macro_export]
 macro_rules! println {
