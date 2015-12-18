@@ -8,6 +8,45 @@ pub const PAGE_SHIFT: usize = 12;
 /// Size of a page
 pub const PAGE_SIZE: usize = 1 << PAGE_SHIFT;
 
+/// Mask to apply to a page table entry to isolate the flags
+pub const PTE_FLAGS_MASK: u64 = (PAGE_SIZE - 1) as u64;
+
+// Special case: Xen uses PAE for x86 which changes some constants related to
+// paging. We are in the arch part of the hal, and this is Xen related,
+// but it would not make much sense to define so constants for every single
+// platform because of one 'exception'
+
+#[cfg(target_arch = "x86_64")]
+pub const PML4_OFFSET_SHIFT: usize = 39;
+
+#[cfg(target_arch = "x86")]
+pub const PML4_OFFSET_SHIFT: usize = 0;
+
+pub const PDP_OFFSET_SHIFT: usize = 30;
+
+#[cfg(any(feature = "xen", target_arch = "x86_64"))]
+pub const PD_OFFSET_SHIFT: usize = 21;
+
+#[cfg(all(not(feature = "xen"), target_arch = "x86"))]
+pub const PD_OFFSET_SHIFT: usize = 22;
+
+pub const PT_OFFSET_SHIFT: usize = 12;
+
+#[cfg(any(feature = "xen", target_arch = "x86_64"))]
+pub const PTE_PER_TABLE: usize = 512;
+
+#[cfg(all(not(feature = "xen"), target_arch = "x86"))]
+pub const PTE_PER_TABLE: usize = 1024;
+
+#[cfg(any(feature = "xen", target_arch = "x86_64"))]
+pub const PTE_MASK: u64 = (1 << 44) - 1;
+
+#[cfg(any(feature = "xen", target_arch = "x86_64"))]
+pub const OFFSET_MASK: usize = 0x1FF;
+
+#[cfg(all(not(feature = "xen"), target_arch = "x86"))]
+pub const OFFSET_MASK: usize = 0x3FF;
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct PageEntry<T = usize> {

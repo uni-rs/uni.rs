@@ -9,7 +9,6 @@ mod page;
 mod mapper;
 
 pub mod traps;
-pub mod defs;
 
 extern {
     // Start info is not present on all architecture, this is why this

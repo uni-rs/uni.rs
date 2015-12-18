@@ -5,13 +5,12 @@ use rlibc::memset;
 
 use super::page;
 
-use hal::x86::{PAGE_SIZE, PAGE_SHIFT};
 use hal::x86::{PageEntry, PageFlags};
+use hal::x86::{PAGE_SIZE, PAGE_SHIFT, PTE_PER_TABLE};
 
 use hal::xen::memory::{MmuUpdate, MapFlags};
 use hal::xen::memory::{mmu_update, update_va_mapping};
 
-use super::defs::PTE_PER_TABLE;
 
 macro_rules! div_up {
     ($x:expr, $y:expr) => {
