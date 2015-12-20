@@ -121,14 +121,16 @@ impl From<PageFlags> for u64 {
 
 pub unsafe fn atomic_set_bit<T>(nr: usize, addr: *mut T) {
     asm!("lock bts $1, $0"
-         :: "=*m" (addr as *mut u32), "Ir" (nr)
+         : "=*m" (addr as *mut u32)
+         : "Ir" (nr)
          : "memory"
          : "volatile");
 }
 
 pub unsafe fn atomic_clear_bit<T>(nr: usize, addr: *mut T) {
     asm!("lock btr $1, $0"
-         :: "=*m" (addr as *mut u32), "Ir" (nr)
+         : "=*m" (addr as *mut u32)
+         : "Ir" (nr)
          : "memory"
          : "volatile");
 }
