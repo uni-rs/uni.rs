@@ -14,6 +14,8 @@ pub use self::wait_queue::WaitQueue;
 mod stack;
 mod context;
 mod scheduler;
+
+#[macro_use]
 mod wait_queue;
 
 const DEFAULT_STACK_SIZE: usize = 8192;

@@ -6,8 +6,6 @@ use io::{Read, Write, Result};
 
 use thread::{Scheduler, WaitQueue};
 
-use hal::{local_irq_disable, local_irq_enable};
-
 use hal::xen::sched::yield_cpu;
 use hal::xen::event::{dispatcher, send};
 use hal::xen::defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
@@ -111,18 +109,11 @@ impl ::hal::Console for Console {}
 
 impl Read for Console {
     fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
-        loop {
-            local_irq_disable();
-
-            let queue = self.queue.lock();
-
-            if self.in_cons - self.in_prod > 0 {
-                local_irq_enable();
-                break;
-            }
-
-            Scheduler::block(queue);
-        }
+        // More locked or atomic checks of the condition are not necessary
+        // here. Indeed this Console is a "raw" console which means that it is
+        // not thread safe. This safety will be guaranteed by the stdio
+        // functions such as stdin, stdout, ...
+        wait_event!(self.queue, self.in_cons - self.in_prod > 0);
 
         let i = 0;
 

@@ -66,6 +66,7 @@ pub struct SharedInfo {
 
 pub type EvtchnPort = u32;
 
+// XXX: Console related stuff should live in hal::xen::console
 pub type ConsRingIdx = u32;
 
 #[repr(C)]

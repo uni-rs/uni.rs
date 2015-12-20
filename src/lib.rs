@@ -9,7 +9,6 @@
 #![feature(core_intrinsics)]
 #![no_std]
 
-
 #[cfg(not(test))]
 #[macro_reexport(vec)]
 extern crate collections;
@@ -38,11 +37,11 @@ pub mod allocator {
 
 #[macro_use]
 pub mod io;
+#[cfg(not(test))]
+#[macro_use]
+pub mod thread;
 
 pub mod hal;
-
-#[cfg(not(test))]
-pub mod thread;
 pub mod sync;
 
 #[doc(hidden)]

@@ -10,6 +10,35 @@ use super::{Thread, ThreadImpl, Scheduler};
 
 pub type InternalQueue = Queue<Box<ThreadImpl>, ThreadImpl>;
 
+#[macro_export]
+/// Wait for an event to occur
+///
+/// This macro allows a thread to wait for a condition to become true.
+/// If the condition is false, the thread will block on the [`queue`][queue]
+/// given as parameter. This macro *MUST* be called with local irqs enabled.
+///
+/// [queue]: thread/struct.WaitQueue.html
+///
+/// Note that this macro does not signify exclusivity. In fact multiple
+/// concurrent threads might go through. In that case external atomic (or
+/// locked) test on the condition might be necessary.
+macro_rules! wait_event {
+    ($queue:expr, $cond:expr) => (
+        loop {
+            $crate::hal::local_irq_disable();
+
+            let locked_queue = $queue.lock();
+
+            if $cond {
+                $crate::hal::local_irq_enable();
+                break;
+            }
+
+            Scheduler::block(locked_queue);
+        }
+    )
+}
+
 pub struct WaitQueue {
     queue: InterruptSpinLock<InternalQueue>,
 }
