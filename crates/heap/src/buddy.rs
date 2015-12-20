@@ -201,7 +201,7 @@ impl<'a> Allocator for Buddy<'a> {
     }
 }
 
-struct PhantomNode {
+pub struct PhantomNode {
     prev: Link<PhantomNode>,
     next: Link<PhantomNode>,
 }

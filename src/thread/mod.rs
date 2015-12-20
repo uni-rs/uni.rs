@@ -71,7 +71,8 @@ enum State {
     Terminated,
 }
 
-struct ThreadImpl {
+#[doc(hidden)]
+pub struct ThreadImpl {
     context: Context,
     state: State,
     // On Drop stack is released
