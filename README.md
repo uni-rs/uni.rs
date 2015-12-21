@@ -6,6 +6,8 @@ written in rust.
 The project is a work in progress and therefore is highly unstable and subject
 to design, API, ... changes.
 
+The documentation can be found [here](https://uni-rs.github.io/uni.rs)
+
 ## Supported plaforms
 
 | Platform      | Architecture  |
