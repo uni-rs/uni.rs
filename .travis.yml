@@ -2,30 +2,40 @@ language: rust
 rust:
     - nightly
 
-sudo: false
+sudo: true
 
 env:
-    - target=i686-unknown-uni.json
-    - target=x86_64-unknown-uni.json
+    - test=NO cargo_conf="--release --features xen --target=i686-unknown-uni.json"
+    - test=NO cargo_conf="--features xen --target=i686-unknown-uni.json"
+    - test=NO cargo_conf="--release --features xen --target=x86_64-unknown-uni.json"
+    - test=NO cargo_conf="--features xen --target=x86_64-unknown-uni.json"
+    - test=YES
 
 os:
     - linux
 
+before_install:
+    npm install --save-dev travis-after-all
+
 script:
-    - cargo build --verbose --target $target --release --features xen --example hello
-    - cargo build --verbose --target $target --features xen --example hello
+    - if [[ "$test" == "NO" ]]; then cargo build --verbose --example hello $cargo_conf; fi
+    - if [[ "$test" == "NO" ]]; then cargo build --verbose --example thread $cargo_conf; fi
+    - if [[ "$test" == "NO" ]]; then cargo build --verbose --example queue $cargo_conf; fi
+    - if [[ "$test" == "NO" ]]; then cargo build --verbose --example echo $cargo_conf; fi
 
-    - cargo build --verbose --target $target --release --features xen --example thread
-    - cargo build --verbose --target $target --features xen --example thread
+    - if [[ "$test" == "YES" ]]; then cargo test --verbose --manifest-path crates/heap/Cargo.toml; fi
+    - if [[ "$test" == "YES" ]]; then cargo test --verbose --manifest-path crates/intrusive/Cargo.toml; fi
 
-    - cargo build --verbose --target $target --release --features xen --example queue
-    - cargo build --verbose --target $target --features xen --example queue
-
-    - cargo build --verbose --target $target --release --features xen --example echo
-    - cargo build --verbose --target $target --features xen --example echo
-
-    # Only test for x86_64 because i686 runtime libraries are missing
-    - if [ $target = "x86_64-unknown-uni.json" ]; then
-        cargo test --verbose --target x86_64-unknown-linux-gnu --manifest-path crates/heap/Cargo.toml;
-        cargo test --verbose --target x86_64-unknown-linux-gnu --manifest-path crates/intrusive/Cargo.toml;
-      fi
+after_success:
+    - |
+        declare exitCode;
+        $(npm bin)/travis-after-all
+        exitCode=$?
+        [ $exitCode -eq 0 ] &&
+        [ $TRAVIS_BRANCH = master ] &&
+        [ $TRAVIS_PULL_REQUEST = false ] &&
+        cargo doc --features xen &&
+        echo "<meta http-equiv=refresh content=0;url=uni/index.html>" > target/doc/index.html &&
+        sudo pip install ghp-import &&
+        ghp-import -n target/doc &&
+        git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
