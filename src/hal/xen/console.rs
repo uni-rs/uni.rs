@@ -4,7 +4,7 @@ use core::ops::{Deref, DerefMut};
 
 use io::{Read, Write, Result};
 
-use thread::{Scheduler, WaitQueue};
+use thread::WaitQueue;
 
 use hal::xen::sched::yield_cpu;
 use hal::xen::event::{dispatcher, send};
@@ -31,7 +31,16 @@ pub struct Console {
 }
 
 impl Console {
-    pub fn console_callback(port: EvtchnPort, data: *mut u8) {
+    pub unsafe fn new(interface: *mut ConsoleInterface,
+                      port: EvtchnPort) -> Self {
+        Console {
+            interface: interface,
+            port: port,
+            queue: WaitQueue::new(),
+        }
+    }
+
+    fn console_callback(port: EvtchnPort, data: *mut u8) {
         let console = unsafe { &mut *(data as *mut Console) };
         let cons = console.in_cons;
         let prod = console.in_prod;
@@ -43,17 +52,8 @@ impl Console {
         send(port);
     }
 
-    pub unsafe fn new(interface: *mut ConsoleInterface,
-                      port: EvtchnPort) -> Self {
-        Console {
-            interface: interface,
-            port: port,
-            queue: WaitQueue::new(),
-        }
-    }
-
     pub unsafe fn init_input(&mut self) {
-        dispatcher().bind_port(self.port, Console::console_callback,
+        dispatcher().bind_port(self.port, Self::console_callback,
                                self as *mut Self as *mut u8);
         dispatcher().unmask_event(self.port);
         send(self.port);
