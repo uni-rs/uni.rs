@@ -34,7 +34,7 @@ macro_rules! wait_event {
                 break;
             }
 
-            Scheduler::block(locked_queue);
+            $crate::thread::Scheduler::block(locked_queue);
         }
     )
 }
