@@ -113,11 +113,11 @@ impl Read for Console {
         // here. Indeed this Console is a "raw" console which means that it is
         // not thread safe. This safety will be guaranteed by the stdio
         // functions such as stdin, stdout, ...
-        wait_event!(self.queue, self.in_cons - self.in_prod > 0);
+        wait_event!(self.queue, self.in_prod > self.in_cons);
 
         let i = 0;
 
-        let size = cmp::min((self.in_cons - self.in_prod) as usize, buf.len());
+        let size = cmp::min((self.in_prod - self.in_cons) as usize, buf.len());
 
         while i < buf.len() && self.in_cons < self.in_prod {
             let index = self.in_idx();
