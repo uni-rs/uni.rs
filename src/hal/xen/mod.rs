@@ -17,9 +17,11 @@ macro_rules! raw_println {
 }
 
 macro_rules! raw_print {
-    ($($arg:tt)*) => {
+    ($($arg:tt)*) => {{
+        use $crate::io::Write;
+
         $crate::hal::console().write_fmt(format_args!($($arg)*)).unwrap();
-    }
+    }}
 }
 
 mod hypercall;

@@ -6,11 +6,32 @@
 //! For now only Xen (x86/x86_64) is supported. A goal for the future would
 //! be to be compatible with the virtio standard as well and support Xen arm
 
+use io::{Read, Write, Result};
+
 pub use self::hw_imp::*;
 pub use self::arch_imp::*;
 
-/// Trait implemented by the hardware console
-pub trait Console: ::io::Read + ::io::Write {}
+/// Generic console wrapper
+pub struct Console<'a>(HwConsoleType<'a>);
+
+impl<'a> Read for Console<'a> {
+    #[inline]
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
+        self.0.read(buf)
+    }
+}
+
+impl<'a> Write for Console<'a> {
+    #[inline]
+    fn write(&mut self, buf: &[u8]) -> Result<usize> {
+        self.0.write(buf)
+    }
+
+    #[inline]
+    fn flush(&mut self) -> Result<()> {
+        self.0.flush()
+    }
+}
 
 #[cfg(feature = "xen")]
 pub mod xen;
@@ -18,17 +39,24 @@ pub mod xen;
 #[cfg(feature = "xen")]
 mod hw_imp {
     use super::xen;
+    use super::Console;
+
+    use cell::GlobalCellMutRef;
+
+    /// Abstracts the actual hardware console type
+    pub type HwConsoleType<'a> = GlobalCellMutRef<'a, xen::console::Console>;
 
     #[inline]
     /// Unprotected access to the hardware console
     ///
     /// This *SHOULD NOT* be used as is.
     ///
-    /// Instead use [`io::stdout()`][stdout].
+    /// Instead use [`io::stdout()`][stdout] or [`io::stdin()`][stdin]
     ///
     /// [stdout]: ../io/fn.stdout.html
-    pub fn console<'a>() -> &'a mut super::Console {
-        xen::console::console()
+    /// [stdin]: ../io/fn.stdin.html
+    pub fn console<'a>() -> Console<'a> {
+        Console(xen::console::console())
     }
 
     #[inline]

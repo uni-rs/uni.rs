@@ -6,22 +6,22 @@ use io::{Read, Write, Result};
 
 use thread::WaitQueue;
 
+use cell::{GlobalCell, GlobalCellMutRef};
+
 use hal::xen::sched::yield_cpu;
 use hal::xen::event::{dispatcher, send};
 use hal::xen::defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
 
 use hal::intrinsics::wmb;
 
-static mut CONSOLE: Option<Console> = None;
+static CONSOLE: GlobalCell<Console> = GlobalCell::new();
 
-pub fn console<'a>() -> &'a mut Console {
-    unsafe {
-        CONSOLE.as_mut().expect("Using console before initialization")
-    }
+pub fn console<'a>() -> GlobalCellMutRef<'a, Console> {
+    CONSOLE.as_mut()
 }
 
 pub unsafe fn init(interface: *mut ConsoleInterface, port: EvtchnPort) {
-    CONSOLE = Some((Console::new(interface, port)));
+    CONSOLE.set(Console::new(interface, port));
 }
 
 pub struct Console {
@@ -29,6 +29,8 @@ pub struct Console {
     port: EvtchnPort,
     queue: WaitQueue,
 }
+
+unsafe impl Sync for Console {}
 
 impl Console {
     pub unsafe fn new(interface: *mut ConsoleInterface,
@@ -104,8 +106,6 @@ impl DerefMut for Console {
         }
     }
 }
-
-impl ::hal::Console for Console {}
 
 impl Read for Console {
     fn read(&mut self, buf: &mut [u8]) -> Result<usize> {

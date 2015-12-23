@@ -3,22 +3,25 @@ use io::{Read, Write, Result};
 
 use sync::Arc;
 
+use hal::Console;
+use hal::console;
+
 use sync::spin::{InterruptSpinLock, InterruptSpinGuard};
 
 pub fn stdout() -> Stdout {
-    static STDOUT: Lazy<InterruptSpinLock<&'static mut ::hal::Console>> = Lazy::new(stdout_init);
+    static STDOUT: Lazy<InterruptSpinLock<Console<'static>>> = Lazy::new(stdout_init);
 
     return Stdout {
         inner: unsafe { STDOUT.get() },
     };
 
-    fn stdout_init() -> Arc<InterruptSpinLock<&'static mut ::hal::Console>> {
-        Arc::new(InterruptSpinLock::new(::hal::console()))
+    fn stdout_init() -> Arc<InterruptSpinLock<Console<'static>>> {
+        Arc::new(InterruptSpinLock::new(console()))
     }
 }
 
 pub struct Stdout {
-    inner: Arc<InterruptSpinLock<&'static mut ::hal::Console>>,
+    inner: Arc<InterruptSpinLock<Console<'static>>>,
 }
 
 impl Stdout {
@@ -30,7 +33,7 @@ impl Stdout {
 }
 
 pub struct StdoutLock<'a> {
-    lock: InterruptSpinGuard<'a, &'static mut ::hal::Console>,
+    lock: InterruptSpinGuard<'a, Console<'static>>,
 }
 
 impl<'a> Write for StdoutLock<'a> {
@@ -44,19 +47,19 @@ impl<'a> Write for StdoutLock<'a> {
 }
 
 pub fn stdin() -> Stdin {
-    static STDIN: Lazy<InterruptSpinLock<&'static mut ::hal::Console>> = Lazy::new(stdin_init);
+    static STDIN: Lazy<InterruptSpinLock<Console<'static>>> = Lazy::new(stdin_init);
 
     return Stdin {
         inner: unsafe { STDIN.get() },
     };
 
-    fn stdin_init() -> Arc<InterruptSpinLock<&'static mut ::hal::Console>> {
-        Arc::new(InterruptSpinLock::new(::hal::console()))
+    fn stdin_init() -> Arc<InterruptSpinLock<Console<'static>>> {
+        Arc::new(InterruptSpinLock::new(console()))
     }
 }
 
 pub struct Stdin {
-    inner: Arc<InterruptSpinLock<&'static mut ::hal::Console>>,
+    inner: Arc<InterruptSpinLock<Console<'static>>>,
 }
 
 impl Stdin {
@@ -68,7 +71,7 @@ impl Stdin {
 }
 
 pub struct StdinLock<'a> {
-    lock: InterruptSpinGuard<'a, &'static mut ::hal::Console>,
+    lock: InterruptSpinGuard<'a, Console<'static>>,
 }
 
 impl<'a> Read for StdinLock<'a> {
