@@ -1,3 +1,8 @@
+//! Xen backend for Uni.rs
+//!
+//! Note: This backend is enabled by the feature named *xen* and thus might
+//! not be available depending on your build's configuration.
+
 use io::Write;
 
 use hal;

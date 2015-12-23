@@ -127,6 +127,7 @@ mod arch {
 }
 
 mod arch_imp {
+    /// Utility functions that have an architecture dependent implementation
     pub mod intrinsics {
         pub use core::intrinsics::atomic_xchg;
 
