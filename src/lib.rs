@@ -42,6 +42,7 @@ pub mod io;
 pub mod thread;
 
 pub mod hal;
+pub mod cell;
 pub mod sync;
 
 #[doc(hidden)]
