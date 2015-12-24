@@ -9,23 +9,6 @@ mod stdio;
 pub use self::stdio::{stdin, stdout};
 pub use self::stdio::{Stdin, Stdout, StdinLock, StdoutLock};
 
-#[macro_export]
-macro_rules! println {
-    ($fmt:expr) => {
-        print!(concat!($fmt, "\r\n"))
-    };
-    ($fmt:expr, $($arg:tt)*) => {
-        print!(concat!($fmt, "\r\n"), $($arg)*)
-    }
-}
-
-#[macro_export]
-macro_rules! print {
-    ($($arg:tt)*) => {
-        $crate::io::_print(format_args!($($arg)*));
-    }
-}
-
 #[doc(hidden)]
 pub fn _print(fmt: fmt::Arguments) {
     let out = stdout();

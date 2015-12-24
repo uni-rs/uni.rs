@@ -32,8 +32,11 @@ pub mod allocator {
     }
 }
 
-#[macro_use] pub mod io;
-#[cfg(not(test))] #[macro_use] pub mod thread;
+#[macro_use]
+mod macros;
+
+pub mod io;
+#[cfg(not(test))] pub mod thread;
 
 pub mod hal;
 pub mod cell;
