@@ -108,16 +108,6 @@ KERNEL_CS_MASK = 0xfc
     addq $6*8,%rsp
 .endm
 
-.macro SAVE_REST
-    subq $6*8,%rsp
-    movq %rbx,5*8(%rsp)
-    movq %rbp,4*8(%rsp)
-    movq %r12,3*8(%rsp)
-    movq %r13,2*8(%rsp)
-    movq %r14,1*8(%rsp)
-    movq %r15,(%rsp)
-.endm
-
 .macro HYPERVISOR_IRET flag
     testl $NMI_MASK,2*8(%rsp)
     jnz   2f
@@ -140,7 +130,7 @@ KERNEL_CS_MASK = 0xfc
 ENTRY(error_entry)
     /* rdi slot contains rax, oldrax contains error code */
     cld
-    subq  $14*8,%rsp
+    subq $14*8,%rsp
     movq %rsi,13*8(%rsp)
     movq 14*8(%rsp),%rsi    /* load rax from rdi slot */
     movq %rdx,12*8(%rsp)
