@@ -11,6 +11,7 @@
 
 #[macro_use]
 #[macro_reexport(vec)]
+#[macro_reexport(format)]
 extern crate collections;
 extern crate alloc;
 
