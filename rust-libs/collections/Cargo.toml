@@ -5,12 +5,9 @@ authors = ["Baptiste Covolato"]
 
 [features]
 
-default = [ "alloc", "rustc_unicode" ]
-with-core = [ "core", "alloc/with-core", "rustc_unicode/with-core" ]
-
 [dependencies]
 
-alloc = { path = "../alloc", optional = true }
-rustc_unicode = { path = "../rustc_unicode", optional = true }
+rust-libcore = "*"
 
-core = { path = "../core", optional = true }
+alloc = { path = "../alloc" }
+rustc_unicode = { path = "../rustc_unicode" }

@@ -23,8 +23,8 @@ script:
     - if [[ "$test" == "NO" ]]; then cargo build --verbose --example queue $cargo_conf; fi
     - if [[ "$test" == "NO" ]]; then cargo build --verbose --example echo $cargo_conf; fi
 
-    - if [[ "$test" == "YES" ]]; then cargo test --verbose --manifest-path crates/heap/Cargo.toml; fi
-    - if [[ "$test" == "YES" ]]; then cargo test --verbose --manifest-path crates/intrusive/Cargo.toml; fi
+    - if [[ "$test" == "YES" ]]; then cargo test --features test --verbose --manifest-path crates/heap/Cargo.toml; fi
+    - if [[ "$test" == "YES" ]]; then cargo test --features test --verbose --manifest-path crates/intrusive/Cargo.toml; fi
 
 after_success:
     - |

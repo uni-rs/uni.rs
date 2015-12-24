@@ -6,12 +6,13 @@ authors = ["Baptiste Covolato"]
 
 [features]
 
-default = [ "spin", "heap" ]
-with-core = [ "core", "spin/with-core", "heap/with-core" ]
+test = [ "spin/test", "heap/test" ]
+
+with-core = [ "spin/with-core", "heap/with-core", "rust-libcore" ]
 
 [dependencies]
 
 spin = { path = "../../deps/spinlock-rs", optional = true }
 heap = { path = "../heap", optional = true }
 
-core = { path = "../../rust-libs/core", optional = true }
+rust-libcore = { version = "*", optional = true }

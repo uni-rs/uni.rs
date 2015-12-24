@@ -6,8 +6,10 @@ authors = ["Baptiste Covolato"]
 
 [features]
 
-with-core = [ "core" ]
+test = []
+
+with-core = [ "rust-libcore" ]
 
 [dependencies]
 
-core = { path = "../../rust-libs/core", optional = true }
+rust-libcore = { version = "*", optional = true }

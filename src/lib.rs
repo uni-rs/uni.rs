@@ -9,25 +9,21 @@
 #![feature(core_intrinsics)]
 #![no_std]
 
-#[cfg(not(test))]
+#[macro_use]
 #[macro_reexport(vec)]
 extern crate collections;
-
-#[cfg(not(test))]
 extern crate alloc;
 
-#[cfg(not(test))]
-pub use collections::*;
-
+#[cfg(not(test))] extern crate alloc_uni;
 extern crate rlibc;
 extern crate spin;
 
-#[cfg(not(test))]
-extern crate alloc_uni;
 extern crate intrusive;
 
-#[cfg(not(test))]
+pub use collections::*;
+
 #[doc(hidden)]
+#[cfg(not(test))]
 pub mod allocator {
     pub use alloc_uni;
     pub unsafe fn init(region_start: usize, region_size: usize) {
@@ -35,15 +31,11 @@ pub mod allocator {
     }
 }
 
-#[macro_use]
-pub mod io;
-#[cfg(not(test))]
-#[macro_use]
-pub mod thread;
+#[macro_use] pub mod io;
+#[cfg(not(test))] #[macro_use] pub mod thread;
 
 pub mod hal;
 pub mod cell;
 pub mod sync;
 
-#[doc(hidden)]
-pub mod utils;
+#[doc(hidden)] pub mod utils;

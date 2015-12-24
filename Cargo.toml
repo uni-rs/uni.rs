@@ -10,29 +10,30 @@ gcc = "0.3.20"
 
 [features]
 
-default = [ "rlibc", "spin", "alloc", "collections", "intrusive", "alloc_uni" ]
+test = [ "rlibc/test", "spin/test", "intrusive/test" ]
 
-xen = [ "with-core" ]
-with-core = [
-    "core",
+xen = [
     "rlibc/with-core",
     "spin/with-core",
-    "alloc/with-core",
-    "collections/with-core",
     "intrusive/with-core",
-    "alloc_uni/with-core"
+    "alloc_uni/with-core",
+    "alloc",
+    "collections",
+    "rust-libcore"
 ]
 
 [dependencies]
 
 rlibc = { path = "deps/rlibc", optional = true }
 spin = { path = "deps/spinlock-rs", optional = true }
+
+intrusive = { path = "crates/intrusive", optional = true }
+alloc_uni = { path = "crates/alloc_uni", optional = true  }
+
 alloc = { path = "rust-libs/alloc", optional = true }
 collections = { path = "rust-libs/collections", optional = true }
-intrusive = { path = "crates/intrusive", optional = true }
-alloc_uni = { path = "crates/alloc_uni", optional = true }
 
-core = { path = "rust-libs/core", optional = true }
+rust-libcore = { version = "*", optional = true }
 
 [[example]]
 name = "hello"
