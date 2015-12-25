@@ -44,7 +44,7 @@ impl<'a> Buddy<'a> {
             return ret;
         }
 
-        while r_start < r_limit {
+        while r_start + max_block_size <= r_limit {
             ret.add_block(max_order, r_start as *mut u8);
 
             r_start += max_block_size;
