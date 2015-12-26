@@ -11,13 +11,13 @@
         "-n",
         "-m32",
         "-nostdlib",
-        "-static",
-        "-Tlinker.ld"
+        "-Tlinker.ld",
+        "-z max-page-size=0x1000"
     ],
     "code_model": "kernel",
+    "relocation-model": "static",
     "no-compiler-rt": true,
-    "eliminate-frame-pointer": false,
     "linker-is-gnu": true,
-    "archive-format": "gnu",
+    "eliminate-frame-pointer": false,
     "morestack": false
 }

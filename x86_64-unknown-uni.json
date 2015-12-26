@@ -11,13 +11,14 @@
         "-n",
         "-m64",
         "-nostdlib",
-        "-static",
-        "-Tlinker.ld"
+        "-Tlinker.ld",
+        "-z max-page-size=0x1000"
     ],
     "code_model": "kernel",
-    "disable-redzone": true,
+    "relocation-model": "static",
     "no-compiler-rt": true,
-    "eliminate-frame-pointer": false,
     "linker-is-gnu": true,
-    "morestack": false
+    "eliminate-frame-pointer": false,
+    "morestack": false,
+    "disable-redzone": true
 }
