@@ -36,10 +36,10 @@ pub mod allocator {
 mod macros;
 
 pub mod io;
-#[cfg(not(test))] pub mod thread;
-
 pub mod hal;
 pub mod cell;
 pub mod sync;
-
 #[doc(hidden)] pub mod utils;
+#[cfg(not(test))] pub mod thread;
+
+#[cfg(feature = "net")] pub mod net;

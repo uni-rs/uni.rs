@@ -34,7 +34,7 @@ after_success:
         [ $exitCode -eq 0 ] &&
         [ $TRAVIS_BRANCH = master ] &&
         [ $TRAVIS_PULL_REQUEST = false ] &&
-        cargo doc --features xen &&
+        cargo doc --features "xen net" &&
         echo "<meta http-equiv=refresh content=0;url=uni/index.html>" > target/doc/index.html &&
         sudo pip install ghp-import &&
         ghp-import -n target/doc &&

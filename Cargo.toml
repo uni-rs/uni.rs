@@ -22,6 +22,8 @@ xen = [
     "rust-libcore"
 ]
 
+net = []
+
 [dependencies]
 
 rlibc = { path = "deps/rlibc", optional = true }

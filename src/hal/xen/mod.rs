@@ -121,7 +121,9 @@ pub extern "C" fn uni_rust_entry() -> ! {
         panic!("Failed to poweroff the machine !");
     });
 
-    println!("Starting scheduler");
+    println!("Uni.rs is now ready");
+    println!("Control is now transfered to the application");
+    println!("");
 
     Scheduler::schedule();
 
