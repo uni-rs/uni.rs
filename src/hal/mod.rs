@@ -8,6 +8,8 @@
 
 use io::{Read, Write, Result};
 
+pub mod mmu;
+
 pub use self::hw_imp::*;
 pub use self::arch_imp::*;
 

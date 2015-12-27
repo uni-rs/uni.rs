@@ -1,5 +1,8 @@
 use core::mem;
 
+use hal::mmu::Vaddr;
+use hal::arch::PageEntry;
+
 use hal::xen::hypercall::{hypercall3, hypercall4};
 use hal::xen::hypercall::HypercallKind;
 
@@ -13,14 +16,14 @@ pub enum MapFlags {
     InvlpgAll = 4,
 }
 
-pub unsafe fn update_va_mapping(guest_page: Ulong, maddr: u64,
+pub unsafe fn update_va_mapping(guest_page: Vaddr, entry: PageEntry,
                                 flags: MapFlags) -> i32 {
     if mem::size_of::<Ulong>() == mem::size_of::<u64>() {
-        hypercall3(HypercallKind::UpdateVaMapping, guest_page, maddr as Ulong,
-                   flags as Ulong) as i32
+        hypercall3(HypercallKind::UpdateVaMapping, *guest_page,
+                   entry.value() as Ulong, flags as Ulong) as i32
     } else {
-        hypercall4(HypercallKind::UpdateVaMapping, guest_page,
-                   maddr as Ulong, (maddr >> 32) as Ulong,
+        hypercall4(HypercallKind::UpdateVaMapping, *guest_page,
+                   entry.value() as Ulong, (entry.value() >> 32) as Ulong,
                    flags as Ulong) as i32
     }
 }

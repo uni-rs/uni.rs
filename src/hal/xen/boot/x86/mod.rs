@@ -1,9 +1,11 @@
 use hal::xen;
-use hal::xen::memory::MapFlags;
-use hal::xen::defs::{Ulong, StartInfo, SharedInfo, ConsoleInterface};
+use hal::arch::PageEntry;
 
-#[macro_use]
-mod page;
+use hal::mmu::{Vaddr, Maddr, Mfn};
+
+use hal::xen::defs::StartInfo;
+use hal::xen::memory::MapFlags;
+
 mod mapper;
 
 pub mod traps;
@@ -16,13 +18,15 @@ extern {
 
 pub fn init() {
     unsafe {
-        let console_vaddr: self::page::Vaddr;
+        let mut console_vaddr;
+        let mut store_vaddr;
 
         map_shared_info();
 
-        console_vaddr = page::mfn_to_vaddr((*start_info).domu_console.mfn);
+        console_vaddr = Vaddr::from(Mfn::new((*start_info).domu_console.mfn));
+        store_vaddr = Vaddr::from(Mfn::new((*start_info).store_mfn));
 
-        ::hal::xen::console::init(console_vaddr as *mut ConsoleInterface,
+        ::hal::xen::console::init(console_vaddr.as_mut_ptr(),
                                   (*start_info).domu_console.evtchn);
 
         self::traps::init();
@@ -30,7 +34,7 @@ pub fn init() {
 }
 
 pub unsafe fn init_memory() -> (usize, usize) {
-    let pt_base: page::Vaddr = (*start_info).pt_base;
+    let pt_base = Vaddr::new((*start_info).pt_base);
     let nr_pt_frames: usize = (*start_info).nr_pt_frames;
     let nr_pages: usize = (*start_info).nr_pages;
 
@@ -42,20 +46,20 @@ pub unsafe fn init_memory() -> (usize, usize) {
     raw_println!("pt_base: 0x{:x}", (*start_info).pt_base);
     raw_println!("nr_pt_frames: {}", (*start_info).nr_pt_frames);
     raw_println!("Allocating heap 0x{:x}-0x{:x} ({} kB)",
-                 mapper.area_start, mapper.area_end,
-                 (mapper.area_end - mapper.area_start) / 1024);
+                 *mapper.area_start, *mapper.area_end,
+                 (*mapper.area_end - *mapper.area_start) / 1024);
 
     mapper.map();
 
-    (mapper.area_start, mapper.area_end - mapper.area_start)
+    (*mapper.area_start, *mapper.area_end - *mapper.area_start)
 }
 
 unsafe fn map_shared_info() {
-    let shared_info_pte = pte!((*start_info).shared_info);
-    let shared_info_ptr: *const SharedInfo = &xen::shared_info;
+    let shared_info_pte = PageEntry::from(Maddr::new((*start_info).shared_info as u64));
+    let shared_info_addr = Vaddr::from_ptr(&xen::shared_info);
 
     // Map shared info
-    assert_eq!(xen::memory::update_va_mapping(shared_info_ptr as Ulong,
-                                              shared_info_pte.value(),
+    assert_eq!(xen::memory::update_va_mapping(shared_info_addr,
+                                              shared_info_pte,
                                               MapFlags::InvlpgLocal), 0)
 }
