@@ -1,7 +1,7 @@
 use core::mem;
 
 use hal::mmu::Vaddr;
-use hal::arch::PageEntry;
+use hal::arch::mmu::PageEntry;
 
 use hal::xen::hypercall::{hypercall3, hypercall4};
 use hal::xen::hypercall::HypercallKind;

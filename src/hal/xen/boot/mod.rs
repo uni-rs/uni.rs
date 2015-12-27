@@ -1,4 +1,4 @@
-use hal::defs::PAGE_SIZE;
+use hal::arch::defs::PAGE_SIZE;
 
 mod x86;
 

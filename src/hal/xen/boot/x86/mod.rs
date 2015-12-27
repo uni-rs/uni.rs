@@ -1,5 +1,5 @@
 use hal::xen;
-use hal::arch::PageEntry;
+use hal::arch::mmu::PageEntry;
 
 use hal::mmu::{Vaddr, Maddr, Mfn};
 

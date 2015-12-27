@@ -12,7 +12,7 @@ use hal::xen::sched::yield_cpu;
 use hal::xen::event::{dispatcher, send};
 use hal::xen::defs::{ConsoleInterface, ConsRingIdx, EvtchnPort};
 
-use hal::utils::wmb;
+use hal::arch::utils::wmb;
 
 static CONSOLE: GlobalCell<Console> = GlobalCell::new();
 

@@ -2,8 +2,8 @@
 
 use core::ops::{Add, AddAssign, Deref};
 
-use hal::arch::PageEntry;
-use hal::arch::{
+use hal::arch::mmu::PageEntry;
+use hal::arch::mmu::{
     PAGE_SHIFT,
     OFFSET_MASK,
     L1_PAGE_SHIFT,
@@ -279,7 +279,7 @@ impl From<PageEntry> for Vaddr {
 #[cfg(feature = "xen")]
 impl From<PageEntry> for Mfn {
     fn from(entry: PageEntry) -> Mfn {
-        use hal::arch::PTE_MASK;
+        use hal::arch::mmu::PTE_MASK;
 
         let page_entry_value = entry.mask(PTE_MASK).value() >> PAGE_SHIFT;
 
@@ -290,8 +290,8 @@ impl From<PageEntry> for Mfn {
 #[cfg(feature = "xen")]
 impl From<Maddr> for PageEntry {
     fn from(maddr: Maddr) -> PageEntry {
-        use hal::arch::PTE_FLAGS_MASK;
-        use hal::arch::PageFlags;
+        use hal::arch::mmu::PTE_FLAGS_MASK;
+        use hal::arch::mmu::PageFlags;
 
         let value = (maddr.0 as u64) & !PTE_FLAGS_MASK;
 

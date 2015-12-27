@@ -11,7 +11,6 @@ use io::{Read, Write, Result};
 pub mod mmu;
 
 pub use self::hw_imp::*;
-pub use self::arch_imp::*;
 
 /// Generic console wrapper
 pub struct Console<'a>(HwConsoleType<'a>);
@@ -120,24 +119,9 @@ mod hw_imp {
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-#[path="arch/x86.rs"]
-mod arch;
-
-mod arch_imp {
-    /// Utility functions that have an architecture dependent implementation
-    pub mod utils {
-        pub use core::intrinsics::atomic_xchg;
-
-        pub use hal::arch::atomic_set_bit;
-        pub use hal::arch::atomic_clear_bit;
-
-        pub use hal::arch::first_bit;
-
-        pub use hal::arch::wmb;
-    }
-
-    /// Various definitions related to the architecture
-    pub mod defs {
-        pub use hal::arch::PAGE_SIZE;
-    }
+#[path="x86"]
+pub mod arch {
+    pub mod mmu;
+    pub mod defs;
+    pub mod utils;
 }

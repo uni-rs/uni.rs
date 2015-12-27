@@ -2,13 +2,15 @@
 
 use core::ptr::null_mut;
 
+use core::intrinsics::atomic_xchg;
+
 use hal::xen::shared_info;
 
 use hal::xen::defs::EvtchnPort;
 use hal::xen::defs::ULONG_SIZE;
 
-use hal::utils::{first_bit, wmb};
-use hal::utils::{atomic_set_bit, atomic_clear_bit, atomic_xchg};
+use hal::arch::utils::{first_bit, wmb};
+use hal::arch::utils::{atomic_set_bit, atomic_clear_bit};
 
 const NUMBER_OF_EVENTS: usize = 1024;
 
