@@ -21,7 +21,7 @@ macro_rules! pte {
         use $crate::hal::x86::PTE_FLAGS_MASK;
         use $crate::hal::x86::{PageEntry, PageFlags};
 
-        PageEntry::<u64>::new($x as u64 & !PTE_FLAGS_MASK)
+        PageEntry::new($x as u64 & !PTE_FLAGS_MASK)
             .set(PageFlags::Present)
             .set(PageFlags::Writable)
     }}
@@ -64,19 +64,19 @@ pub fn vaddr_to_mfn(vaddr: Vaddr) -> Mfn {
     pfn_to_mfn(vaddr_to_pfn(vaddr))
 }
 
-pub fn pte_to_vaddr(entry: PageEntry<u64>) -> Vaddr {
+pub fn pte_to_vaddr(entry: PageEntry) -> Vaddr {
     mfn_to_vaddr(pte_to_mfn(entry))
 }
 
-pub fn pte_to_mfn(entry: PageEntry<u64>) -> Mfn {
+pub fn pte_to_mfn(entry: PageEntry) -> Mfn {
     PageEntry::new(entry.mask(PTE_MASK).value() >> PAGE_SHIFT).value() as Mfn
 }
 
-pub fn mfn_to_pte(mfn: Mfn) -> PageEntry<u64> {
+pub fn mfn_to_pte(mfn: Mfn) -> PageEntry {
     pte!((mfn as u64) << PAGE_SHIFT)
 }
 
-pub fn pfn_to_pte(pfn: Pfn) -> PageEntry<u64> {
+pub fn pfn_to_pte(pfn: Pfn) -> PageEntry {
     mfn_to_pte(pfn_to_mfn(pfn))
 }
 

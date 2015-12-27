@@ -23,7 +23,7 @@ const MAX_UPDATES: usize = 100;
 /// Helper that creates an identity mapping between physical memory and virtual
 /// memory.
 pub struct IdentityMapper {
-    top_level_table: *const PageEntry<u64>,
+    top_level_table: *const PageEntry,
     admin_pfn_pool: page::Pfn,
     reg_pfn_pool: page::Pfn,
     updates: [MmuUpdate; 100],
@@ -65,7 +65,7 @@ impl IdentityMapper {
         let nr_page_to_map = nr_pages - reg_pfn_base;
 
         IdentityMapper {
-            top_level_table: pt_base as *const PageEntry<u64>,
+            top_level_table: pt_base as *const PageEntry,
             admin_pfn_pool: pfn_base + nr_pt_frames,
             reg_pfn_pool: reg_pfn_base,
             updates: [MmuUpdate::null(); 100],
@@ -80,7 +80,7 @@ impl IdentityMapper {
     // table) if this page is mapped somewhere as writable or if it has
     // some non valid entries. This is why we first zero the page, then
     // map it as read only
-    unsafe fn add_admin_page(&mut self, table: *const PageEntry<u64>,
+    unsafe fn add_admin_page(&mut self, table: *const PageEntry,
                              offset: usize) {
         let new_entry_pfn = self.admin_pfn_pool;
         let new_entry_mfn = page::pfn_to_mfn(new_entry_pfn);
@@ -104,7 +104,7 @@ impl IdentityMapper {
         let mut table_mach : page::Maddr;
 
         table_mach = (table_mfn as page::Maddr) << PAGE_SHIFT;
-        table_mach += (offset * size_of::<PageEntry<u64>>()) as page::Maddr;
+        table_mach += (offset * size_of::<PageEntry>()) as page::Maddr;
 
         // We add a new page to the table
         self.add_mmu_update(table_mach, new_entry_pte, true);
@@ -112,7 +112,7 @@ impl IdentityMapper {
         self.admin_pfn_pool += 1;
     }
 
-    unsafe fn add_mmu_update(&mut self, ptr: page::Maddr, val: PageEntry<u64>,
+    unsafe fn add_mmu_update(&mut self, ptr: page::Maddr, val: PageEntry,
                              force_update: bool) {
         self.updates[self.nr_update as usize] = MmuUpdate::new(ptr, val.value());
 
@@ -140,8 +140,8 @@ impl IdentityMapper {
         self.nr_update = 0;
     }
 
-    unsafe fn extract_entry(&mut self, table: *const PageEntry<u64>,
-                            offset: usize) -> *const PageEntry<u64> {
+    unsafe fn extract_entry(&mut self, table: *const PageEntry,
+                            offset: usize) -> *const PageEntry {
         let mut entry = *table.offset(offset as isize);
 
         if !entry.has(PageFlags::Present) {
@@ -152,7 +152,7 @@ impl IdentityMapper {
             }
         }
 
-        page::pte_to_vaddr(entry) as *const PageEntry<u64>
+        page::pte_to_vaddr(entry) as *const PageEntry
     }
 
     pub unsafe fn map(&mut self) {
@@ -184,12 +184,12 @@ impl IdentityMapper {
             let mut page_table_addr: page::Maddr;
 
             pt_offset = page::pt_offset(current_addr) as usize;
-            pt_offset *= size_of::<PageEntry<u64>>();
+            pt_offset *= size_of::<PageEntry>();
 
             page_table_addr = (page_table_mfn as page::Maddr) << PAGE_SHIFT;
             page_table_addr += pt_offset as page::Maddr;
 
-            self.add_mmu_update(page_table_addr, new_pte as PageEntry<u64>,
+            self.add_mmu_update(page_table_addr, new_pte as PageEntry,
                                 false);
 
             self.reg_pfn_pool += 1;

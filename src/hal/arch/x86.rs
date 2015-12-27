@@ -22,15 +22,15 @@ pub const PML4_OFFSET_SHIFT: usize = 39;
 #[cfg(target_arch = "x86")]
 pub const PML4_OFFSET_SHIFT: usize = 0;
 
-pub const PDP_OFFSET_SHIFT: usize = 30;
+pub const PD_OFFSET_SHIFT: usize = 30;
 
 #[cfg(any(feature = "xen", target_arch = "x86_64"))]
-pub const PD_OFFSET_SHIFT: usize = 21;
+pub const PT_OFFSET_SHIFT: usize = 21;
 
 #[cfg(all(not(feature = "xen"), target_arch = "x86"))]
-pub const PD_OFFSET_SHIFT: usize = 22;
+pub const PT_OFFSET_SHIFT: usize = 22;
 
-pub const PT_OFFSET_SHIFT: usize = 12;
+pub const PDP_OFFSET_SHIFT: usize = 12;
 
 #[cfg(any(feature = "xen", target_arch = "x86_64"))]
 pub const PTE_PER_TABLE: usize = 512;
@@ -47,19 +47,25 @@ pub const OFFSET_MASK: usize = 0x1FF;
 #[cfg(all(not(feature = "xen"), target_arch = "x86"))]
 pub const OFFSET_MASK: usize = 0x3FF;
 
+#[cfg(feature = "xen")]
+pub type PageEntry = PageEntryImp<u64>;
+
+#[cfg(not(feature = "xen"))]
+pub type PageEntry = PageEntryImp;
+
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub struct PageEntry<T = usize> {
+pub struct PageEntryImp<T = usize> {
     entry: T,
 }
 
 // XXX: Is there a better solution than that ?
-impl<T> PageEntry<T> where T: BitOr<T> + From<<T as BitOr>::Output>,
-                           T: BitAnd<T> + From<<T as BitAnd>::Output>,
-                           T: PartialEq<T> + From<PageFlags> + Copy {
+impl<T> PageEntryImp<T> where T: BitOr<T> + From<<T as BitOr>::Output>,
+                              T: BitAnd<T> + From<<T as BitAnd>::Output>,
+                              T: PartialEq<T> + From<PageFlags> + Copy {
     #[inline]
     pub fn new(entry: T) -> Self {
-        PageEntry {
+        PageEntryImp {
             entry: entry
         }
     }
