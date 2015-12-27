@@ -37,6 +37,7 @@ mod macros;
 
 pub mod io;
 pub mod hal;
+pub mod ffi;
 pub mod cell;
 pub mod sync;
 #[doc(hidden)] pub mod utils;
