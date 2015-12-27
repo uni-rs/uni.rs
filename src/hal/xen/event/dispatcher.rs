@@ -7,8 +7,8 @@ use hal::xen::shared_info;
 use hal::xen::defs::EvtchnPort;
 use hal::xen::defs::ULONG_SIZE;
 
-use hal::intrinsics::{first_bit, wmb};
-use hal::intrinsics::{atomic_set_bit, atomic_clear_bit, atomic_xchg};
+use hal::utils::{first_bit, wmb};
+use hal::utils::{atomic_set_bit, atomic_clear_bit, atomic_xchg};
 
 const NUMBER_OF_EVENTS: usize = 1024;
 

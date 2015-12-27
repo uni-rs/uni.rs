@@ -5,8 +5,8 @@ use rlibc::memset;
 
 use hal::mmu;
 
-use hal::x86::{PageEntry, PageFlags};
-use hal::x86::{PAGE_SIZE, PTE_PER_TABLE};
+use hal::arch::{PageEntry, PageFlags};
+use hal::arch::{PAGE_SIZE, PTE_PER_TABLE};
 
 use hal::xen::memory::{MmuUpdate, MapFlags};
 use hal::xen::memory::{mmu_update, update_va_mapping};

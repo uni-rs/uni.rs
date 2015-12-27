@@ -6,7 +6,7 @@
 use io::Write;
 
 use hal;
-use hal::intrinsics::wmb;
+use hal::utils::wmb;
 
 use thread::Scheduler;
 

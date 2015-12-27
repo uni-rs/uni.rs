@@ -121,16 +121,11 @@ mod hw_imp {
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[path="arch/x86.rs"]
-mod x86;
-
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-mod arch {
-    pub use super::x86::*;
-}
+mod arch;
 
 mod arch_imp {
     /// Utility functions that have an architecture dependent implementation
-    pub mod intrinsics {
+    pub mod utils {
         pub use core::intrinsics::atomic_xchg;
 
         pub use hal::arch::atomic_set_bit;
