@@ -3,10 +3,10 @@
 use hal::x86::{
     PageEntry,
 
-    PML4_OFFSET_SHIFT,
-    PDP_OFFSET_SHIFT,
-    PD_OFFSET_SHIFT,
-    PT_OFFSET_SHIFT,
+    L1_PAGE_SHIFT,
+    L2_PAGE_SHIFT,
+    L3_PAGE_SHIFT,
+    L4_PAGE_SHIFT,
     PAGE_SHIFT,
     OFFSET_MASK,
     PTE_MASK
@@ -81,17 +81,17 @@ pub fn pfn_to_pte(pfn: Pfn) -> PageEntry {
 }
 
 pub fn pml4_offset(vaddr: Vaddr) -> usize {
-    ((vaddr >> PML4_OFFSET_SHIFT) & OFFSET_MASK) as usize
+    ((vaddr >> L4_PAGE_SHIFT) & OFFSET_MASK) as usize
 }
 
 pub fn pdp_offset(vaddr: Vaddr) -> usize {
-    ((vaddr >> PDP_OFFSET_SHIFT) & OFFSET_MASK) as usize
+    ((vaddr >> L3_PAGE_SHIFT) & OFFSET_MASK) as usize
 }
 
 pub fn pd_offset(vaddr: Vaddr) -> usize {
-    ((vaddr >> PD_OFFSET_SHIFT) & OFFSET_MASK) as usize
+    ((vaddr >> L2_PAGE_SHIFT) & OFFSET_MASK) as usize
 }
 
 pub fn pt_offset(vaddr: Vaddr) -> usize {
-    ((vaddr >> PT_OFFSET_SHIFT) & OFFSET_MASK) as usize
+    ((vaddr >> L1_PAGE_SHIFT) & OFFSET_MASK) as usize
 }

@@ -17,20 +17,20 @@ pub const PTE_FLAGS_MASK: u64 = (PAGE_SIZE - 1) as u64;
 // platform because of one 'exception'
 
 #[cfg(target_arch = "x86_64")]
-pub const PML4_OFFSET_SHIFT: usize = 39;
+pub const L4_PAGE_SHIFT: usize = 39;
 
 #[cfg(target_arch = "x86")]
-pub const PML4_OFFSET_SHIFT: usize = 0;
+pub const L4_PAGE_SHIFT: usize = 0;
 
-pub const PD_OFFSET_SHIFT: usize = 30;
+pub const L3_PAGE_SHIFT: usize = 30;
 
 #[cfg(any(feature = "xen", target_arch = "x86_64"))]
-pub const PT_OFFSET_SHIFT: usize = 21;
+pub const L2_PAGE_SHIFT: usize = 21;
 
 #[cfg(all(not(feature = "xen"), target_arch = "x86"))]
-pub const PT_OFFSET_SHIFT: usize = 22;
+pub const L2_PAGE_SHIFT: usize = 22;
 
-pub const PDP_OFFSET_SHIFT: usize = 12;
+pub const L1_PAGE_SHIFT: usize = 12;
 
 #[cfg(any(feature = "xen", target_arch = "x86_64"))]
 pub const PTE_PER_TABLE: usize = 512;
