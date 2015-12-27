@@ -9,9 +9,49 @@ pub use self::dispatcher::Dispatcher;
 
 static mut DISPATCHER: Dispatcher = Dispatcher::new();
 
+// XXX: Is this really "generic" (i.e., is it present on ARM)
+extern "C" {
+    fn hypervisor_callback();
+    fn failsafe_callback();
+}
+
+#[no_mangle]
+/// This function is called when an event occur
+pub unsafe extern "C" fn do_hypervisor_callback() {
+    dispatcher().serve_event();
+}
+
 pub fn dispatcher<'a>() -> &'a mut Dispatcher {
     unsafe {
         &mut DISPATCHER
+    }
+}
+
+pub fn init() {
+    init_callbacks();
+
+    dispatcher().mask_all();
+
+    println!("Event subsystem initialized");
+}
+
+#[cfg(target_arch = "x86")]
+fn init_callbacks() {
+    unsafe {
+        use hal::xen::defs::FLAT_KERNEL_CS;
+        use hal::xen::arch::x86::callbacks::set_callbacks;
+
+        set_callbacks(FLAT_KERNEL_CS, hypervisor_callback,
+                      FLAT_KERNEL_CS, failsafe_callback);
+    }
+}
+
+#[cfg(target_arch = "x86_64")]
+fn init_callbacks() {
+    unsafe {
+        use hal::xen::arch::x86::callbacks::set_callbacks;
+
+        set_callbacks(hypervisor_callback, failsafe_callback, None);
     }
 }
 

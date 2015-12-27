@@ -96,7 +96,7 @@ pub extern "C" fn uni_rust_entry() -> ! {
         ::allocator::init(heap_start, heap_size);
     }
 
-    boot::event::init();
+    event::init();
 
     unsafe {
         console::console().init_input();
@@ -104,10 +104,13 @@ pub extern "C" fn uni_rust_entry() -> ! {
 
     hal::local_irq_enable();
 
-    println!("Creating main thread");
-
     // Spawn main thread
     Scheduler::spawn(|| {
+        println!("Main thread started");
+        println!("Uni.rs is now ready");
+        println!("Control is now transfered to the application");
+        println!("");
+
         let app_ret = unsafe {
             main(0, ::core::ptr::null())
         };
@@ -120,10 +123,6 @@ pub extern "C" fn uni_rust_entry() -> ! {
 
         panic!("Failed to poweroff the machine !");
     });
-
-    println!("Uni.rs is now ready");
-    println!("Control is now transfered to the application");
-    println!("");
 
     Scheduler::schedule();
 
