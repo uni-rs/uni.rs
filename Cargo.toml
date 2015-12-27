@@ -21,6 +21,7 @@ xen = [
     "collections",
     "rust-libcore"
 ]
+virtio = []
 
 net = []
 
