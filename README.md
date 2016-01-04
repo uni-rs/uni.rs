@@ -27,6 +27,7 @@ associated with source files in the examples directory.
 - hello => examples/hello/main.rs
 - thread => examples/thread/main.rs
 - queue => examples/thread/queue.rs
+- echo => examples/console/echo.rs
 
 In order to build the example you might need to add the feature corresponding
 to the platform targeted. Here we will be using `xen`. This platform feature
@@ -44,4 +45,6 @@ $ cargo build --target x86_64-unknown-uni.json --release --features xen --exampl
 
 Since Uni.rs is using cargo as its build system you simply need to properly
 setup your Cargo.toml to use this repository. You also *MUST* build your code
-using the custom targets that are available in this repository.
+using the custom targets that are available in this repository. The hello world
+example present in the `examples` directory also exists as a standalone
+version. It can be found [here](https://github.com/uni-rs/hello-standalone).
