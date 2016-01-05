@@ -72,7 +72,7 @@ unsafe fn extract_table_entry(table: *const PageEntry,
 }
 
 /// Map a single physical page into virtual address space
-pub unsafe fn map_page(addr: Vaddr, pfn: Pfn) -> Result<(), i32> {
+pub unsafe fn map_page(addr: Vaddr, mfn: Mfn) -> Result<(), i32> {
     let mut table = (*start_info).pt_base as *const PageEntry;
     let mut offset;
 
@@ -93,7 +93,7 @@ pub unsafe fn map_page(addr: Vaddr, pfn: Pfn) -> Result<(), i32> {
     table = try!(extract_table_entry(table, offset));
 
     let page_table_mfn = Mfn::from(Vaddr::from_ptr(table));
-    let new_pte = PageEntry::from(pfn);
+    let new_pte = PageEntry::from(mfn);
     let pt_value = addr.l1_offset() * size_of::<PageEntry>();
     let page_table_addr = Maddr::from(page_table_mfn).incr(pt_value);
 
@@ -112,7 +112,7 @@ pub unsafe fn map_page(addr: Vaddr, pfn: Pfn) -> Result<(), i32> {
 pub unsafe fn map_contiguous(mut addr: Vaddr, mut pfn_base: Pfn,
                              count: usize) -> Result<(), i32> {
     for _ in 0..count {
-        try!(map_page(addr, pfn_base));
+        try!(map_page(addr, Mfn::from(pfn_base)));
 
         pfn_base += 1;
         addr = addr.incr(PAGE_SIZE);
@@ -122,10 +122,10 @@ pub unsafe fn map_contiguous(mut addr: Vaddr, mut pfn_base: Pfn,
 }
 
 /// Map non contiguous machine frames into virtual address space
-pub unsafe fn map_non_contiguous(mut addr: Vaddr,
-                                 pfn_list: &[Pfn]) -> Result<(), i32> {
-    for &pfn in pfn_list {
-        try!(map_page(addr, pfn));
+pub unsafe fn map_non_contiguous_mfn(mut addr: Vaddr,
+                                     mfn_list: &[Mfn]) -> Result<(), i32> {
+    for &mfn in mfn_list {
+        try!(map_page(addr, mfn));
 
         addr = addr.incr(PAGE_SIZE);
     }
