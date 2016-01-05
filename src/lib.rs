@@ -25,15 +25,6 @@ extern crate intrusive;
 
 pub use collections::*;
 
-#[doc(hidden)]
-#[cfg(not(test))]
-pub mod allocator {
-    pub use alloc_uni;
-    pub unsafe fn init(region_start: usize, region_size: usize) {
-        alloc_uni::init(region_start, region_size);
-    }
-}
-
 #[macro_use]
 mod macros;
 

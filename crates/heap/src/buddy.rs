@@ -17,40 +17,20 @@ pub struct Buddy<'a> {
     min_block_size: usize,
     min_block_order: u32,
     max_order: u32,
-    heap_base: *mut u8,
     free_lists: &'a mut [FreeList]
 }
 
 impl<'a> Buddy<'a> {
-    pub unsafe fn new(mut r_start: usize, r_size: usize, min_block_size: usize,
-                      max_order: u32,
-                      free_lists: &'a mut [FreeList]) -> Self {
-        let max_block_size = min_block_size * 2usize.pow(max_order);
-        let r_limit = r_start + r_size;
-
+    pub fn new(min_block_size: usize, max_order: u32,
+               free_lists: &'a mut [FreeList]) -> Self {
         assert!(min_block_size >= ::core::mem::size_of::<FreeBlock>());
 
-        let mut ret = Buddy {
+        Buddy {
             min_block_size: min_block_size,
             min_block_order: Buddy::log2(min_block_size) as u32,
             max_order: max_order,
-            heap_base: r_start as *mut u8,
             free_lists: free_lists,
-        };
-
-        // This algorithm only deals with max block at init, so return an empty
-        // allocator if the region is not big enough
-        if r_size < max_block_size {
-            return ret;
         }
-
-        while r_start + max_block_size <= r_limit {
-            ret.add_block(max_order, r_start as *mut u8);
-
-            r_start += max_block_size;
-        }
-
-        ret
     }
 
     #[allow(exceeding_bitshifts)]
@@ -90,7 +70,14 @@ impl<'a> Buddy<'a> {
         res
     }
 
-    unsafe fn add_block(&mut self, order: u32, start: *mut u8) {
+    /// Add a block of max order
+    pub unsafe fn add_block(&mut self, start: *mut u8) {
+        let order = self.max_order;
+
+        self.add_block_order(order, start);
+    }
+
+    unsafe fn add_block_order(&mut self, order: u32, start: *mut u8) {
         let link = ptr::Unique::new(start as *mut FreeBlock);
 
         self.free_lists[order as usize].push_front(link);
@@ -104,20 +91,19 @@ impl<'a> Buddy<'a> {
             let buddy_offset = self.get_size_from_order(order);
             let buddy_ptr = block.offset(buddy_offset as isize);
 
-            self.add_block(order, buddy_ptr);
+            self.add_block_order(order, buddy_ptr);
         }
     }
 
     unsafe fn find_and_pop_buddy(&mut self, ptr: *mut u8,
-                                 order: u32) -> *mut u8{
+                                 order: u32) -> *mut u8 {
         // Max order blocks are not merged
         if order == self.max_order {
             return ptr::null_mut();
         }
 
         let size = self.get_size_from_order(order);
-        let ptr_from_base = ptr as usize - self.heap_base as usize;
-        let buddy_ptr = self.heap_base.offset((ptr_from_base ^ size) as isize);
+        let buddy_ptr = (ptr as usize ^ size) as *mut u8;
         let mut cursor = self.free_lists[order as usize].cursor();
         let mut found = false;
 
@@ -197,7 +183,7 @@ impl<'a> Allocator for Buddy<'a> {
             order += 1;
         }
 
-        self.add_block(order, ptr);
+        self.add_block_order(order, ptr);
     }
 }
 
@@ -279,8 +265,14 @@ mod test {
 
             let max_size = MIN_BLOCK_SIZE * 2usize.pow(HEAP_ORDER);
 
-            let mut alloc = Buddy::new(heap as usize, HEAP_SIZE, MIN_BLOCK_SIZE,
-                                       HEAP_ORDER, &mut free_lists[..]);
+            let mut alloc = Buddy::new(MIN_BLOCK_SIZE, HEAP_ORDER,
+                                       &mut free_lists[..]);
+
+            // Heap is 4Kb in 4 * 1Kb
+            alloc.add_block(heap.offset(0));
+            alloc.add_block(heap.offset(1024));
+            alloc.add_block(heap.offset(2048));
+            alloc.add_block(heap.offset(3072));
 
             // Allocation is too big
             assert_eq!(alloc.allocate(max_size + 1, 1), ptr::null_mut());

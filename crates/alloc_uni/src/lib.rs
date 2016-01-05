@@ -43,11 +43,20 @@ static mut FREE_LISTS: [FreeList; (MAX_ORDER + 1) as usize] =
     FreeList::new()
 ];
 
-pub unsafe fn init(region_start: usize, region_size: usize) {
-    let mut guard = ALLOCATOR.lock();
+pub fn init() {
+    unsafe {
+        let mut guard = ALLOCATOR.lock();
 
-    *guard = Some(Buddy::new(region_start, region_size, MIN_BLOCK_SIZE,
-                             MAX_ORDER, &mut FREE_LISTS[..]));
+        *guard = Some(Buddy::new(MIN_BLOCK_SIZE, MAX_ORDER,
+                                 &mut FREE_LISTS[..]));
+    }
+}
+
+pub unsafe fn add_block(block_start: *mut u8) {
+    ALLOCATOR.lock()
+             .as_mut()
+             .expect("Use of uninitialized allocator")
+             .add_block(block_start);
 }
 
 #[no_mangle]

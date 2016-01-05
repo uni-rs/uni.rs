@@ -5,6 +5,8 @@
 
 use io::Write;
 
+use alloc_uni;
+
 use hal;
 
 use hal::arch::utils::wmb;
@@ -86,16 +88,15 @@ extern {
 #[no_mangle]
 /// Entry point of the application called by boot assembly
 pub extern "C" fn uni_rust_entry() -> ! {
+    alloc_uni::init();
+
     boot::init();
 
     raw_println!("Uni.rs is booting");
 
     // Memory initialization is unsafe
-    unsafe {
-        let (heap_start, heap_size) = boot::init_memory();
+    boot::init_memory();
 
-        ::allocator::init(heap_start, heap_size);
-    }
 
     event::init();
 

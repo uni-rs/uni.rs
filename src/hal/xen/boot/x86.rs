@@ -1,12 +1,25 @@
+use alloc_uni;
+
 use hal::xen;
+use hal::arch::defs::PAGE_SIZE;
 use hal::arch::mmu::PageEntry;
 
-use hal::mmu::{Vaddr, Maddr, Mfn};
+use hal::mmu::{Vaddr, Maddr, Pfn, Mfn};
 
 use hal::xen::defs::StartInfo;
 use hal::xen::memory::MapFlags;
 
-use hal::xen::arch::x86::memory::IdentityMapper;
+use hal::xen::arch::x86::memory::map_contiguous;
+
+macro_rules! align {
+    ( $val:expr, $align:expr ) => {
+        $val & !($align - 1)
+    }
+}
+
+// 1 Mb
+const MB: usize = 0x100000;
+const PFN_PER_MB: usize = MB / PAGE_SIZE;
 
 extern {
     // Start info is not present on all architecture, this is why this
@@ -50,30 +63,55 @@ pub fn init() {
     }
 }
 
-pub unsafe fn init_memory() -> (usize, usize) {
+pub fn init_memory() -> Vaddr {
     raw_println!("Kernel sections (end @ -> {:p}):", &__uni_end);
     raw_println!("  .boot: {:p} - {:p}", &__boot_start, &__boot_end);
     raw_println!("  .text: {:p} - {:p}", &__text_start, &__text_end);
     raw_println!("  .rodata: {:p} - {:p}", &__rodata_start, &__rodata_end);
     raw_println!("  .data: {:p} - {:p}", &__data_start, &__data_end);
 
-    let pt_base = Vaddr::new((*start_info).pt_base);
-    let nr_pt_frames: usize = (*start_info).nr_pt_frames;
-    let nr_pages: usize = (*start_info).nr_pages;
+    if &__uni_end as *const u8 > 0x100000 as *const u8 {
+        panic!("TODO: Kernel bigger that 1Mb");
+    }
 
-    let mut mapper = IdentityMapper::new(pt_base, nr_pt_frames, nr_pages);
+    // By default Xen maps the first 4Mb so we can safely add the regions to
+    // the allocator. This initialization is necessary as the memory map
+    // function will use pages directly from the heap as admin pages.
+    unsafe {
+        alloc_uni::add_block((1 * MB) as *mut u8);
+        alloc_uni::add_block((2 * MB) as *mut u8);
+        alloc_uni::add_block((3 * MB) as *mut u8);
+    }
 
-    raw_println!("start info: 0x{:x}", start_info as usize);
-    raw_println!("number of pages: {}", (*start_info).nr_pages);
-    raw_println!("pt_base: 0x{:x}", (*start_info).pt_base);
-    raw_println!("nr_pt_frames: {}", (*start_info).nr_pt_frames);
-    raw_println!("Allocating heap 0x{:x}-0x{:x} ({} kB)",
-                 *mapper.area_start, *mapper.area_end,
-                 (*mapper.area_end - *mapper.area_start) / 1024);
+    let mut cur = Vaddr::new(0x400000);
+    let mut pfn_cur = Pfn::from(cur);
+    let vaddr_base;
+    let pfn_limit;
+    let vaddr_limit;
 
-    mapper.map();
+    unsafe {
+        vaddr_base = Vaddr::new((*start_info).pt_base);
+        pfn_limit = Pfn::from(vaddr_base) + (*start_info).nr_pt_frames +
+                    (*start_info).nr_pages;
+        vaddr_limit = Vaddr::new(align!(*Vaddr::from(pfn_limit), MB));
+    }
 
-    (*mapper.area_start, *mapper.area_end - *mapper.area_start)
+    raw_println!("Heap is 0x100000 - 0x{:x}", *vaddr_limit);
+
+    // We map all the memory after 4Mb by 1Mb block and we inject these blocks
+    // into the allocator
+    while cur < vaddr_limit {
+        unsafe {
+            map_contiguous(cur, pfn_cur, PFN_PER_MB);
+
+            alloc_uni::add_block(*cur as *mut u8);
+
+            pfn_cur += PFN_PER_MB;
+            cur = cur.incr(1 * MB);
+        }
+    }
+
+    vaddr_limit
 }
 
 unsafe fn map_shared_info() {
