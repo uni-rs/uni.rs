@@ -12,6 +12,25 @@ extern {
     // Start info is not present on all architecture, this is why this
     // was made a global variable only for x86_*
     pub static start_info: *const StartInfo;
+
+    // Limits of the boot section
+    pub static __boot_start: u8;
+    pub static __boot_end: u8;
+
+    // Limits of the test section
+    pub static __text_start: u8;
+    pub static __text_end: u8;
+
+    // Limits of the test section
+    pub static __rodata_start: u8;
+    pub static __rodata_end: u8;
+
+    // Limits of the test section
+    pub static __data_start: u8;
+    pub static __data_end: u8;
+
+    // End address of Uni.rs code and data aligned on 4Kb
+    pub static __uni_end : u8;
 }
 
 pub fn init() {
@@ -32,6 +51,12 @@ pub fn init() {
 }
 
 pub unsafe fn init_memory() -> (usize, usize) {
+    raw_println!("Kernel sections (end @ -> {:p}):", &__uni_end);
+    raw_println!("  .boot: {:p} - {:p}", &__boot_start, &__boot_end);
+    raw_println!("  .text: {:p} - {:p}", &__text_start, &__text_end);
+    raw_println!("  .rodata: {:p} - {:p}", &__rodata_start, &__rodata_end);
+    raw_println!("  .data: {:p} - {:p}", &__data_start, &__data_end);
+
     let pt_base = Vaddr::new((*start_info).pt_base);
     let nr_pt_frames: usize = (*start_info).nr_pt_frames;
     let nr_pages: usize = (*start_info).nr_pages;

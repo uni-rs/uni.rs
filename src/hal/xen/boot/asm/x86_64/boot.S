@@ -21,7 +21,7 @@ ENTRY(_start)
     call uni_rust_entry
 
 _stack:
-    .quad _stack_end
+    .quad __stack_end
     .quad rust_stack
 
 start_info:
@@ -34,6 +34,8 @@ shared_info:
 
 hypercall_page:
     .org 0x3000
+
+.section .text
 
 #define XEN_GET_VCPU_INFO(reg)  movq shared_info,reg
 #define XEN_PUT_VCPU_INFO(reg)

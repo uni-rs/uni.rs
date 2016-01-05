@@ -29,7 +29,7 @@ ENTRY(_start)
     call uni_rust_entry
 
 _stack:
-    .long _stack_end, 0xe021
+    .long __stack_end, 0xe021
     .long rust_stack
 
 start_info:
@@ -42,6 +42,8 @@ shared_info:
 
 hypercall_page:
     .org 0x3000
+
+.section .text
 
 .macro SAVE_REGS
     pushal
