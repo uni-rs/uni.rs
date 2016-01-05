@@ -6,7 +6,7 @@ use hal::mmu::{Vaddr, Maddr, Mfn};
 use hal::xen::defs::StartInfo;
 use hal::xen::memory::MapFlags;
 
-use hal::xen::arch::x86::mapper::IdentityMapper;
+use hal::xen::arch::x86::memory::IdentityMapper;
 
 extern {
     // Start info is not present on all architecture, this is why this
