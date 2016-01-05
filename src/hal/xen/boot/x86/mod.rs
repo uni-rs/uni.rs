@@ -8,8 +8,6 @@ use hal::xen::memory::MapFlags;
 
 mod mapper;
 
-pub mod traps;
-
 extern {
     // Start info is not present on all architecture, this is why this
     // was made a global variable only for x86_*
@@ -29,7 +27,7 @@ pub fn init() {
         ::hal::xen::console::init(console_vaddr.as_mut_ptr(),
                                   (*start_info).domu_console.evtchn);
 
-        self::traps::init();
+        ::hal::xen::arch::x86::traps::init();
     }
 }
 
