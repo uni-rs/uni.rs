@@ -6,7 +6,7 @@ use hal::mmu::{Vaddr, Maddr, Mfn};
 use hal::xen::defs::StartInfo;
 use hal::xen::memory::MapFlags;
 
-mod mapper;
+use hal::xen::arch::x86::mapper::IdentityMapper;
 
 extern {
     // Start info is not present on all architecture, this is why this
@@ -36,8 +36,7 @@ pub unsafe fn init_memory() -> (usize, usize) {
     let nr_pt_frames: usize = (*start_info).nr_pt_frames;
     let nr_pages: usize = (*start_info).nr_pages;
 
-    let mut mapper = mapper::IdentityMapper::new(pt_base, nr_pt_frames,
-                                                 nr_pages);
+    let mut mapper = IdentityMapper::new(pt_base, nr_pt_frames, nr_pages);
 
     raw_println!("start info: 0x{:x}", start_info as usize);
     raw_println!("number of pages: {}", (*start_info).nr_pages);
