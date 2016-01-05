@@ -102,7 +102,8 @@ pub fn init_memory() -> Vaddr {
     // into the allocator
     while cur < vaddr_limit {
         unsafe {
-            map_contiguous(cur, pfn_cur, PFN_PER_MB);
+            map_contiguous(cur, pfn_cur, PFN_PER_MB)
+                .expect("Fail to initial memory mapping");
 
             alloc_uni::add_block(*cur as *mut u8);
 

@@ -17,7 +17,8 @@ use hal::xen::memory::{MmuUpdate, MapFlags};
 use hal::xen::memory::{mmu_update, update_va_mapping};
 
 /// Add an admin frame (ex: add a new page table)
-unsafe fn add_admin_frame(table: *const PageEntry, offset: usize) {
+unsafe fn add_admin_frame(table: *const PageEntry,
+                          offset: usize) -> Result<(), i32> {
     let admin_page = alloc_uni::__rust_allocate(PAGE_SIZE, PAGE_SIZE);
 
     if admin_page == ptr::null_mut() {
@@ -33,35 +34,45 @@ unsafe fn add_admin_frame(table: *const PageEntry, offset: usize) {
     let admin_page_mfn = Mfn::from(admin_page_pfn);
     let admin_page_maddr = Maddr::from(admin_page_mfn);
 
-    update_va_mapping(admin_page_vaddr,
-                      PageEntry::new(*admin_page_maddr).set(PageFlags::Present),
-                      MapFlags::InvlpgLocal);
+    let ret = update_va_mapping(admin_page_vaddr,
+                                PageEntry::new(*admin_page_maddr).set(PageFlags::Present),
+                                MapFlags::InvlpgLocal);
+    if ret < 0 {
+        return Err(ret);
+    }
 
     let table_mfn = Mfn::from(Vaddr::from_ptr(table));
     let table_mach = Maddr::from(table_mfn).incr(offset * size_of::<PageEntry>());
 
     let update = MmuUpdate::new(*table_mach, admin_page_pte.value());
 
-    mmu_update(&update, 1, ptr::null_mut());
+    let ret = mmu_update(&update, 1, ptr::null_mut());
+
+    if ret < 0 {
+        Err(ret)
+    } else {
+        Ok(())
+    }
 }
 
 unsafe fn extract_table_entry(table: *const PageEntry,
-                              offset: usize) -> *const PageEntry {
+                              offset: usize) -> Result<*const PageEntry, i32> {
     let mut entry = *table.offset(offset as isize);
 
     if !entry.has(PageFlags::Present) {
-        add_admin_frame(table, offset);
+        try!(add_admin_frame(table, offset));
+
         entry = *table.offset(offset as isize);
         if !entry.has(PageFlags::Present) {
             panic!("BUG: Admin frame was not added properly");
         }
     }
 
-    Vaddr::from(entry).as_ptr()
+    Ok(Vaddr::from(entry).as_ptr())
 }
 
 /// Map a single physical page into virtual address space
-pub unsafe fn map_page(addr: Vaddr, pfn: Pfn) {
+pub unsafe fn map_page(addr: Vaddr, pfn: Pfn) -> Result<(), i32> {
     let mut table = (*start_info).pt_base as *const PageEntry;
     let mut offset;
 
@@ -69,17 +80,17 @@ pub unsafe fn map_page(addr: Vaddr, pfn: Pfn) {
         // Extract the page directory pointer table from the page map
         // level 4 offset table
         offset = addr.l4_offset();
-        table = extract_table_entry(table, offset);
+        table = try!(extract_table_entry(table, offset));
     }
 
     // Extract the page directory table from the page directory
     // pointer table
     offset = addr.l3_offset();
-    table = extract_table_entry(table, offset);
+    table = try!(extract_table_entry(table, offset));
 
     // Extract the page table from the page directory
     offset = addr.l2_offset();
-    table = extract_table_entry(table, offset);
+    table = try!(extract_table_entry(table, offset));
 
     let page_table_mfn = Mfn::from(Vaddr::from_ptr(table));
     let new_pte = PageEntry::from(pfn);
@@ -88,25 +99,36 @@ pub unsafe fn map_page(addr: Vaddr, pfn: Pfn) {
 
     let update = MmuUpdate::new(*page_table_addr, new_pte.value());
 
-    mmu_update(&update, 1, ptr::null_mut());
+    let ret = mmu_update(&update, 1, ptr::null_mut());
+
+    if ret < 0 {
+        Err(ret)
+    } else {
+        Ok(())
+    }
 }
 
 /// Map `count` physical pages into virtual address space
 pub unsafe fn map_contiguous(mut addr: Vaddr, mut pfn_base: Pfn,
-                             count: usize) {
+                             count: usize) -> Result<(), i32> {
     for _ in 0..count {
-        map_page(addr, pfn_base);
+        try!(map_page(addr, pfn_base));
 
         pfn_base += 1;
         addr = addr.incr(PAGE_SIZE);
     }
+
+    Ok(())
 }
 
-/// Map non contiguous page frames into virtual address space
-pub unsafe fn map_non_contiguous(mut addr: Vaddr, pfn_list: &[Pfn]) {
+/// Map non contiguous machine frames into virtual address space
+pub unsafe fn map_non_contiguous(mut addr: Vaddr,
+                                 pfn_list: &[Pfn]) -> Result<(), i32> {
     for &pfn in pfn_list {
-        map_page(addr, pfn);
+        try!(map_page(addr, pfn));
 
         addr = addr.incr(PAGE_SIZE);
     }
+
+    Ok(())
 }
