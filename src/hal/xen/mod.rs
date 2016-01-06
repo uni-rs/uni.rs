@@ -10,6 +10,7 @@ use alloc_uni;
 use hal;
 
 use hal::arch::utils::wmb;
+use hal::xen::store::XenStore;
 
 use thread::Scheduler;
 
@@ -34,16 +35,15 @@ macro_rules! raw_print {
 
 mod hypercall;
 
+pub mod arch;
 pub mod defs;
-
 pub mod boot;
+pub mod store;
 pub mod memory;
 pub mod event;
 pub mod sched;
-
 pub mod console;
 
-pub mod arch;
 
 extern "C" {
     // This symbol must be present in code using libxen
@@ -102,6 +102,7 @@ pub extern "C" fn uni_rust_entry() -> ! {
 
     unsafe {
         console::console().init_input();
+        XenStore::init_event();
     }
 
     hal::local_irq_enable();

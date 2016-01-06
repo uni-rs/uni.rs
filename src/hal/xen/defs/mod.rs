@@ -79,3 +79,17 @@ pub struct ConsoleInterface {
     pub out_prod: ConsRingIdx,
 }
 
+// XXX: Xenstore related stuff should live in hal::xen::store
+pub const XENSTORE_RING_SIZE: usize = 1024;
+
+pub type XenstoreRingIdx = u32;
+
+#[repr(C)]
+pub struct XenstoreInterface {
+    pub req: [u8; XENSTORE_RING_SIZE],
+    pub rsp: [u8; XENSTORE_RING_SIZE],
+    pub req_cons: XenstoreRingIdx,
+    pub req_prod: XenstoreRingIdx,
+    pub rsp_cons: XenstoreRingIdx,
+    pub rsp_prod: XenstoreRingIdx,
+}

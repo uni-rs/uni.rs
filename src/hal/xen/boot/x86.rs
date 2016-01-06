@@ -7,6 +7,7 @@ use hal::arch::mmu::PageEntry;
 use hal::mmu::{Vaddr, Maddr, Pfn, Mfn};
 
 use hal::xen::defs::StartInfo;
+use hal::xen::store::XenStore;
 use hal::xen::memory::MapFlags;
 
 use hal::xen::arch::x86::memory::map_contiguous;
@@ -58,6 +59,7 @@ pub fn init() {
 
         ::hal::xen::console::init(console_vaddr.as_mut_ptr(),
                                   (*start_info).domu_console.evtchn);
+        XenStore::init(store_vaddr.as_mut_ptr(), (*start_info).store_evtchn);
 
         ::hal::xen::arch::x86::traps::init();
     }
