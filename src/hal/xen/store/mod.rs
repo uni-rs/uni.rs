@@ -78,7 +78,7 @@ impl XenStore {
     }
 
     /// Read a value from the xen store and convert it
-    pub unsafe fn read_value<T: FromStr>(path: CString) -> Result<T> {
+    pub fn read_value<T: FromStr>(path: CString) -> Result<T> {
         let mut t = try!(Self::start_transaction());
 
         let val = try!(t.read(path));
