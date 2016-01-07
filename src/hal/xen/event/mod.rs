@@ -79,17 +79,17 @@ struct EvtchnSend {
 }
 
 #[inline]
-fn event_channel_op(op: EventOp, event: Ulong) -> i32 {
+fn event_channel_op<T>(op: EventOp, event: *mut T) -> i32 {
     unsafe {
-        hypercall2(HypercallKind::EventChannelOp, op as Ulong, event) as i32
+        hypercall2(HypercallKind::EventChannelOp, op as Ulong,
+                   event as Ulong) as i32
     }
 }
 
 pub fn send(port: EvtchnPort) -> i32 {
-    let ev: EvtchnSend = EvtchnSend {
+    let mut ev: EvtchnSend = EvtchnSend {
         port: port,
     };
-    let ev_ptr = &ev as *const EvtchnSend;
 
-    event_channel_op(EventOp::Send, ev_ptr as Ulong)
+    event_channel_op(EventOp::Send, &mut ev)
 }
