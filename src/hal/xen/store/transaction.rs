@@ -102,7 +102,7 @@ impl<'a> Transaction<'a> {
 impl<'a> Drop for Transaction<'a> {
     fn drop(&mut self) {
         if !self.ended {
-            self.end().unwrap();
+            self.abort().unwrap();
         }
     }
 }
