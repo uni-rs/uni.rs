@@ -240,6 +240,15 @@ impl Deref for Pfn {
     }
 }
 
+impl Deref for Mfn {
+    type Target = usize;
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 impl From<Pfn> for Vaddr {
     fn from(pfn: Pfn) -> Vaddr {
         Vaddr(pfn.0 << PAGE_SHIFT)
