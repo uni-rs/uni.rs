@@ -404,7 +404,7 @@ impl RequestIdPool {
     }
 
     pub unsafe fn release(&self, req_id: u32) {
-        self.pool.lock()[req_id as usize] = false;
+        self.pool.lock()[req_id as usize] = true;
 
         self.wait.unblock();
     }
