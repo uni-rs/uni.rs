@@ -23,8 +23,11 @@ pub struct Transaction<'a> {
 impl<'a> Transaction<'a> {
     #[doc(hidden)]
     pub fn new(mut imp: GlobalCellMutRef<'a, XenStoreImpl>) -> Result<Transaction<'a>> {
+        let empty_data = CString::new("").unwrap();
+
         let tx_req = {
             RequestBuilder::new(0).set_msg_type(XsdSockmsgType::TransactionStart)
+                                  .append_data(empty_data.as_bytes_with_nul())
         };
 
         imp.send(tx_req).and_then(|data| {
