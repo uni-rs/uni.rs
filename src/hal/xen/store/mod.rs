@@ -83,6 +83,8 @@ impl XenStore {
 
         let val = try!(t.read(path));
 
+        try!(t.end());
+
         T::from_str(val.as_str()).or_else(|_| Err(Error::Conversion))
     }
 }
