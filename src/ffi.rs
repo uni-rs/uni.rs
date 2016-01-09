@@ -3,6 +3,7 @@
 use vec::Vec;
 use boxed::Box;
 
+#[derive(Clone)]
 /// Represents an owned C style string
 ///
 /// This type generates compatible C-strings from Rust. It guarantees that
