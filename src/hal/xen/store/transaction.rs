@@ -63,7 +63,7 @@ impl<'a> Transaction<'a> {
         let req = {
             RequestBuilder::new(self.tx_id).set_msg_type(XsdSockmsgType::Write)
                                            .append_data(key.as_bytes_with_nul())
-                                           .append_data(value.as_bytes_with_nul())
+                                           .append_data(value.as_bytes())
         };
 
         self.imp.send(req).map(|_| ())
