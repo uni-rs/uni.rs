@@ -34,6 +34,12 @@ impl CString {
         })
     }
 
+    /// Return the raw representation of the string without the trailing null
+    /// byte
+    pub fn as_bytes(&self) -> &[u8] {
+        &self.data[..self.data.len() - 1]
+    }
+
     /// Return the raw representation of the string.
     ///
     /// This buffer is guaranteed without intermediate null bytes and includes
