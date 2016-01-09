@@ -94,7 +94,6 @@ pub extern "C" fn uni_rust_entry() -> ! {
 
     raw_println!("Uni.rs is booting");
 
-    // Memory initialization is unsafe
     boot::init_memory();
 
 
