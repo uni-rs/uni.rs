@@ -1,5 +1,6 @@
 use core::str::FromStr;
 
+use vec::Vec;
 use string::String;
 
 use ffi::CString;
@@ -42,6 +43,30 @@ impl<'a> Transaction<'a> {
                     }),
                 },
             }
+        })
+    }
+
+    /// List a directory in the Xen Store
+    pub fn directory_list(&mut self, directory: CString) -> Result<Vec<String>> {
+        let req = {
+            RequestBuilder::new(self.tx_id).set_msg_type(XsdSockmsgType::Directory)
+                                           .append_data(directory.as_bytes_with_nul())
+        };
+
+        self.imp.send(req).and_then(|data| {
+            let mut v = Vec::<String>::new();
+            let mut s = String::new();
+
+            for b in data {
+                if b == 0 {
+                    v.push(s);
+                    s = String::new();
+                } else {
+                    s.push(b as char);
+                }
+            }
+
+            Ok(v)
         })
     }
 
