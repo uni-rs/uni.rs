@@ -28,6 +28,7 @@ associated with source files in the examples directory.
 - thread => examples/thread/main.rs
 - queue => examples/thread/queue.rs
 - echo => examples/console/echo.rs
+- store => examples/xen/store.rs
 
 In order to build the example you might need to add the feature corresponding
 to the platform targeted. Here we will be using `xen`. This platform feature
