@@ -1,4 +1,4 @@
-//! Definitions of various types related to network
+//! Various definitions of types, constants, traint, ... related to network
 
 use num::PrimInt;
 
