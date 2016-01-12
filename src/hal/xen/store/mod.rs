@@ -58,6 +58,14 @@ pub enum Error {
     Isconn,
 }
 
+/// Useful for try!
+impl From<Error> for () {
+    #[inline]
+    fn from(_: Error) -> Self {
+        ()
+    }
+}
+
 /// Main interface of the Xen Store
 pub struct XenStore;
 
