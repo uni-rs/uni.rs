@@ -101,12 +101,6 @@ impl HwAddr {
         ret
     }
 
-    fn format(&self, f: &mut Formatter) -> Result<(), Error> {
-        f.write_fmt(format_args!("{:x}:{:x}:{:x}:{:x}:{:x}:{:x}", self.bytes[0],
-                                 self.bytes[1], self.bytes[2], self.bytes[3],
-                                 self.bytes[4], self.bytes[5]))
-    }
-
     #[inline]
     /// Returns the internal representation of an hardware address
     pub fn as_bytes(&self) -> &[u8] {
@@ -125,14 +119,10 @@ impl PartialEq for HwAddr {
     }
 }
 
-impl Debug for HwAddr {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        self.format(f)
-    }
-}
-
 impl Display for HwAddr {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        self.format(f)
+        f.write_fmt(format_args!("{:x}:{:x}:{:x}:{:x}:{:x}:{:x}", self.bytes[0],
+                                 self.bytes[1], self.bytes[2], self.bytes[3],
+                                 self.bytes[4], self.bytes[5]))
     }
 }
