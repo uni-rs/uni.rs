@@ -1,13 +1,16 @@
+use core::mem;
+
 use core::str::FromStr;
 
 use vec::Vec;
 use string::String;
+use string::ToString;
 
 use ffi::CString;
 
 use cell::GlobalCellMutRef;
 
-use hal::xen::store::{Result, Error};
+use hal::xen::store::{Result, Error, XenbusState};
 
 use super::imp::{XenStoreImpl, RequestBuilder, XsdSockmsgType};
 
@@ -68,6 +71,31 @@ impl<'a> Transaction<'a> {
 
             Ok(v)
         })
+    }
+
+    /// Switch the state of the XenBus
+    pub fn switch_state(&mut self, path: CString,
+                        state: XenbusState) -> Result<()> {
+        let old_state: XenbusState = {
+            let old_state_string = try!(self.read(path.clone()));
+            let old_state_result = u8::from_str(old_state_string.as_str());
+
+            unsafe {
+                mem::transmute(
+                    try!(old_state_result.map_err(|_| Error::Conversion))
+                )
+            }
+        };
+
+        if old_state != state {
+            let s: u8 = unsafe { mem::transmute(state) };
+            let state_cstring = CString::new(s.to_string());
+
+            self.write(path,
+                       try!(state_cstring.map_err(|_| Error::Conversion)))
+        } else {
+            Ok(())
+        }
     }
 
     /// Read the value pointed by `key`

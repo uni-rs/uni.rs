@@ -58,6 +58,20 @@ pub enum Error {
     Isconn,
 }
 
+#[derive(PartialEq, PartialOrd, Debug)]
+/// State of the Xen Bus
+pub enum XenbusState {
+    Unknown = 0,
+    Initialising = 1,
+    InitWait = 2,
+    Initialised = 3,
+    Connected = 4,
+    Closing = 5,
+    Closed = 6,
+    Reconfiguring = 7,
+    Reconfigured  = 8
+}
+
 /// Useful for try!
 impl From<Error> for () {
     #[inline]
