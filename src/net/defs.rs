@@ -121,8 +121,8 @@ impl PartialEq for HwAddr {
 
 impl Display for HwAddr {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        f.write_fmt(format_args!("{:x}:{:x}:{:x}:{:x}:{:x}:{:x}", self.bytes[0],
-                                 self.bytes[1], self.bytes[2], self.bytes[3],
-                                 self.bytes[4], self.bytes[5]))
+        f.write_fmt(format_args!("{:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
+                                 self.bytes[0], self.bytes[1], self.bytes[2],
+                                 self.bytes[3], self.bytes[4], self.bytes[5]))
     }
 }
