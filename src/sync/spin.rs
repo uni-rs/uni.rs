@@ -10,6 +10,8 @@ use hal::{local_irq_save, local_irq_restore};
 pub use spin::Mutex as SpinLock;
 pub use spin::MutexGuard as SpinGuard;
 
+pub use spin::{RwLock, RwLockReadGuard, RwLockWriteGuard};
+
 pub struct InterruptSpinLock<T> {
     data: UnsafeCell<T>,
     pub lock: AtomicBool,
