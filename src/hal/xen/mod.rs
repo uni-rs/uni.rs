@@ -38,12 +38,12 @@ mod hypercall;
 pub mod arch;
 pub mod defs;
 pub mod boot;
+pub mod grant;
 pub mod store;
-pub mod memory;
 pub mod event;
 pub mod sched;
+pub mod memory;
 pub mod console;
-
 
 extern "C" {
     // This symbol must be present in code using libxen
@@ -96,6 +96,7 @@ pub extern "C" fn uni_rust_entry() -> ! {
 
     boot::init_memory();
 
+    grant::Table::init().expect("Fail to initialize Xen's Grant Table");
 
     event::init();
 
