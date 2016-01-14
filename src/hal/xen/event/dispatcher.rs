@@ -7,7 +7,9 @@ use core::intrinsics::atomic_xchg;
 use hal::xen::shared_info;
 
 use hal::xen::defs::EvtchnPort;
-use hal::xen::defs::ULONG_SIZE;
+use hal::xen::defs::{ULONG_SIZE, DOMID_SELF};
+
+use hal::xen::event::{event_channel_op, EventOp};
 
 use hal::arch::utils::{first_bit, wmb};
 use hal::arch::utils::{atomic_set_bit, atomic_clear_bit};
@@ -20,6 +22,14 @@ pub type EventHandler = fn(port: EvtchnPort, data: *mut u8) -> ();
 struct EventData {
     pub handler: EventHandler,
     pub data: *mut u8,
+}
+
+#[repr(C)]
+/// struct evtchn_alloc_unbound
+struct AllocUnbound {
+    dom: u16,
+    remote_dom: u16,
+    port: EvtchnPort,
 }
 
 impl EventData {
@@ -91,6 +101,29 @@ impl Dispatcher {
         }
 
         self.handlers[port as usize] = EventData::new(handler, data);
+    }
+
+    /// Allocate a new event `port` and register an `handler` for it
+    ///
+    /// This function basically allocate the port through Xen and call
+    /// `bind_port`
+    pub fn alloc_unbound(&mut self, remote: u16, handler: EventHandler,
+                         data: *mut u8) -> Result<EvtchnPort, i32> {
+        let mut op = AllocUnbound {
+            dom: DOMID_SELF,
+            remote_dom: remote,
+            port: 0,
+        };
+
+        let ret = event_channel_op(EventOp::AllocUnbound, &mut op);
+
+        if ret != 0 {
+            return Err(ret);
+        }
+
+        self.bind_port(op.port, handler, data);
+
+        Ok(op.port)
     }
 
     pub fn mask_all(&self) {
