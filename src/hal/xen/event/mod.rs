@@ -1,3 +1,5 @@
+//! Implementation of Xen's event layer
+
 use hal::xen::hypercall::hypercall2;
 use hal::xen::hypercall::HypercallKind;
 
@@ -5,9 +7,9 @@ use hal::xen::defs::{Ulong, EvtchnPort};
 
 mod dispatcher;
 
-pub use self::dispatcher::Dispatcher;
+pub use self::dispatcher::{dispatcher, do_hypervisor_callback};
 
-static mut DISPATCHER: Dispatcher = Dispatcher::new();
+pub use self::dispatcher::Dispatcher;
 
 // XXX: Is this really "generic" (i.e., is it present on ARM)
 extern "C" {
@@ -15,18 +17,8 @@ extern "C" {
     fn failsafe_callback();
 }
 
-#[no_mangle]
-/// This function is called when an event occur
-pub unsafe extern "C" fn do_hypervisor_callback() {
-    dispatcher().serve_event();
-}
-
-pub fn dispatcher<'a>() -> &'a mut Dispatcher {
-    unsafe {
-        &mut DISPATCHER
-    }
-}
-
+#[doc(hidden)]
+/// Init the event subsystem
 pub fn init() {
     init_callbacks();
 
@@ -86,6 +78,8 @@ fn event_channel_op<T>(op: EventOp, event: *mut T) -> i32 {
     }
 }
 
+/// Send an event to the remote end of the channel whose local endpoint is
+/// `port`
 pub fn send(port: EvtchnPort) -> i32 {
     let mut ev: EvtchnSend = EvtchnSend {
         port: port,

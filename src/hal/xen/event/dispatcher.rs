@@ -1,5 +1,3 @@
-//! Main utility to dispatch and manage Xen events
-
 use core::ptr::null_mut;
 
 use core::intrinsics::atomic_xchg;
@@ -15,6 +13,21 @@ use hal::arch::utils::{first_bit, wmb};
 use hal::arch::utils::{atomic_set_bit, atomic_clear_bit};
 
 const NUMBER_OF_EVENTS: usize = 1024;
+
+static mut DISPATCHER: Dispatcher = Dispatcher::new();
+
+/// Access the global event dispatcher
+pub fn dispatcher<'a>() -> &'a mut Dispatcher {
+    unsafe {
+        &mut DISPATCHER
+    }
+}
+
+#[no_mangle]
+/// This function is called when an event occur
+pub unsafe extern "C" fn do_hypervisor_callback() {
+    super::dispatcher().serve_event();
+}
 
 pub type EventHandler = fn(port: EvtchnPort, data: *mut u8) -> ();
 
@@ -41,16 +54,19 @@ impl EventData {
     }
 }
 
+
+/// Dispatch and manage Xen events
 pub struct Dispatcher {
     handlers: [EventData; NUMBER_OF_EVENTS],
 }
 
 impl Dispatcher {
-    pub fn default_handler(port: EvtchnPort, _data: *mut u8) {
+    fn default_handler(port: EvtchnPort, _data: *mut u8) {
         panic!("Unhandled port ({})", port);
     }
 
-    pub const fn new() -> Self {
+    #[doc(hidden)]
+    const fn new() -> Self {
         Dispatcher {
             handlers: [EventData::new(Dispatcher::default_handler, null_mut());
                        NUMBER_OF_EVENTS],
@@ -58,7 +74,7 @@ impl Dispatcher {
     }
 
     #[inline(always)]
-    pub unsafe fn serve_event(&self) {
+    unsafe fn serve_event(&self) {
         let cpu = &mut shared_info.vcpu_info[0];
 
         cpu.evtchn_upcall_pending = 0;
@@ -93,6 +109,9 @@ impl Dispatcher {
         }
     }
 
+    /// Register a new `handler` for a `port`
+    ///
+    /// Note that `data` will be passed to `handler` every time it's called
     pub fn bind_port(&mut self, port: EvtchnPort, handler: EventHandler,
                      data: *mut u8) {
         if self.handlers[port as usize].handler !=
@@ -105,7 +124,7 @@ impl Dispatcher {
 
     /// Allocate a new event `port` and register an `handler` for it
     ///
-    /// This function basically allocate the port through Xen and call
+    /// This function basically allocates the port through Xen and calls
     /// `bind_port`
     pub fn alloc_unbound(&mut self, remote: u16, handler: EventHandler,
                          data: *mut u8) -> Result<EvtchnPort, i32> {
@@ -126,6 +145,7 @@ impl Dispatcher {
         Ok(op.port)
     }
 
+    /// Mask all events
     pub fn mask_all(&self) {
         let mut i: EvtchnPort = 0;
 
@@ -136,6 +156,7 @@ impl Dispatcher {
         }
     }
 
+    /// Mask the event `port`
     pub fn mask_event(&self, port: EvtchnPort) {
         unsafe {
             if port < (NUMBER_OF_EVENTS as EvtchnPort) {
@@ -144,6 +165,7 @@ impl Dispatcher {
         }
     }
 
+    /// Unmask the event `port`
     pub fn unmask_event(&self, port: EvtchnPort) {
         unsafe {
             if port < (NUMBER_OF_EVENTS as EvtchnPort) {
