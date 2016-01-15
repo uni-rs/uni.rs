@@ -10,7 +10,7 @@ use alloc_uni::__rust_allocate;
 
 use hal::mmu::{Vaddr, Mfn};
 
-use hal::arch::utils::mb;
+use hal::arch::utils::{mb, wmb};
 
 use hal::arch::defs::PAGE_SIZE;
 
@@ -263,5 +263,114 @@ impl<Req, Resp> SharedRing<Req, Resp> {
         unsafe {
             &mut *(self.ptr_from_index(idx) as *mut Resp)
         }
+    }
+}
+
+/// Xen's front end ring
+///
+/// `Req` is the type of the request
+///
+/// `Resp` is the type of the response
+pub struct FrontRing<Req, Resp> {
+    req_prod_pvt: Idx,
+    rsp_cons_pvt: Idx,
+    nr_ents: u32,
+    sring: SharedRing<Req, Resp>,
+}
+
+impl<Req, Resp> FrontRing<Req, Resp> {
+    /// Create a new frond end ring that operates on the shared ring `sring`
+    pub fn new(sring: SharedRing<Req, Resp>) -> Self {
+        FrontRing {
+            req_prod_pvt: 0,
+            rsp_cons_pvt: 0,
+            nr_ents: sring.size() as u32,
+            sring: sring,
+        }
+    }
+
+    #[inline]
+    /// Returns the size of the ring (i.e. the number of entries it contains)
+    pub fn size(&self) -> usize {
+        self.nr_ents as usize
+    }
+
+    #[inline]
+    /// Returns the request production index
+    pub fn req_prod(&self) -> Idx {
+        self.req_prod_pvt
+    }
+
+    #[inline]
+    /// Returns the response consumer index
+    pub fn rsp_cons(&self) -> Idx {
+        self.rsp_cons_pvt
+    }
+
+    #[inline]
+    /// Returns the request production index as mutable
+    ///
+    /// This is unsafe as an invalid index can corrupt the ring
+    pub unsafe fn req_prod_mut(&mut self) -> &mut Idx {
+        &mut self.req_prod_pvt
+    }
+
+    #[inline]
+    /// Returns the response production index as mutable
+    ///
+    /// This is unsafe as an invalid index can corrupt the ring
+    pub unsafe fn rsp_cons_mut(&mut self) -> &mut Idx {
+        &mut self.rsp_cons_pvt
+    }
+
+    #[inline]
+    /// Returns a mutable reference over the underlying shared ring
+    pub unsafe fn sring_mut(&mut self) -> &mut SharedRing<Req, Resp> {
+        &mut self.sring
+    }
+
+    #[inline]
+    /// Returns true if the ring has unconsumed responses
+    ///
+    /// Equivalent to RING_HAS_UNCONSUMED_RESPONSES
+    pub fn has_unconsumed_responses(&self) -> bool {
+        self.sring.rsp_prod() - self.rsp_cons_pvt > 0
+    }
+
+    /// Push requests down to the shared ring.
+    ///
+    /// This function will return true if the other end of the ring should be
+    /// notified
+    ///
+    /// Equivalent to RING_PUSH_REQUESTS_AND_CHECK_NOTIFY
+    pub fn push_requests(&mut self) -> bool {
+        let old = self.sring.req_prod();
+        let new = self.req_prod_pvt;
+
+        wmb();
+
+        unsafe {
+            self.sring.req_prod_set(new);
+        }
+        mb();
+
+        (new - self.sring.req_event()) < (new - old)
+    }
+
+    /// Returns true if there is still work to do
+    ///
+    /// Equivalent to RING_FINAL_CHECK_FOR_RESPONSES
+    pub fn final_check_for_responses(&mut self) -> bool {
+        if self.has_unconsumed_responses() {
+            return true;
+        }
+
+        let rsp_event = self.rsp_cons() + 1;
+
+        unsafe {
+            self.sring.rsp_event_set(rsp_event);
+        }
+
+        self.has_unconsumed_responses()
     }
 }
