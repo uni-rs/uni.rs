@@ -32,6 +32,21 @@ pub fn first_bit(data: usize) -> usize {
     }
 }
 
+/// Memory barrier
+pub fn mb() {
+    unsafe {
+        asm!("mfence" ::: "memory" : "volatile");
+    }
+}
+
+/// Read memory barrier
+pub fn rmb() {
+    unsafe {
+        asm!("lfence" ::: "memory" : "volatile");
+    }
+}
+
+/// Write memory barrier
 pub fn wmb() {
     unsafe {
         asm!("sfence" ::: "memory" : "volatile");
