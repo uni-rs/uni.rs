@@ -38,6 +38,7 @@ mod hypercall;
 pub mod arch;
 pub mod defs;
 pub mod boot;
+pub mod ring;
 pub mod grant;
 pub mod store;
 pub mod event;
