@@ -57,3 +57,7 @@ path = "examples/console/echo.rs"
 [[example]]
 name = "store"
 path = "examples/xen/store.rs"
+
+[[example]]
+name = "udp-echo"
+path = "examples/net/udp-echo.rs"

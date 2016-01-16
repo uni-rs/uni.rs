@@ -5,10 +5,10 @@ rust:
 sudo: true
 
 env:
-    - test=NO cargo_conf="--release --features xen --target=i686-unknown-uni.json"
-    - test=NO cargo_conf="--features xen --target=i686-unknown-uni.json"
-    - test=NO cargo_conf="--release --features xen --target=x86_64-unknown-uni.json"
-    - test=NO cargo_conf="--features xen --target=x86_64-unknown-uni.json"
+    - test=NO cargo_conf="--release --target=i686-unknown-uni.json" backend=xen
+    - test=NO cargo_conf="--target=i686-unknown-uni.json" backend=xen
+    - test=NO cargo_conf="--release --target=x86_64-unknown-uni.json" backend=xen
+    - test=NO cargo_conf="--target=x86_64-unknown-uni.json" backend=xen
     - test=YES
 
 os:
@@ -18,11 +18,12 @@ before_install:
     npm install --save-dev travis-after-all
 
 script:
-    - if [[ "$test" == "NO" ]]; then cargo build --verbose --example hello $cargo_conf; fi
-    - if [[ "$test" == "NO" ]]; then cargo build --verbose --example thread $cargo_conf; fi
-    - if [[ "$test" == "NO" ]]; then cargo build --verbose --example queue $cargo_conf; fi
-    - if [[ "$test" == "NO" ]]; then cargo build --verbose --example echo $cargo_conf; fi
-    - if [[ "$test" == "NO" ]]; then cargo build --verbose --example store $cargo_conf; fi
+    - if [[ "$test" == "NO" ]]; then cargo build --features="$backend" --verbose --example hello $cargo_conf; fi
+    - if [[ "$test" == "NO" ]]; then cargo build --features="$backend" --verbose --example thread $cargo_conf; fi
+    - if [[ "$test" == "NO" ]]; then cargo build --features="$backend" --verbose --example queue $cargo_conf; fi
+    - if [[ "$test" == "NO" ]]; then cargo build --features="$backend" --verbose --example echo $cargo_conf; fi
+    - if [[ "$test" == "NO" ]]; then cargo build --features="$backend" --verbose --example store $cargo_conf; fi
+    - if [[ "$test" == "NO" ]]; then cargo build --features="$backend net" --verbose --example udp-echo $cargo_conf; fi
 
     - if [[ "$test" == "YES" ]]; then cargo test --features test --verbose --manifest-path crates/heap/Cargo.toml; fi
     - if [[ "$test" == "YES" ]]; then cargo test --features test --verbose --manifest-path crates/intrusive/Cargo.toml; fi
