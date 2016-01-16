@@ -70,6 +70,38 @@ impl<T> Display for Int<T> where T: PrimInt + Clone + Display {
 const COUNT_HWADDR_BYTES: usize = 6;
 
 #[repr(C, packed)]
+#[derive(Copy, Clone, PartialEq)]
+/// An Ipv4 address
+pub struct Ipv4Addr {
+    a: u8,
+    b: u8,
+    c: u8,
+    d: u8,
+}
+
+impl Ipv4Addr {
+    /// Creates a new IPv4 address
+    ///
+    /// The result will represent the IP address `a`.`b`.`c`.`d`
+    pub fn new(a: u8, b: u8, c: u8, d: u8) -> Self {
+        Ipv4Addr {
+            a: a,
+            b: b,
+            c: c,
+            d: d,
+        }
+    }
+
+}
+
+impl Display for Ipv4Addr {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        f.write_fmt(format_args!("{}.{}.{}.{}", self.a, self.b, self.c,
+                                 self.d))
+    }
+}
+
+#[repr(C, packed)]
 #[derive(Copy, Clone)]
 /// A MAC address
 pub struct HwAddr {
