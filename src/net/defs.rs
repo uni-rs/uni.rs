@@ -71,7 +71,7 @@ const COUNT_HWADDR_BYTES: usize = 6;
 
 #[repr(C, packed)]
 #[derive(Copy, Clone, PartialEq)]
-/// An Ipv4 address
+/// An IPv4 address
 pub struct Ipv4Addr {
     a: u8,
     b: u8,
@@ -97,6 +97,47 @@ impl Display for Ipv4Addr {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         f.write_fmt(format_args!("{}.{}.{}.{}", self.a, self.b, self.c,
                                  self.d))
+    }
+}
+
+#[repr(C, packed)]
+#[derive(Clone, PartialEq)]
+/// An IPv6 address
+pub struct Ipv6Addr {
+    a: Int<u16>,
+    b: Int<u16>,
+    c: Int<u16>,
+    d: Int<u16>,
+    e: Int<u16>,
+    f: Int<u16>,
+    g: Int<u16>,
+    h: Int<u16>,
+}
+
+impl Ipv6Addr {
+    /// Creates a new IPv6 address
+    ///
+    /// The result will represent the IP address `a`:`b`:`c`:`d`:`e`:`f`:`g`:`h`
+    pub fn new(a: u16, b: u16, c: u16, d: u16, e: u16, f: u16, g: u16,
+               h: u16) -> Ipv6Addr {
+        Ipv6Addr {
+            a: Int::from_host(a),
+            b: Int::from_host(b),
+            c: Int::from_host(c),
+            d: Int::from_host(d),
+            e: Int::from_host(e),
+            f: Int::from_host(f),
+            g: Int::from_host(g),
+            h: Int::from_host(h),
+        }
+    }
+}
+
+impl Display for Ipv6Addr {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        f.write_fmt(format_args!("{}:{}:{}:{}:{}:{}:{}:{}", self.a, self.b,
+                                 self.c, self.d, self.e, self.f, self.g,
+                                 self.h))
     }
 }
 
