@@ -17,8 +17,8 @@ use num::PrimInt;
 ///
 /// This type stores an integer using network's endianness and let the user
 /// manipulates it using host's endianness.
-#[derive(Clone)]
 #[repr(C, packed)]
+#[derive(Clone, PartialEq)]
 pub struct Int<T: PrimInt + Clone>(T);
 
 impl<T> Int<T> where T: PrimInt + Clone {
@@ -91,7 +91,6 @@ impl Ipv4Addr {
             d: d,
         }
     }
-
 }
 
 impl Display for Ipv4Addr {
