@@ -45,6 +45,7 @@ pub mod event;
 pub mod sched;
 pub mod memory;
 pub mod console;
+#[cfg(feature = "net")] pub mod net;
 
 extern "C" {
     // This symbol must be present in code using libxen
