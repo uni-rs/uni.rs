@@ -116,6 +116,11 @@ mod hw_imp {
             xen::sched::poweroff(code as xen::defs::Ulong);
         }
     }
+
+    #[cfg(feature = "net")]
+    /// Network device driver abstraction
+    pub mod net {
+    }
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
