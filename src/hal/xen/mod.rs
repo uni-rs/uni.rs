@@ -87,6 +87,18 @@ extern {
     fn main(_: isize, _: *const *const u8) -> isize;
 }
 
+#[inline]
+#[cfg(feature = "net")]
+fn net_init() {
+    ::net::Stack::init();
+}
+
+#[inline]
+#[cfg(not(feature = "net"))]
+fn net_init() {
+    println!("No network configured. Skipping...");
+}
+
 #[no_mangle]
 /// Entry point of the application called by boot assembly
 pub extern "C" fn uni_rust_entry() -> ! {
@@ -112,6 +124,9 @@ pub extern "C" fn uni_rust_entry() -> ! {
     // Spawn main thread
     Scheduler::spawn(|| {
         println!("Main thread started");
+
+        net_init();
+
         println!("Uni.rs is now ready");
         println!("Control is now transfered to the application");
         println!("");
