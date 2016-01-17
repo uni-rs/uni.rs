@@ -3,6 +3,7 @@
 #![feature(fnbox)]
 #![feature(unique)]
 #![feature(convert)]
+#![feature(str_char)]
 #![feature(const_fn)]
 #![feature(lang_items)]
 #![feature(collections)]

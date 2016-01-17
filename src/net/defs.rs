@@ -11,6 +11,9 @@ use core::fmt::{
     Error
 };
 
+use vec::Vec;
+use string::String;
+
 use num::PrimInt;
 
 /// Network integer representation
@@ -154,6 +157,35 @@ impl HwAddr {
         HwAddr {
             bytes: [0; COUNT_HWADDR_BYTES],
         }
+    }
+
+    /// Convert a string with format XX:XX:XX:XX:XX:XX to an hardware address
+    pub fn from_str(s: String) -> Result<Self, ()> {
+        let split: Vec<&str> = s.split(':').collect();
+
+        if split.len() != COUNT_HWADDR_BYTES {
+            return Err(())
+        }
+
+        let mut i = 0;
+        let mut ret = Self::empty();
+
+        for b in split {
+            let bytes = b.as_bytes();
+
+            if bytes.len() != 2 {
+                return Err(())
+            }
+
+            let d1 = try!(b.char_at(0).to_digit(16).ok_or(())) * 16;
+            let d2 = try!(b.char_at(1).to_digit(16).ok_or(()));
+
+            ret.bytes[i] = d1 as u8 + d2 as u8;
+
+            i += 1;
+        }
+
+        Ok(ret)
     }
 
     /// Create an hardware address from bytes.
