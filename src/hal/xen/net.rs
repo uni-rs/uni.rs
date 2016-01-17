@@ -1,6 +1,7 @@
 //! Implementation of Xen's network driver
 
 use core::mem;
+use alloc_uni::__rust_allocate;
 
 use sync::Arc;
 use boxed::Box;
@@ -15,9 +16,11 @@ use ffi::CString;
 use net::{Interface, Packet};
 use net::defs::HwAddr;
 
+use hal::mmu::{Vaddr, Mfn};
+
 use hal::xen::store::{XenStore, XenbusState};
-use hal::xen::grant::Ref as GrantRef;
-use hal::xen::ring::{SharedRing, FrontRing};
+use hal::xen::grant::{Table as GrantTable, Ref as GrantRef};
+use hal::xen::ring::{SharedRing, FrontRing, Idx as RingIdx};
 
 use hal::xen::defs::EvtchnPort;
 
@@ -235,6 +238,10 @@ impl XenNetDevice {
             }
         }
 
+        // Init buffers
+        try!(xen_dev.init_rx());
+        try!(xen_dev.init_tx());
+
         // Unmask the event
         event::dispatcher().unmask_event(evtchn);
 
@@ -245,6 +252,113 @@ impl XenNetDevice {
         Ok(xen_dev)
     }
 
+    fn init_rx(&mut self) -> Result<(), ()> {
+        let mut v: Vec<RxBuffer> = Vec::with_capacity(self.rx_ring.size());
+
+        // We populate the rx ring with RxRequest. These requests give to the
+        // backend some pages to work with in order to send us some packets
+        //
+        // The way TX works with Xen is as follow:
+        //
+        // 1. We put RxRequests in the ring. These requests contain an
+        // allocated and granted page for the backend to work with
+        //
+        // 2. The backend receives a packet for us
+        //
+        // 3. The backend pops a RxRequest and use the granted page to transfer
+        // use the package
+        //
+        // 4. The backend pushes a RxResponse in the ring
+        //
+        // 5. We process this RxResponse, ungrant the page and enqueue the
+        // packet in the Rx queue to be treated by the network stack
+        //
+        // This is why we need to keep trap of the granted page
+        for i in 0..self.rx_ring.size() {
+            let page = __rust_allocate(PAGE_SIZE, PAGE_SIZE);
+
+            if page.is_null() {
+                return Err(());
+            }
+
+            // Grant access to the page to the backend
+            let grant = try!(GrantTable::alloc_ref().ok_or(()));
+
+            grant.grant_access(self.backend_id,
+                               Mfn::from(Vaddr::from_ptr(page)), false);
+
+            // Tell the backend about the new buffer via a RxRequest
+            let req = unsafe { self.rx_ring.sring_mut().request_from_index(i) };
+
+            req.id = i as u16;
+            req.gref = grant.clone();
+
+            // Keep track of buffers internally
+            v.push(RxBuffer {
+                id: i as u16,
+                page: page,
+                grant_ref: grant,
+            });
+        }
+
+        // Update ring's request production index
+        unsafe {
+            *self.rx_ring.req_prod_mut() += self.rx_ring.size() as RingIdx;
+        }
+
+        // Notify the backend
+        if self.rx_ring.push_requests() {
+            event::send(self.evtchn);
+        }
+
+        unsafe {
+            // Set notification index so that the backend notifies us when it
+            // pushes new responses in the ring
+            let rsp_event = self.rx_ring.rsp_cons() + 1;
+
+            self.rx_ring.sring_mut().rsp_event_set(rsp_event);
+        }
+
+        self.rx_buffer = InterruptSpinLock::new(v);
+
+        Ok(())
+    }
+
+    fn init_tx(&mut self) -> Result<(), ()> {
+        let mut v: Vec<TxBuffer> = Vec::with_capacity(self.tx_ring.size());
+
+        // We internally initialize empty buffers.
+        // The way TX works with Xen is as follow:
+        //
+        // 1. We sent a TxRequest with a page that contains the packet to
+        // transmit. The backend has granted access to the page.
+        //
+        // 2. The backend will transmit our packet and push in the ring a
+        // TxResponse
+        //
+        // 3. refresh_tx() is called
+        //
+        // 4. refresh_tx() will consume TxResponse(s), ungrant access to the
+        // page and free the packet.
+        //
+        // This is why we need to keep track of the grant reference and the
+        // packet so that refresh_tx() can do its job.
+        for i in 0..self.tx_ring.size() {
+            let grant = try!(GrantTable::alloc_ref().ok_or(()));
+
+            let buffer = TxBuffer {
+                id: i as u16,
+                pkt: None,
+                grant_ref: grant,
+            };
+
+            v.push(buffer);
+        }
+
+        self.tx_buffer = SpinLock::new(v);
+
+        Ok(())
+    }
 
     // Check for received packet. If there are packets enqueue them in
     // the network stack's rx queue to be processed.
