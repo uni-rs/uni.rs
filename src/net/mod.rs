@@ -7,4 +7,4 @@ pub mod defs;
 
 pub use self::imp::Stack;
 pub use self::pkt::Packet;
-pub use self::intf::V4Configuration;
+pub use self::intf::{Interface, V4Configuration};
