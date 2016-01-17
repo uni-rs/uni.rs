@@ -3,7 +3,6 @@
 #![feature(fnbox)]
 #![feature(unique)]
 #![feature(convert)]
-#![feature(str_char)]
 #![feature(const_fn)]
 #![feature(lang_items)]
 #![feature(collections)]
@@ -11,6 +10,9 @@
 #![feature(core_intrinsics)]
 #![feature(op_assign_traits)]
 #![feature(augmented_assignments)]
+
+#![cfg_attr(feature = "net", feature(str_char))]
+
 #![no_std]
 
 #[macro_use]
