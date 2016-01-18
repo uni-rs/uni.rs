@@ -1,6 +1,9 @@
+use boxed::Box;
 use string::String;
 
 use net::defs::{HwAddr, Ipv4Addr};
+
+use hal::net::HwInterface;
 
 // XXX: Should this be in net::defs ?
 /// IPv4 configuration of an interface
@@ -18,6 +21,7 @@ pub struct Interface {
     name: String,
     hw_addr: HwAddr,
     conf: V4Configuration,
+    pv_device: Option<Box<HwInterface>>,
 }
 
 impl Interface {
@@ -31,6 +35,7 @@ impl Interface {
                 ipv4_mask: Ipv4Addr::new(0, 0, 0, 0),
                 ipv4_gateway: Ipv4Addr::new(0, 0, 0, 0),
             },
+            pv_device: None,
         }
     }
 
@@ -68,5 +73,11 @@ impl Interface {
     /// Returns a mutable reference over the IPv4 configuration of the interface
     pub fn v4_configuration_mut(&mut self) -> &mut V4Configuration {
         &mut self.conf
+    }
+
+    #[inline]
+    #[doc(hidden)]
+    pub fn pv_device_set(&mut self, pv: Box<HwInterface>) {
+        self.pv_device = Some(pv);
     }
 }
