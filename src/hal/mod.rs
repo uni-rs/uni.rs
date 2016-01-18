@@ -120,6 +120,10 @@ mod hw_imp {
     #[cfg(feature = "net")]
     /// Network device driver abstraction
     pub mod net {
+        use hal::xen::net;
+
+        /// Type of the hardware interface.
+        pub type HwInterface = net::XenNetDevice;
     }
 }
 
