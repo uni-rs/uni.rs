@@ -2,7 +2,6 @@
 #![feature(alloc)]
 #![feature(fnbox)]
 #![feature(unique)]
-#![feature(convert)]
 #![feature(const_fn)]
 #![feature(lang_items)]
 #![feature(collections)]
