@@ -52,7 +52,7 @@ impl Packet {
 
     #[inline]
     /// Returns a pointer that points to the beginning of the network data
-    pub fn data(&self) -> *const u8 {
+    pub fn start(&self) -> *const u8 {
         self.data
     }
 }
