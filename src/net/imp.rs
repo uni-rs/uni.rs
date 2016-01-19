@@ -1,5 +1,6 @@
 use sync::Arc;
 
+use vec::Vec;
 use vec_deque::VecDeque;
 
 use cell::GlobalCell;
@@ -9,6 +10,8 @@ use sync::spin::{InterruptSpinLock, RwLock};
 use thread::WaitQueue;
 
 use net::Interface;
+
+use hal::net::discover;
 
 use net::Packet;
 
@@ -41,6 +44,7 @@ impl Stack {
 }
 
 pub struct StackImpl {
+    interfaces: Vec<Arc<RwLock<Interface>>>,
     /// Contains packets to be processed
     rx_queue: InterruptSpinLock<VecDeque<(*const Arc<RwLock<Interface>>, Packet)>>,
     /// Used to wait for packet to arrive in the rx_queue
@@ -53,7 +57,21 @@ unsafe impl Sync for StackImpl {}
 
 impl StackImpl {
     pub fn new() -> Self {
+        let intfs = discover();
+
+        if intfs.is_empty() {
+            println!("Warning: Uni.rs is built with network capabilities but no interface found");
+        } else {
+            println!("{} interface(s) discovered:", intfs.len());
+
+            for i in &intfs {
+                println!("  - {} ({})", i.read().name_ref(),
+                         i.read().hw_addr_ref());
+            }
+        }
+
         StackImpl {
+            interfaces: intfs,
             rx_queue: InterruptSpinLock::new(VecDeque::with_capacity(MAX_QUEUE_SIZE)),
             rx_wait: WaitQueue::new(),
         }
