@@ -1,4 +1,4 @@
-use sync::Arc;
+use sync::{Arc, Weak};
 
 use vec::Vec;
 use vec_deque::VecDeque;
@@ -44,7 +44,7 @@ impl Stack {
     /// Note: This is safe to be called from interrupt context. Indeed the
     /// `rx_queue` is not resizable so no allocation will be performed by this
     /// function.
-    pub fn enqueue_rx_packet(intf: *const Arc<RwLock<Interface>>,
+    pub fn enqueue_rx_packet(intf: Weak<RwLock<Interface>>,
                              packet: Packet) -> bool {
         STACK.as_mut().enqueue_rx_packet(intf, packet)
     }
@@ -73,7 +73,7 @@ pub struct StackImpl {
     /// Interfaces registered
     interfaces: Vec<Arc<RwLock<Interface>>>,
     /// Contains packets to be processed
-    rx_queue: InterruptSpinLock<VecDeque<(*const Arc<RwLock<Interface>>, Packet)>>,
+    rx_queue: InterruptSpinLock<VecDeque<(Weak<RwLock<Interface>>, Packet)>>,
     /// Used to wait for packet to arrive in the rx_queue
     rx_wait: WaitQueue,
 }
@@ -104,7 +104,7 @@ impl StackImpl {
         }
     }
 
-    pub fn enqueue_rx_packet(&mut self, intf: *const Arc<RwLock<Interface>>,
+    pub fn enqueue_rx_packet(&mut self, intf: Weak<RwLock<Interface>>,
                              packet: Packet) -> bool {
         let mut locked_rx_queue = self.rx_queue.lock();
 

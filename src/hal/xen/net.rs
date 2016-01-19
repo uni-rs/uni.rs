@@ -3,7 +3,7 @@
 use core::mem;
 use alloc_uni::__rust_allocate;
 
-use sync::Arc;
+use sync::{Arc, Weak};
 use boxed::Box;
 
 use vec::Vec;
@@ -132,11 +132,12 @@ pub fn discover() -> Vec<Arc<RwLock<Interface>>> {
     // Create interface for every `id` valid
     while vif_id_exists(id) {
         let interface = Arc::new(RwLock::new(Interface::new()));
+        let interface_weak = Arc::downgrade(&interface);
 
         v.push(interface);
 
         // Instantiate the Xen backend
-        match XenNetDevice::new(id, v.last().unwrap()) {
+        match XenNetDevice::new(id, interface_weak) {
             Ok(i) => {
                 // Set it as pv_device of the interface
                 v.last().unwrap().write().pv_device_set(i);
@@ -176,7 +177,7 @@ pub struct XenNetDevice {
     rx_ring: RxFrontRing,
     tx_buffer: SpinLock<Vec<TxBuffer>>,
     rx_buffer: InterruptSpinLock<Vec<RxBuffer>>,
-    intf: *const Arc<RwLock<Interface>>,
+    intf: Weak<RwLock<Interface>>,
 }
 impl XenNetDevice {
     fn device_callback(_: EvtchnPort, data: *mut u8) {
@@ -188,7 +189,7 @@ impl XenNetDevice {
     /// Creates a new Xen network device with id `id`.
     ///
     /// This interface will be the backend of the interface `intf`
-    pub fn new(id: u32, intf: &Arc<RwLock<Interface>>) -> Result<Box<Self>, ()> {
+    pub fn new(id: u32, intf: Weak<RwLock<Interface>>) -> Result<Box<Self>, ()> {
         // Compute the root path that contains all the information for the
         // network device with id "id"
         let vif_root = format!("device/vif/{}", id);
@@ -213,7 +214,7 @@ impl XenNetDevice {
             rx_ring: RxFrontRing::new(rx_sring),
             tx_buffer: SpinLock::new(Vec::new()),
             rx_buffer: InterruptSpinLock::new(Vec::new()),
-            intf: intf as *const _,
+            intf: intf,
         });
 
         // This is legit as the event will be gone before the XenNetDevice
@@ -290,9 +291,11 @@ impl XenNetDevice {
         // Unmask the event
         event::dispatcher().unmask_event(evtchn);
 
+        let parent = xen_dev.intf.upgrade().unwrap();
+
         // Set interface info
-        *intf.write().name_mut() = format!("xen{}", id);
-        *intf.write().hw_addr_mut() = hw_addr;
+        *parent.write().name_mut() = format!("xen{}", id);
+        *parent.write().hw_addr_mut() = hw_addr;
 
         Ok(xen_dev)
     }
