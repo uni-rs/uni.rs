@@ -3,7 +3,7 @@ use sync::Arc;
 use vec::Vec;
 use vec_deque::VecDeque;
 
-use cell::GlobalCell;
+use cell::{GlobalCell, GlobalCellRef};
 
 use sync::spin::{InterruptSpinLock, RwLock};
 
@@ -28,6 +28,13 @@ impl Stack {
         STACK.set(StackImpl::new());
     }
 
+    /// Returns interfaces registered in the network stack
+    pub fn interfaces<'a>() -> Interfaces<'a> {
+        Interfaces {
+            imp: STACK.as_ref(),
+        }
+    }
+
     #[inline]
     /// Enqueue a packet inside the `rx_queue` and notify `rx_wait`.
     ///
@@ -43,7 +50,27 @@ impl Stack {
     }
 }
 
+/// Reference over the list of interfaces detected
+pub struct Interfaces<'a> {
+    imp: GlobalCellRef<'a, StackImpl>,
+}
+
+impl<'a> Interfaces<'a> {
+    #[inline]
+    /// Returns the number of interfaces detected
+    pub fn count(&self) -> usize {
+        self.imp.interfaces.len()
+    }
+
+    #[inline]
+    /// Returns the list of interfaces as an immutable slice
+    pub fn as_slice(&self) -> &[Arc<RwLock<Interface>>] {
+        &self.imp.interfaces[..]
+    }
+}
+
 pub struct StackImpl {
+    /// Interfaces registered
     interfaces: Vec<Arc<RwLock<Interface>>>,
     /// Contains packets to be processed
     rx_queue: InterruptSpinLock<VecDeque<(*const Arc<RwLock<Interface>>, Packet)>>,
