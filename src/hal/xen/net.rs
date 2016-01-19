@@ -109,6 +109,51 @@ type RxSharedRing = SharedRing<NetifRxRequest, NetifRxResponse>;
 type TxFrontRing = FrontRing<NetifTxRequest, NetifTxResponse>;
 type RxFrontRing = FrontRing<NetifRxRequest, NetifRxResponse>;
 
+/// Verify if a vif (virtual interface) with id `id` exists
+fn vif_id_exists(id: u32) -> bool {
+    let mut t = XenStore::start_transaction().unwrap();
+    let path = CString::new(format!("device/vif/{}", id)).unwrap();
+
+    let res = match t.read(path) {
+        Ok(..) => true,
+        Err(..) => false,
+    };
+
+    t.end().unwrap();
+
+    res
+}
+
+/// Returns a list of interfaces that have a xen backend
+pub fn discover() -> Vec<Arc<RwLock<Interface>>> {
+    let mut id = 0;
+    let mut v = Vec::new();
+
+    // Create interface for every `id` valid
+    while vif_id_exists(id) {
+        let interface = Arc::new(RwLock::new(Interface::new()));
+
+        v.push(interface);
+
+        // Instantiate the Xen backend
+        match XenNetDevice::new(id, v.last().unwrap()) {
+            Ok(i) => {
+                // Set it as pv_device of the interface
+                v.last().unwrap().write().pv_device_set(i);
+            }
+            Err(..) => {
+                v.pop();
+                println!("Warning: Impossible to initialize xen network interface {}",
+                         id);
+            }
+        }
+
+        id += 1;
+    }
+
+    v
+}
+
 /// Buffer allocated for packet reception
 struct RxBuffer {
     pub id: u16,
