@@ -120,10 +120,23 @@ mod hw_imp {
     #[cfg(feature = "net")]
     /// Network device driver abstraction
     pub mod net {
+        use vec::Vec;
+
+        use sync::Arc;
+        use sync::spin::RwLock;
+
         use hal::xen::net;
+
+        use net::Interface;
 
         /// Type of the hardware interface.
         pub type HwInterface = net::XenNetDevice;
+
+        /// Discover hardware configuration and return a list of existing
+        /// interfaces
+        pub fn discover() -> Vec<Arc<RwLock<Interface>>> {
+            net::discover()
+        }
     }
 }
 
