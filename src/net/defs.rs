@@ -85,7 +85,7 @@ impl<T> Display for Int<T> where T: PrimInt + Clone + Display {
 const COUNT_HWADDR_BYTES: usize = 6;
 
 #[repr(C, packed)]
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
 /// An IPv4 address
 pub struct Ipv4Addr {
     a: u8,
@@ -116,7 +116,7 @@ impl Display for Ipv4Addr {
 }
 
 #[repr(C, packed)]
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Ord, PartialOrd, Eq, PartialEq)]
 /// An IPv6 address
 pub struct Ipv6Addr {
     a: Int<u16>,
