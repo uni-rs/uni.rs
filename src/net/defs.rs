@@ -33,7 +33,7 @@ pub trait Device {
 /// This type stores an integer using network's endianness and let the user
 /// manipulates it using host's endianness.
 #[repr(C, packed)]
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Ord, PartialOrd, Eq, PartialEq)]
 pub struct Int<T: PrimInt + Clone>(T);
 
 impl<T> Int<T> where T: PrimInt + Clone {
