@@ -16,6 +16,18 @@ use string::String;
 
 use num::PrimInt;
 
+use net::Packet;
+
+/// Trait implemented by hardware interfaces
+pub trait Device {
+    /// Periodically called by the network thread to let the interface
+    /// refresh its rx/tx buffers, ...
+    fn refresh(&mut self);
+
+    /// Transmit a packet via the interface
+    fn tx_packet(&mut self, pkt: Packet);
+}
+
 /// Network integer representation
 ///
 /// This type stores an integer using network's endianness and let the user
