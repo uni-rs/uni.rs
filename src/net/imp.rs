@@ -7,7 +7,7 @@ use cell::{GlobalCell, GlobalCellRef};
 
 use sync::spin::{InterruptSpinLock, RwLock};
 
-use thread::WaitQueue;
+use thread::{Scheduler, WaitQueue};
 
 use net::Interface;
 
@@ -27,6 +27,11 @@ impl Stack {
     #[doc(hidden)]
     pub fn init() {
         STACK.set(StackImpl::new());
+
+        // Spawn the network thread
+        Scheduler::spawn(move || {
+            StackImpl::network_thread();
+        });
     }
 
     /// Returns interfaces registered in the network stack
@@ -84,6 +89,29 @@ pub struct StackImpl {
 unsafe impl Sync for StackImpl {}
 
 impl StackImpl {
+    pub fn network_thread() {
+        // Get a mutable reference from the start so that we don't have to use
+        // the GlobalCell for every packet.
+        let imp: &mut StackImpl = &mut *STACK.as_mut();
+
+        loop {
+            let pkt_opt = imp.rx_queue.lock().pop_front();
+
+            match pkt_opt {
+                None => {
+                    imp.refresh_interfaces();
+                    // No packet to process => wait for one to come
+                    wait_event!(imp.rx_wait, !imp.rx_queue.lock().is_empty());
+                    imp.refresh_interfaces();
+                }
+                Some((weak_intf, pkt)) => {
+                    // Treat the packet
+                    println!("New incoming packet!");
+                }
+            }
+        }
+    }
+
     pub fn new() -> Self {
         let intfs = discover();
 
