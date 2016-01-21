@@ -1,7 +1,7 @@
 use boxed::Box;
 use string::String;
 
-use net::defs::{HwAddr, Ipv4Addr};
+use net::defs::{HwAddr, Ipv4Addr, Device};
 
 use hal::net::HwInterface;
 
@@ -79,5 +79,11 @@ impl Interface {
     #[doc(hidden)]
     pub fn pv_device_set(&mut self, pv: Box<HwInterface>) {
         self.pv_device = Some(pv);
+    }
+
+    #[inline]
+    /// Refresh underlying driver
+    pub fn refresh(&mut self) {
+        self.pv_device.as_mut().unwrap().refresh();
     }
 }

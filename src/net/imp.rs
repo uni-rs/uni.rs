@@ -14,6 +14,7 @@ use net::Interface;
 use hal::net::discover;
 
 use net::Packet;
+use net::defs::Device;
 
 const MAX_QUEUE_SIZE: usize = 512;
 
@@ -101,6 +102,13 @@ impl StackImpl {
             interfaces: intfs,
             rx_queue: InterruptSpinLock::new(VecDeque::with_capacity(MAX_QUEUE_SIZE)),
             rx_wait: WaitQueue::new(),
+        }
+    }
+
+    /// Call refresh on every registered interface
+    fn refresh_interfaces(&mut self) {
+        for intf in &mut self.interfaces {
+            intf.write().refresh();
         }
     }
 
