@@ -14,7 +14,7 @@ use sync::spin::{InterruptSpinLock, SpinLock, RwLock};
 use ffi::CString;
 
 use net::{Interface, Packet};
-use net::defs::HwAddr;
+use net::defs::{Device, HwAddr};
 
 use hal::mmu::{Vaddr, Mfn};
 
@@ -179,6 +179,17 @@ pub struct XenNetDevice {
     rx_buffer: InterruptSpinLock<Vec<RxBuffer>>,
     intf: Weak<RwLock<Interface>>,
 }
+
+impl Device for XenNetDevice {
+    fn refresh(&mut self) {
+        unimplemented!();
+    }
+
+    fn tx_packet(&mut self, pkt: Packet) {
+        unimplemented!();
+    }
+}
+
 impl XenNetDevice {
     fn device_callback(_: EvtchnPort, data: *mut u8) {
         let xen_dev = unsafe { &mut (*(data as *mut XenNetDevice)) };
