@@ -157,7 +157,7 @@ impl Display for Ipv6Addr {
 }
 
 #[repr(C, packed)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
 /// A MAC address
 pub struct HwAddr {
     bytes: [u8; COUNT_HWADDR_BYTES],
@@ -221,17 +221,6 @@ impl HwAddr {
     /// Returns the internal representation of an hardware address
     pub fn as_bytes(&self) -> &[u8] {
         &self.bytes[..]
-    }
-}
-
-impl PartialEq for HwAddr {
-    fn eq(&self, rhs: &Self) -> bool {
-        self.bytes[0] == rhs.bytes[0] &&
-        self.bytes[1] == rhs.bytes[1] &&
-        self.bytes[2] == rhs.bytes[2] &&
-        self.bytes[3] == rhs.bytes[3] &&
-        self.bytes[4] == rhs.bytes[4] &&
-        self.bytes[5] == rhs.bytes[5]
     }
 }
 
