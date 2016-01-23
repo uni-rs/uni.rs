@@ -1,5 +1,10 @@
 //! Network packet utility
 
+use sync::{Arc, Weak};
+use sync::spin::RwLock;
+
+use net::Interface;
+
 use alloc_uni::__rust_deallocate;
 
 use hal::arch::defs::PAGE_SIZE;
@@ -9,6 +14,7 @@ pub struct Packet {
     page: *mut u8,
     data: *mut u8,
     size: usize,
+    intf: Option<Weak<RwLock<Interface>>>,
 }
 
 impl Packet {
@@ -29,6 +35,7 @@ impl Packet {
             page: page,
             data: page.offset(offset as isize),
             size: size,
+            intf: None,
         }
     }
 
@@ -54,6 +61,18 @@ impl Packet {
     /// Returns a pointer that points to the beginning of the network data
     pub fn start(&self) -> *const u8 {
         self.data
+    }
+
+    #[inline]
+    /// Return the interface the packet is linked to
+    pub fn interface(&self) -> Option<Arc<RwLock<Interface>>> {
+        self.intf.as_ref().and_then(|weak| weak.upgrade())
+    }
+
+    #[inline]
+    /// Set the interface the packet is linked to
+    pub fn set_interface(&mut self, intf: Weak<RwLock<Interface>>) {
+        self.intf = Some(intf);
     }
 }
 

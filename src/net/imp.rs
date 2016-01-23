@@ -50,9 +50,8 @@ impl Stack {
     /// Note: This is safe to be called from interrupt context. Indeed the
     /// `rx_queue` is not resizable so no allocation will be performed by this
     /// function.
-    pub fn enqueue_rx_packet(intf: Weak<RwLock<Interface>>,
-                             packet: Packet) -> bool {
-        STACK.as_mut().enqueue_rx_packet(intf, packet)
+    pub fn enqueue_rx_packet(packet: Packet) -> bool {
+        STACK.as_mut().enqueue_rx_packet(packet)
     }
 }
 
@@ -79,7 +78,7 @@ pub struct StackImpl {
     /// Interfaces registered
     interfaces: Vec<Arc<RwLock<Interface>>>,
     /// Contains packets to be processed
-    rx_queue: InterruptSpinLock<VecDeque<(Weak<RwLock<Interface>>, Packet)>>,
+    rx_queue: InterruptSpinLock<VecDeque<Packet>>,
     /// Used to wait for packet to arrive in the rx_queue
     rx_wait: WaitQueue,
 }
@@ -104,7 +103,7 @@ impl StackImpl {
                     wait_event!(imp.rx_wait, !imp.rx_queue.lock().is_empty());
                     imp.refresh_interfaces();
                 }
-                Some((weak_intf, pkt)) => {
+                Some(pkt) => {
                     // Treat the packet
                     println!("New incoming packet!");
                 }
@@ -140,8 +139,7 @@ impl StackImpl {
         }
     }
 
-    pub fn enqueue_rx_packet(&mut self, intf: Weak<RwLock<Interface>>,
-                             packet: Packet) -> bool {
+    pub fn enqueue_rx_packet(&mut self, packet: Packet) -> bool {
         let mut locked_rx_queue = self.rx_queue.lock();
 
         if locked_rx_queue.len() == MAX_QUEUE_SIZE {
@@ -151,7 +149,7 @@ impl StackImpl {
         }
 
         // Enqueue the packet
-        locked_rx_queue.push_back((intf, packet));
+        locked_rx_queue.push_back(packet);
 
         // Wake up network thread
         self.rx_wait.unblock();
