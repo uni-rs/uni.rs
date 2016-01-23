@@ -132,7 +132,7 @@ impl Node for ThreadImpl {
 
     #[inline]
     fn next_mut(&mut self) -> &mut Link<Self> {
-        &mut self.prev
+        &mut self.next
     }
 }
 
