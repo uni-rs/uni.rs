@@ -1,7 +1,8 @@
 //! Implementation of Xen's network driver
 
-use core::mem;
-use alloc_uni::__rust_allocate;
+use core::{mem, ptr};
+
+use alloc_uni::{__rust_allocate, __rust_deallocate};
 
 use sync::{Arc, Weak};
 use boxed::Box;
@@ -13,7 +14,7 @@ use sync::spin::{InterruptSpinLock, SpinLock, RwLock};
 
 use ffi::CString;
 
-use net::{Interface, Packet};
+use net::{Interface, Packet, Stack as NetStack};
 use net::defs::{Device, HwAddr};
 
 use hal::mmu::{Vaddr, Mfn};
@@ -25,6 +26,7 @@ use hal::xen::ring::{SharedRing, FrontRing, Idx as RingIdx};
 use hal::xen::defs::EvtchnPort;
 
 use hal::arch::defs::PAGE_SIZE;
+use hal::arch::utils::rmb;
 
 use hal::xen::event;
 
@@ -191,6 +193,7 @@ impl Device for XenNetDevice {
 }
 
 impl XenNetDevice {
+    /// Callback handling Xen network events
     fn device_callback(_: EvtchnPort, data: *mut u8) {
         let xen_dev = unsafe { &mut (*(data as *mut XenNetDevice)) };
 
@@ -419,8 +422,66 @@ impl XenNetDevice {
         Ok(())
     }
 
-    // Check for received packet. If there are packets enqueue them in
-    // the network stack's rx queue to be processed.
+    /// Checks for received packet
+    ///
+    /// If there are packets, they are enqueued in the network stack's rx queue
+    /// to be processed by the network thread
     fn rx_packet(&mut self) {
+        loop {
+            let prod = unsafe { self.rx_ring.sring_mut().rsp_prod() };
+            let mut cons = self.rx_ring.rsp_cons();
+
+            rmb();
+
+            // Iterate through the RxResponses inside the ring
+            while cons != prod {
+                let resp = unsafe {
+                    self.rx_ring.sring_mut()
+                                   .response_from_index(cons as usize)
+                };
+
+                let id = resp.id as usize;
+
+                {
+                    let mut rx_buffer_locked = self.rx_buffer.lock();
+
+                    // End access to the page now that we have the packet
+                    rx_buffer_locked[id].grant_ref.end_access();
+
+                    // If everything is good, enqueue the packet in the rx
+                    // queue of the network stack
+                    if resp.status > NetifRsp::Null as i16 {
+                        let mut pkt = unsafe {
+                            Packet::new(rx_buffer_locked[id].page,
+                                        resp.offset as usize,
+                                        resp.status as usize)
+                        };
+
+                        pkt.set_interface(self.intf.clone());
+
+                        NetStack::enqueue_rx_packet(pkt);
+                    } else {
+                        // Deallocate the page if an error occurred
+                        __rust_deallocate(rx_buffer_locked[id].page, PAGE_SIZE,
+                                          PAGE_SIZE);
+                    }
+
+                    // Set the page as null so that we now that this buffer
+                    // entry is free to re-use when refresh_rx_buffers() is
+                    // called
+                    rx_buffer_locked[id].page = ptr::null_mut();
+                }
+
+                cons += 1;
+            }
+
+            unsafe {
+                *self.rx_ring.rsp_cons_mut() = cons;
+            }
+
+            if !self.rx_ring.final_check_for_responses() {
+                break;
+            }
+        }
     }
 }
