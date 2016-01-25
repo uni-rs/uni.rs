@@ -184,7 +184,7 @@ pub struct XenNetDevice {
 
 impl Device for XenNetDevice {
     fn refresh(&mut self) {
-        unimplemented!();
+        self.refresh_rx_ring();
     }
 
     fn tx_packet(&mut self, pkt: Packet) {
@@ -482,6 +482,56 @@ impl XenNetDevice {
             if !self.rx_ring.final_check_for_responses() {
                 break;
             }
+        }
+    }
+
+    /// Give new rx buffers to the backend to replace those that were used
+    fn refresh_rx_ring(&mut self) {
+        let mut count = 0;
+        let mut rx_buffer_locked = self.rx_buffer.lock();
+
+        for b in &mut *rx_buffer_locked {
+            // RxBuffer is in use
+            if !b.page.is_null() {
+                continue;
+            }
+
+            // Allocate new buffer
+            b.page = __rust_allocate(PAGE_SIZE, PAGE_SIZE);
+
+            // OOM: Ignore buffer reload for now
+            if b.page.is_null() {
+                break;
+            }
+
+            // Grant read/write access to the backed
+            b.grant_ref.grant_access(self.backend_id,
+                                     Mfn::from(Vaddr::from_ptr(b.page)),
+                                     false);
+
+            let prod = self.rx_ring.req_prod() as usize;
+            let req = unsafe {
+                self.rx_ring.sring_mut().request_from_index(prod)
+            };
+
+            // Push a new request to inform the backend that it can use a new
+            // buffer
+            req.id = b.id;
+            req.gref = b.grant_ref.clone();
+
+            count += 1;
+        }
+
+        // Update ring's prod index
+        unsafe {
+            *self.rx_ring.req_prod_mut() += count;
+        }
+
+        mem::drop(rx_buffer_locked);
+
+        // Push requests and notify the backend if necessary
+        if self.rx_ring.push_requests() {
+            event::send(self.evtchn);
         }
     }
 }
