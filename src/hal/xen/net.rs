@@ -26,7 +26,7 @@ use hal::xen::ring::{SharedRing, FrontRing, Idx as RingIdx};
 use hal::xen::defs::EvtchnPort;
 
 use hal::arch::defs::PAGE_SIZE;
-use hal::arch::utils::rmb;
+use hal::arch::utils::{rmb, wmb};
 
 use hal::xen::event;
 
@@ -188,7 +188,46 @@ impl Device for XenNetDevice {
     }
 
     fn tx_packet(&mut self, pkt: Packet) {
-        unimplemented!();
+        for b in &mut *self.tx_buffer.lock() {
+            if b.pkt.is_some() {
+                continue;
+            }
+
+            let pkt_size = pkt.size();
+            let pkt_offset = pkt.offset();
+
+            b.grant_ref.grant_access(self.backend_id,
+                                     Mfn::from(Vaddr::from_ptr(pkt.page())),
+                                     true);
+
+            b.pkt = Some(pkt);
+
+            {
+                let index = self.tx_ring.req_prod() as usize;
+
+                let req = unsafe {
+                    self.tx_ring.sring_mut().request_from_index(index)
+                };
+
+                req.gref = b.grant_ref.clone();
+                req.offset = pkt_offset as u16;
+                req.flags = NetTxFlags::DataValidated;
+                req.id = b.id;
+                req.size = pkt_size as u16;
+            }
+
+            unsafe {
+                *self.tx_ring.req_prod_mut() += 1;
+            }
+
+            wmb();
+
+            if self.tx_ring.push_requests() {
+                event::send(self.evtchn);
+            }
+
+            break;
+        }
     }
 }
 
