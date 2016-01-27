@@ -184,11 +184,15 @@ pub struct XenNetDevice {
 
 impl Device for XenNetDevice {
     fn refresh(&mut self) {
+        self.refresh_tx_ring();
         self.refresh_rx_ring();
     }
 
+    /// Transmit a packet over the network
     fn tx_packet(&mut self, pkt: Packet) {
+        // Find a free TX buffer
         for b in &mut *self.tx_buffer.lock() {
+            // Nope that one is taken
             if b.pkt.is_some() {
                 continue;
             }
@@ -196,6 +200,7 @@ impl Device for XenNetDevice {
             let pkt_size = pkt.size();
             let pkt_offset = pkt.offset();
 
+            // Grant access to the packet
             b.grant_ref.grant_access(self.backend_id,
                                      Mfn::from(Vaddr::from_ptr(pkt.page())),
                                      true);
@@ -209,6 +214,8 @@ impl Device for XenNetDevice {
                     self.tx_ring.sring_mut().request_from_index(index)
                 };
 
+                // Give the necessary information to the backend via a
+                // tx_request
                 req.gref = b.grant_ref.clone();
                 req.offset = pkt_offset as u16;
                 req.flags = NetTxFlags::DataValidated;
@@ -216,12 +223,15 @@ impl Device for XenNetDevice {
                 req.size = pkt_size as u16;
             }
 
+            // Update ring index
             unsafe {
                 *self.tx_ring.req_prod_mut() += 1;
             }
 
             wmb();
 
+            // Push the request in the shared ring and notify the backend if
+            // necessary
             if self.tx_ring.push_requests() {
                 event::send(self.evtchn);
             }
@@ -571,6 +581,39 @@ impl XenNetDevice {
         // Push requests and notify the backend if necessary
         if self.rx_ring.push_requests() {
             event::send(self.evtchn);
+        }
+    }
+
+    fn refresh_tx_ring(&mut self) {
+        let prod = unsafe { self.tx_ring.sring_mut().rsp_prod() };
+
+        rmb();
+
+        let mut cons = self.tx_ring.rsp_cons();
+
+        while cons != prod {
+            let resp = unsafe {
+                self.tx_ring.sring_mut().response_from_index(cons as usize)
+            };
+
+            if resp.status == NetifRsp::Null {
+                continue;
+            }
+
+            {
+                let id = resp.id;
+                let mut tx_buffer = self.tx_buffer.lock();
+
+                tx_buffer[id as usize].grant_ref.end_access();
+
+                mem::drop(tx_buffer[id as usize].pkt.take());
+            }
+
+            cons += 1;
+        }
+
+        unsafe {
+            *self.tx_ring.rsp_cons_mut() = prod;
         }
     }
 }
