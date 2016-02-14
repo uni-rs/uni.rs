@@ -29,7 +29,7 @@ impl Stack {
         STACK.set(StackImpl::new());
 
         // Spawn the network thread
-        Scheduler::spawn(move || {
+        Scheduler::spawn(|| {
             StackImpl::network_thread();
         });
     }

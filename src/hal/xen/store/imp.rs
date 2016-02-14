@@ -233,7 +233,7 @@ impl XenStoreImpl {
         dispatcher().unmask_event(self.port);
         send(self.port);
 
-        Scheduler::spawn(move || {
+        Scheduler::spawn(|| {
             Self::xen_store_thread();
         });
     }
