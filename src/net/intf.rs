@@ -1,6 +1,10 @@
 use boxed::Box;
 use string::String;
 
+use sync::Arc;
+
+use sync::spin::RwLock;
+
 use net::defs::{HwAddr, Ipv4Addr, Device};
 
 use hal::net::HwInterface;
@@ -24,10 +28,12 @@ pub struct Interface {
     pv_device: Option<Box<HwInterface>>,
 }
 
+unsafe impl Send for Interface {}
+
 impl Interface {
     /// Creates a new network interface
-    pub fn new() -> Self {
-        Interface {
+    pub fn new() -> Arc<RwLock<Self>> {
+        Arc::new(RwLock::new(Interface {
             name: String::new(),
             hw_addr: HwAddr::empty(),
             conf: V4Configuration {
@@ -36,7 +42,7 @@ impl Interface {
                 ipv4_gateway: Ipv4Addr::new(0, 0, 0, 0),
             },
             pv_device: None,
-        }
+        }))
     }
 
     #[inline]

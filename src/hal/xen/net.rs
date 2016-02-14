@@ -133,7 +133,7 @@ pub fn discover() -> Vec<Arc<RwLock<Interface>>> {
 
     // Create interface for every `id` valid
     while vif_id_exists(id) {
-        let interface = Arc::new(RwLock::new(Interface::new()));
+        let interface = Interface::new();
         let interface_weak = Arc::downgrade(&interface);
 
         v.push(interface);
