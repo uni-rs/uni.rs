@@ -84,6 +84,15 @@ impl<T> Display for Int<T> where T: PrimInt + Clone + Display {
 
 const COUNT_HWADDR_BYTES: usize = 6;
 
+#[derive(Clone, Ord, PartialOrd, Eq, PartialEq)]
+/// An IP address, either V4 or V6
+pub enum IpAddr {
+    /// An IPv4 address
+    V4(Ipv4Addr),
+    /// An IPv6 address
+    V6(Ipv6Addr)
+}
+
 #[repr(C, packed)]
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
 /// An IPv4 address
