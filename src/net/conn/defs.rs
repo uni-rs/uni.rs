@@ -25,3 +25,10 @@ pub struct NetworkRule {
 pub struct TransportRule {
     pub port: PortType,
 }
+
+/// Represent a rule that a packet must match to be enqueued in a connexion
+pub struct Rule {
+    pub eth_rule: Option<EthernetRule>,
+    pub net_rule: Option<NetworkRule>,
+    pub tspt_rule: Option<TransportRule>,
+}
