@@ -1,8 +1,11 @@
 //! Networking primitives for Uni.rs
 
 mod imp;
+
 mod pkt;
 mod intf;
+mod conn;
+
 pub mod defs;
 
 pub use self::imp::Stack;
