@@ -1,6 +1,6 @@
 //! Network packet utility
 
-use core::mem;
+use core::{mem, slice};
 
 use sync::{Arc, Weak};
 use sync::spin::RwLock;
@@ -172,6 +172,23 @@ impl Packet {
     /// of the transport header.
     pub fn tspt_header<T>(&self) -> Option<&T> {
         self.header_get(self.link_hdr_size() + self.net_hdr_size())
+    }
+
+    /// Extract the payload from the packet.
+    ///
+    /// This will return None if there is no payload
+    pub fn payload(&self) -> Option<&[u8]> {
+        let offset = self.link_hdr_size() + self.net_hdr_size() +
+                     self.tspt_hdr_size();
+
+        if self.size <= offset {
+            return None;
+        }
+
+        unsafe {
+            Some(slice::from_raw_parts(self.data.offset(offset as isize),
+                                       self.payload_size()))
+        }
     }
 }
 
