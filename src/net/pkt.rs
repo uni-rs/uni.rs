@@ -1,5 +1,7 @@
 //! Network packet utility
 
+use core::mem;
+
 use sync::{Arc, Weak};
 use sync::spin::RwLock;
 
@@ -135,6 +137,41 @@ impl Packet {
     pub fn payload_size(&self) -> usize {
         self.size - self.link_hdr_size() - self.net_hdr_size() -
         self.tspt_hdr_size()
+    }
+
+    #[inline]
+    fn header_get<T>(&self, offset: usize) -> Option<&T> {
+        if self.size < offset + mem::size_of::<T>() {
+            return None;
+        }
+
+        unsafe {
+            Some(& *(self.data.offset(offset as isize) as *const T))
+        }
+    }
+
+    /// Get a reference to the link header.
+    ///
+    /// This will return None if the packet size is smaller than the size
+    /// of the link header.
+    pub fn link_header<T>(&self) -> Option<&T> {
+        self.header_get(0)
+    }
+
+    /// Get a reference to the network header.
+    ///
+    /// This will return None if the packet size is smaller than the size
+    /// of the network header.
+    pub fn net_header<T>(&self) -> Option<&T> {
+        self.header_get(self.link_hdr_size)
+    }
+
+    /// Get a reference to the transport header.
+    ///
+    /// This will return None if the packet size is smaller than the size
+    /// of the transport header.
+    pub fn tspt_header<T>(&self) -> Option<&T> {
+        self.header_get(self.link_hdr_size() + self.net_hdr_size())
     }
 }
 
