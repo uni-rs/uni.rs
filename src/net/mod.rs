@@ -6,6 +6,8 @@ mod pkt;
 mod intf;
 mod conn;
 
+mod eth;
+
 pub mod defs;
 
 pub use self::imp::Stack;
