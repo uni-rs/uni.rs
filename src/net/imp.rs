@@ -17,7 +17,14 @@ use net::defs::Device;
 
 const MAX_QUEUE_SIZE: usize = 512;
 
-pub struct Instance {
+#[derive(Clone)]
+/// A network stack
+///
+/// This object represent a shareable network stack. This object stack
+/// internally uses an Arc so it can be safely shared.
+pub struct Instance(Arc<InstanceRaw>);
+
+struct InstanceRaw {
     /// Interfaces registered
     interfaces: Vec<Arc<RwLock<Interface>>>,
     /// Contains packets to be processed
@@ -28,21 +35,23 @@ pub struct Instance {
 
 // rx_queue is protected by a spin lock
 // rx_wait is Sync
-unsafe impl Sync for Instance {}
+unsafe impl Sync for InstanceRaw {}
 
 impl Instance {
-    pub fn network_thread(instance_ptr: *mut Instance) {
-        let instance: &mut Instance = unsafe { &mut *instance_ptr };
-
+    /// Network thread linked to an instance
+    ///
+    /// This function is used to process packet that are received within a
+    /// network stack instance
+    pub fn network_thread(instance: Instance) {
         loop {
-            let pkt_opt = instance.rx_queue.lock().pop_front();
+            let pkt_opt = instance.0.rx_queue.lock().pop_front();
 
             match pkt_opt {
                 None => {
                     instance.refresh_interfaces();
                     // No packet to process => wait for one to come
-                    wait_event!(instance.rx_wait,
-                                !instance.rx_queue.lock().is_empty());
+                    wait_event!(instance.0.rx_wait,
+                                !instance.0.rx_queue.lock().is_empty());
                     instance.refresh_interfaces();
                 }
                 Some(pkt) => {
@@ -53,6 +62,9 @@ impl Instance {
         }
     }
 
+    /// Create a new network stack
+    ///
+    /// TODO: This cannot really be used more than once for now.
     pub fn new() -> Self {
         let intfs = discover();
 
@@ -67,26 +79,37 @@ impl Instance {
             }
         }
 
-        Instance {
+        let inner = Arc::new(InstanceRaw {
             interfaces: intfs,
             rx_queue: InterruptSpinLock::new(VecDeque::with_capacity(MAX_QUEUE_SIZE)),
             rx_wait: WaitQueue::new(),
-        }
+        });
+
+        Instance(inner)
     }
 
+    /// Get the list of registered interfaces within network stack
     pub fn interfaces(&self) -> &[Arc<RwLock<Interface>>] {
-        &self.interfaces[..]
+        &self.0.interfaces[..]
     }
 
     /// Call refresh on every registered interface
-    fn refresh_interfaces(&mut self) {
-        for intf in &mut self.interfaces {
+    fn refresh_interfaces(&self) {
+        for intf in self.interfaces() {
             intf.write().refresh();
         }
     }
 
-    pub fn enqueue_rx_packet(&mut self, packet: Packet) -> bool {
-        let mut locked_rx_queue = self.rx_queue.lock();
+    /// Enqueue a packet to be received on the network stack
+    ///
+    /// Returns false if the receive queue is full and therefore the packet was
+    /// not enqueued.
+    ///
+    /// Note: This is safe to be called from interrupt context. Indeed the
+    /// receive queue is not resizable so no allocation will be performed by
+    /// this function
+    pub fn enqueue_rx_packet(&self, packet: Packet) -> bool {
+        let mut locked_rx_queue = self.0.rx_queue.lock();
 
         if locked_rx_queue.len() == MAX_QUEUE_SIZE {
             // Queue is full, we don't want to cause a reallocation in
@@ -98,7 +121,7 @@ impl Instance {
         locked_rx_queue.push_back(packet);
 
         // Wake up network thread
-        self.rx_wait.unblock();
+        self.0.rx_wait.unblock();
 
         true
     }

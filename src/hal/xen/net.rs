@@ -508,7 +508,7 @@ impl XenNetDevice {
 
                         pkt.set_interface(self.intf.clone());
 
-                        NetStack::enqueue_rx_packet(pkt);
+                        NetStack::instance().enqueue_rx_packet(pkt);
                     } else {
                         // Deallocate the page if an error occurred
                         __rust_deallocate(rx_buffer_locked[id].page, PAGE_SIZE,
