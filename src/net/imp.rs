@@ -1,13 +1,11 @@
-use sync::{Arc, Weak};
+use sync::Arc;
 
 use vec::Vec;
 use vec_deque::VecDeque;
 
-use cell::{GlobalCell, GlobalCellRef};
-
 use sync::spin::{InterruptSpinLock, RwLock};
 
-use thread::{Scheduler, WaitQueue};
+use thread::WaitQueue;
 
 use net::Interface;
 
@@ -16,63 +14,8 @@ use hal::net::discover;
 use net::Packet;
 use net::defs::Device;
 
+
 const MAX_QUEUE_SIZE: usize = 512;
-
-pub static STACK: GlobalCell<StackImpl> = GlobalCell::new();
-
-/// Uni.rs network stack
-pub struct Stack;
-
-impl Stack {
-    #[doc(hidden)]
-    pub fn init() {
-        STACK.set(StackImpl::new());
-
-        // Spawn the network thread
-        Scheduler::spawn(|| {
-            StackImpl::network_thread();
-        });
-    }
-
-    /// Returns interfaces registered in the network stack
-    pub fn interfaces<'a>() -> Interfaces<'a> {
-        Interfaces {
-            imp: STACK.as_ref(),
-        }
-    }
-
-    #[inline]
-    /// Enqueue a packet inside the `rx_queue` and notify `rx_wait`.
-    ///
-    /// Returns false if the `rx_queue` is full and therefor was not enqueued,
-    /// true otherwise.
-    ///
-    /// Note: This is safe to be called from interrupt context. Indeed the
-    /// `rx_queue` is not resizable so no allocation will be performed by this
-    /// function.
-    pub fn enqueue_rx_packet(packet: Packet) -> bool {
-        STACK.as_mut().enqueue_rx_packet(packet)
-    }
-}
-
-/// Reference over the list of interfaces detected
-pub struct Interfaces<'a> {
-    imp: GlobalCellRef<'a, StackImpl>,
-}
-
-impl<'a> Interfaces<'a> {
-    #[inline]
-    /// Returns the number of interfaces detected
-    pub fn count(&self) -> usize {
-        self.imp.interfaces.len()
-    }
-
-    #[inline]
-    /// Returns the list of interfaces as an immutable slice
-    pub fn as_slice(&self) -> &[Arc<RwLock<Interface>>] {
-        &self.imp.interfaces[..]
-    }
-}
 
 pub struct StackImpl {
     /// Interfaces registered
@@ -83,15 +26,13 @@ pub struct StackImpl {
     rx_wait: WaitQueue,
 }
 
-// rx_wait is Sync
 // rx_queue is protected by a spin lock
+// rx_wait is Sync
 unsafe impl Sync for StackImpl {}
 
 impl StackImpl {
-    pub fn network_thread() {
-        // Get a mutable reference from the start so that we don't have to use
-        // the GlobalCell for every packet.
-        let imp: &mut StackImpl = &mut *STACK.as_mut();
+    pub fn network_thread(impl_ptr: *mut StackImpl) {
+        let imp: &mut StackImpl = unsafe { &mut *impl_ptr };
 
         loop {
             let pkt_opt = imp.rx_queue.lock().pop_front();
@@ -130,6 +71,10 @@ impl StackImpl {
             rx_queue: InterruptSpinLock::new(VecDeque::with_capacity(MAX_QUEUE_SIZE)),
             rx_wait: WaitQueue::new(),
         }
+    }
+
+    pub fn interfaces(&self) -> &[Arc<RwLock<Interface>>] {
+        &self.interfaces[..]
     }
 
     /// Call refresh on every registered interface
