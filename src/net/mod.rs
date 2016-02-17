@@ -7,7 +7,7 @@ use cell::{GlobalCell, GlobalCellRef};
 
 use thread::Scheduler;
 
-use self::imp::StackImpl;
+use self::imp::Instance;
 
 mod imp;
 
@@ -22,7 +22,7 @@ pub mod defs;
 pub use self::pkt::Packet;
 pub use self::intf::{Interface, V4Configuration};
 
-static STACK: GlobalCell<StackImpl> = GlobalCell::new();
+static STACK: GlobalCell<Instance> = GlobalCell::new();
 
 /// Uni.rs network stack
 pub struct Stack;
@@ -30,11 +30,11 @@ pub struct Stack;
 impl Stack {
     #[doc(hidden)]
     pub fn init() {
-        STACK.set(StackImpl::new());
+        STACK.set(Instance::new());
 
         // Spawn the network thread
         Scheduler::spawn(|| {
-            StackImpl::network_thread(&mut *STACK.as_mut());
+            Instance::network_thread(&mut *STACK.as_mut());
         });
     }
 
@@ -61,7 +61,7 @@ impl Stack {
 
 /// Reference over the list of interfaces detected
 pub struct Interfaces<'a> {
-    imp: GlobalCellRef<'a, StackImpl>,
+    imp: GlobalCellRef<'a, Instance>,
 }
 
 impl<'a> Interfaces<'a> {

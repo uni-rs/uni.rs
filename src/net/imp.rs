@@ -17,7 +17,7 @@ use net::defs::Device;
 
 const MAX_QUEUE_SIZE: usize = 512;
 
-pub struct StackImpl {
+pub struct Instance {
     /// Interfaces registered
     interfaces: Vec<Arc<RwLock<Interface>>>,
     /// Contains packets to be processed
@@ -28,21 +28,22 @@ pub struct StackImpl {
 
 // rx_queue is protected by a spin lock
 // rx_wait is Sync
-unsafe impl Sync for StackImpl {}
+unsafe impl Sync for Instance {}
 
-impl StackImpl {
-    pub fn network_thread(impl_ptr: *mut StackImpl) {
-        let imp: &mut StackImpl = unsafe { &mut *impl_ptr };
+impl Instance {
+    pub fn network_thread(instance_ptr: *mut Instance) {
+        let instance: &mut Instance = unsafe { &mut *instance_ptr };
 
         loop {
-            let pkt_opt = imp.rx_queue.lock().pop_front();
+            let pkt_opt = instance.rx_queue.lock().pop_front();
 
             match pkt_opt {
                 None => {
-                    imp.refresh_interfaces();
+                    instance.refresh_interfaces();
                     // No packet to process => wait for one to come
-                    wait_event!(imp.rx_wait, !imp.rx_queue.lock().is_empty());
-                    imp.refresh_interfaces();
+                    wait_event!(instance.rx_wait,
+                                !instance.rx_queue.lock().is_empty());
+                    instance.refresh_interfaces();
                 }
                 Some(pkt) => {
                     // Treat the packet
@@ -66,7 +67,7 @@ impl StackImpl {
             }
         }
 
-        StackImpl {
+        Instance {
             interfaces: intfs,
             rx_queue: InterruptSpinLock::new(VecDeque::with_capacity(MAX_QUEUE_SIZE)),
             rx_wait: WaitQueue::new(),
