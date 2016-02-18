@@ -3,7 +3,7 @@ use sync::{Arc, Weak};
 use vec::Vec;
 use vec_deque::VecDeque;
 
-use sync::spin::InterruptSpinLock;
+use sync::spin::{InterruptSpinLock, RwLock, RwLockReadGuard};
 
 use thread::WaitQueue;
 
@@ -29,7 +29,7 @@ pub struct InstanceWeak(Weak<InstanceRaw>);
 
 struct InstanceRaw {
     /// Interfaces registered
-    interfaces: Vec<Interface>,
+    interfaces: RwLock<Vec<Interface>>,
     /// Contains packets to be processed
     rx_queue: InterruptSpinLock<VecDeque<Packet>>,
     /// Used to wait for packet to arrive in the rx_queue
@@ -69,6 +69,14 @@ impl Instance {
     ///
     /// TODO: This cannot really be used more than once for now.
     pub fn new() -> Self {
+        let inner = Arc::new(InstanceRaw {
+            interfaces: RwLock::new(Vec::new()),
+            rx_queue: InterruptSpinLock::new(VecDeque::with_capacity(MAX_QUEUE_SIZE)),
+            rx_wait: WaitQueue::new(),
+        });
+
+        let instance = Instance(inner);
+
         let intfs = discover();
 
         if intfs.is_empty() {
@@ -82,13 +90,9 @@ impl Instance {
             }
         }
 
-        let inner = Arc::new(InstanceRaw {
-            interfaces: intfs,
-            rx_queue: InterruptSpinLock::new(VecDeque::with_capacity(MAX_QUEUE_SIZE)),
-            rx_wait: WaitQueue::new(),
-        });
+        *(instance.0.interfaces.write()) = intfs;
 
-        Instance(inner)
+        instance
     }
 
     /// Get a weak reference over the network stack
@@ -97,13 +101,13 @@ impl Instance {
     }
 
     /// Get the list of registered interfaces within network stack
-    pub fn interfaces(&self) -> &[Interface] {
-        &self.0.interfaces[..]
+    pub fn interfaces<'a>(&'a self) -> RwLockReadGuard<'a, Vec<Interface>> {
+        self.0.interfaces.read()
     }
 
     /// Call refresh on every registered interface
     fn refresh_interfaces(&self) {
-        for intf in self.interfaces() {
+        for intf in self.interfaces().iter() {
             intf.write().refresh();
         }
     }
