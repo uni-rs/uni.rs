@@ -18,6 +18,13 @@ use num::PrimInt;
 
 use net::Packet;
 
+/// Type of the ether_type
+pub type EtherType = u16;
+/// Type that represent a protocol id
+pub type ProtocolIdType = u8;
+/// Type that represent a port
+pub type PortType = u16;
+
 /// Trait implemented by hardware interfaces
 pub trait Device {
     /// Periodically called by the network thread to let the interface
