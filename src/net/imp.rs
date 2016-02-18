@@ -1,4 +1,4 @@
-use sync::Arc;
+use sync::{Arc, Weak};
 
 use vec::Vec;
 use vec_deque::VecDeque;
@@ -23,6 +23,9 @@ const MAX_QUEUE_SIZE: usize = 512;
 /// This object represent a shareable network stack. This object stack
 /// internally uses an Arc so it can be safely shared.
 pub struct Instance(Arc<InstanceRaw>);
+
+/// A weak reference over a network stack
+pub struct InstanceWeak(Weak<InstanceRaw>);
 
 struct InstanceRaw {
     /// Interfaces registered
@@ -88,6 +91,11 @@ impl Instance {
         Instance(inner)
     }
 
+    /// Get a weak reference over the network stack
+    pub fn downgrade(&self) -> InstanceWeak {
+        InstanceWeak(Arc::downgrade(&self.0))
+    }
+
     /// Get the list of registered interfaces within network stack
     pub fn interfaces(&self) -> &[Interface] {
         &self.0.interfaces[..]
@@ -124,5 +132,12 @@ impl Instance {
         self.0.rx_wait.unblock();
 
         true
+    }
+}
+
+impl InstanceWeak {
+    /// Upgrade the weak reference to a strong one
+    pub fn upgrade(&self) -> Option<Instance> {
+        self.0.upgrade().map(|strong| Instance(strong))
     }
 }
