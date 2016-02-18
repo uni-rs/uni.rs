@@ -25,6 +25,34 @@ pub type ProtocolIdType = u8;
 /// Type that represent a port
 pub type PortType = u16;
 
+#[derive(Clone)]
+/// Ethernet layer part of the rule
+pub struct EthernetRule {
+    pub ether_type: EtherType,
+    pub hw_in: Option<HwAddr>,
+}
+
+#[derive(Clone)]
+/// Network layer part of the rule
+pub struct NetworkRule {
+    pub protocol_id: ProtocolIdType,
+    pub ip_in: Option<IpAddr>,
+}
+
+#[derive(Clone)]
+/// Transport layer part of the rule
+pub struct TransportRule {
+    pub port: PortType,
+}
+
+#[derive(Clone)]
+/// Represent a rule that a packet must match to be enqueued in a connexion
+pub struct Rule {
+    pub eth_rule: Option<EthernetRule>,
+    pub net_rule: Option<NetworkRule>,
+    pub tspt_rule: Option<TransportRule>,
+}
+
 /// Trait implemented by hardware interfaces
 pub trait Device {
     /// Periodically called by the network thread to let the interface
