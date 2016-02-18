@@ -2,10 +2,7 @@
 
 use core::{mem, slice};
 
-use sync::{Arc, Weak};
-use sync::spin::RwLock;
-
-use net::Interface;
+use net::{Interface, InterfaceWeak};
 
 use alloc_uni::__rust_deallocate;
 
@@ -21,7 +18,7 @@ pub struct Packet {
     /// Size of the packet
     size: usize,
     /// The interface the packet was received on
-    intf: Option<Weak<RwLock<Interface>>>,
+    intf: Option<InterfaceWeak>,
     /// Size of the link header
     link_hdr_size: usize,
     /// Size of the network header
@@ -81,13 +78,13 @@ impl Packet {
 
     #[inline]
     /// Return the interface the packet is linked to
-    pub fn interface(&self) -> Option<Arc<RwLock<Interface>>> {
-        self.intf.as_ref().and_then(|weak| weak.upgrade())
+    pub fn interface(&self) -> Option<Interface> {
+        self.intf.as_ref().and_then(|i| i.upgrade())
     }
 
     #[inline]
     /// Set the interface the packet is linked to
-    pub fn set_interface(&mut self, intf: Weak<RwLock<Interface>>) {
+    pub fn set_interface(&mut self, intf: InterfaceWeak) {
         self.intf = Some(intf);
     }
 

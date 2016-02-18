@@ -122,9 +122,6 @@ mod hw_imp {
     pub mod net {
         use vec::Vec;
 
-        use sync::Arc;
-        use sync::spin::RwLock;
-
         use hal::xen::net;
 
         use net::Interface;
@@ -134,7 +131,7 @@ mod hw_imp {
 
         /// Discover hardware configuration and return a list of existing
         /// interfaces
-        pub fn discover() -> Vec<Arc<RwLock<Interface>>> {
+        pub fn discover() -> Vec<Interface> {
             net::discover()
         }
     }

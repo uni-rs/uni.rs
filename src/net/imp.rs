@@ -3,7 +3,7 @@ use sync::Arc;
 use vec::Vec;
 use vec_deque::VecDeque;
 
-use sync::spin::{InterruptSpinLock, RwLock};
+use sync::spin::InterruptSpinLock;
 
 use thread::WaitQueue;
 
@@ -26,7 +26,7 @@ pub struct Instance(Arc<InstanceRaw>);
 
 struct InstanceRaw {
     /// Interfaces registered
-    interfaces: Vec<Arc<RwLock<Interface>>>,
+    interfaces: Vec<Interface>,
     /// Contains packets to be processed
     rx_queue: InterruptSpinLock<VecDeque<Packet>>,
     /// Used to wait for packet to arrive in the rx_queue
@@ -89,7 +89,7 @@ impl Instance {
     }
 
     /// Get the list of registered interfaces within network stack
-    pub fn interfaces(&self) -> &[Arc<RwLock<Interface>>] {
+    pub fn interfaces(&self) -> &[Interface] {
         &self.0.interfaces[..]
     }
 

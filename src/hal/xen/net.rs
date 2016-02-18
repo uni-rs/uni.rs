@@ -4,17 +4,16 @@ use core::{mem, ptr};
 
 use alloc_uni::{__rust_allocate, __rust_deallocate};
 
-use sync::{Arc, Weak};
 use boxed::Box;
 
 use vec::Vec;
 use string::ToString;
 
-use sync::spin::{InterruptSpinLock, SpinLock, RwLock};
+use sync::spin::{InterruptSpinLock, SpinLock};
 
 use ffi::CString;
 
-use net::{Interface, Packet, Stack as NetStack};
+use net::{Interface, InterfaceWeak, Packet, Stack as NetStack};
 use net::defs::{Device, HwAddr};
 
 use hal::mmu::{Vaddr, Mfn};
@@ -127,14 +126,14 @@ fn vif_id_exists(id: u32) -> bool {
 }
 
 /// Returns a list of interfaces that have a xen backend
-pub fn discover() -> Vec<Arc<RwLock<Interface>>> {
+pub fn discover() -> Vec<Interface> {
     let mut id = 0;
     let mut v = Vec::new();
 
     // Create interface for every `id` valid
     while vif_id_exists(id) {
         let interface = Interface::new();
-        let interface_weak = Arc::downgrade(&interface);
+        let interface_weak = interface.downgrade();
 
         v.push(interface);
 
@@ -179,7 +178,7 @@ pub struct XenNetDevice {
     rx_ring: RxFrontRing,
     tx_buffer: SpinLock<Vec<TxBuffer>>,
     rx_buffer: InterruptSpinLock<Vec<RxBuffer>>,
-    intf: Weak<RwLock<Interface>>,
+    intf: InterfaceWeak,
 }
 
 impl Device for XenNetDevice {
@@ -252,7 +251,7 @@ impl XenNetDevice {
     /// Creates a new Xen network device with id `id`.
     ///
     /// This interface will be the backend of the interface `intf`
-    pub fn new(id: u32, intf: Weak<RwLock<Interface>>) -> Result<Box<Self>, ()> {
+    pub fn new(id: u32, intf: InterfaceWeak) -> Result<Box<Self>, ()> {
         // Compute the root path that contains all the information for the
         // network device with id "id"
         let vif_root = format!("device/vif/{}", id);

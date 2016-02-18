@@ -17,7 +17,7 @@ pub mod defs;
 pub use self::pkt::Packet;
 pub use self::imp::Instance;
 
-pub use self::intf::{Interface, V4Configuration};
+pub use self::intf::{Interface, InterfaceWeak, InterfaceRaw, V4Configuration};
 
 static STACK: GlobalCell<Instance> = GlobalCell::new();
 
