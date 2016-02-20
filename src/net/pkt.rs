@@ -8,6 +8,12 @@ use alloc_uni::__rust_deallocate;
 
 use hal::arch::defs::PAGE_SIZE;
 
+/// Used to format a packet at the link or network layer
+pub trait Formatter {
+    /// Format the packet
+    fn format(&self, builder: &mut Builder, intf: &Interface) -> Result<(), ()>;
+}
+
 /// Wrap packet creation
 pub struct Builder;
 

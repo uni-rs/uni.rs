@@ -19,6 +19,7 @@ pub use self::imp::{Instance, InstanceWeak};
 pub use self::pkt::{
     Packet,
     Builder as PacketBuilder,
+    Formatter as PacketFormatter,
 };
 
 pub use self::intf::{Interface, InterfaceWeak, InterfaceRaw, V4Configuration};
