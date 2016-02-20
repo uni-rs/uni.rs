@@ -72,14 +72,14 @@ impl Interface {
     /// Lock the interface with shared read access
     ///
     /// For more info see spin::RwLock::read()
-    pub fn read<'a>(&'a self) -> RwLockReadGuard<'a, InterfaceRaw> {
+    pub fn read(&self) -> RwLockReadGuard<InterfaceRaw> {
         self.0.read()
     }
 
     /// Lock the interface with exclusive write access
     ///
     /// For more info see spin::RwLock::write()
-    pub fn write<'a>(&'a self) -> RwLockWriteGuard<'a, InterfaceRaw> {
+    pub fn write(&self) -> RwLockWriteGuard<InterfaceRaw> {
         self.0.write()
     }
 }
@@ -87,7 +87,7 @@ impl Interface {
 impl InterfaceWeak {
     /// Upgrade the weak reference to a real reference
     pub fn upgrade(&self) -> Option<Interface> {
-        self.0.upgrade().map(|arc| Interface(arc))
+        self.0.upgrade().map(Interface)
     }
 }
 
