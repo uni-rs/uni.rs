@@ -2,9 +2,11 @@
 
 use core::{mem, slice};
 
+use sync::Arc;
+
 use net::{Interface, InterfaceWeak};
 
-use alloc_uni::__rust_deallocate;
+use alloc_uni::{__rust_allocate, __rust_deallocate};
 
 use hal::arch::defs::PAGE_SIZE;
 
@@ -15,7 +17,128 @@ pub trait Formatter {
 }
 
 /// Wrap packet creation
-pub struct Builder;
+///
+/// This object is convenient to create a new packet. It wraps allocation,
+/// buffer management and final format of the packet. The packet yielded by
+/// the `finalize` method can be directly sent out on the network.
+pub struct Builder {
+    /// Base pointer of the allocated page
+    page: *mut u8,
+    /// Pointer to the beginning of the data
+    data: *mut u8,
+    /// Size of the data
+    size: usize,
+    /// Formatter for the link layer
+    link_fmt: Option<Arc<Formatter>>,
+    /// Formatter for the network layer
+    net_fmt: Option<Arc<Formatter>>,
+    /// Was the packet generated yet ? Used in the destructor to determine if
+    /// deallocation is necessary
+    finalized: bool,
+}
+
+impl Builder {
+    /// Create a new packet builder
+    ///
+    /// This does an allocation under the hood, which is why this method can
+    /// fail.
+    pub fn new() -> Result<Self, ()> {
+        let page = __rust_allocate(PAGE_SIZE, PAGE_SIZE);
+
+        if page.is_null() {
+            Err(())
+        } else {
+            Ok(Builder {
+                page: page,
+                data: unsafe { page.offset(PAGE_SIZE as isize) },
+                size: 0,
+                link_fmt: None,
+                net_fmt: None,
+                finalized: false,
+            })
+        }
+    }
+
+    #[inline]
+    /// Returns the current size of the packet
+    pub fn size(&self) -> usize {
+        self.size
+    }
+
+    #[inline]
+    /// Get the data contained in the packet as a slice
+    pub fn as_bytes(&self) -> &[u8] {
+        unsafe {
+            slice::from_raw_parts(self.data, self.size)
+        }
+    }
+
+    #[inline]
+    /// Set the formatter for the link layer
+    pub fn set_link_fmt(&mut self, fmt: Arc<Formatter>) {
+        self.link_fmt = Some(fmt);
+    }
+
+    #[inline]
+    /// Set the formatter for the network layer
+    pub fn set_net_fmt(&mut self, fmt: Arc<Formatter>) {
+        self.net_fmt = Some(fmt);
+    }
+
+    /// Write data inside the packet
+    pub fn write(&mut self, data: &[u8]) -> Result<(), ()> {
+        // Verify that we won't overflow the buffer
+        if self.size + data.len() > PAGE_SIZE {
+            return Err(());
+        }
+
+        self.size += data.len();
+
+        unsafe {
+            self.data = self.data.offset(- (data.len() as isize));
+        }
+
+        // Get the internal buffer as a slice to copy the data
+        let self_data_slice = unsafe {
+            slice::from_raw_parts_mut(self.data, data.len())
+        };
+
+        // Copy the data
+        self_data_slice.clone_from_slice(data);
+
+        Ok(())
+    }
+
+    /// Generate the packet
+    pub fn finalize(mut self, intf: &Interface) -> Result<Packet, ()> {
+        if let Some(link_fmt) = self.link_fmt.clone() {
+            if let Some(net_fmt) = self.net_fmt.clone() {
+                try!(net_fmt.format(&mut self, intf));
+            }
+
+            try!(link_fmt.format(&mut self, intf));
+        } else {
+            return Err(());
+        }
+
+        let offset = self.data as usize - self.page as usize;
+        let pkt = unsafe {
+            Packet::new(self.page, offset, self.size)
+        };
+
+        self.finalized = true;
+
+        Ok(pkt)
+    }
+}
+
+impl Drop for Builder {
+    fn drop(&mut self) {
+        if !self.finalized {
+            __rust_deallocate(self.page, PAGE_SIZE, PAGE_SIZE);
+        }
+    }
+}
 
 /// A network packet
 pub struct Packet {
