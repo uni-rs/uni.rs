@@ -31,7 +31,7 @@ impl<T> InterruptSpinLock<T> {
         }
     }
 
-    pub fn lock<'a>(&'a self) -> InterruptSpinGuard<'a, T> {
+    pub fn lock(&self) -> InterruptSpinGuard<T> {
         let state = local_irq_save();
 
         while self.lock.compare_and_swap(false, true, Ordering::SeqCst) {
@@ -51,13 +51,13 @@ unsafe impl<T> Sync for InterruptSpinLock<T> {}
 impl<'a, T> Deref for InterruptSpinGuard<'a, T> {
     type Target = T;
 
-    fn deref<'b>(&'b self) -> &'b T {
+    fn deref(&self) -> &T {
         unsafe { & *self.data.get() }
     }
 }
 
 impl<'a, T> DerefMut for InterruptSpinGuard<'a, T> {
-    fn deref_mut<'b>(&'b mut self) -> &'b mut T {
+    fn deref_mut(&mut self) -> &mut T {
         unsafe { &mut *self.data.get() }
     }
 }
