@@ -37,7 +37,7 @@ impl Scheduler {
 
     #[doc(hidden)]
     /// Block the current thread inside a wait queue.
-    pub fn block<'a>(queue: InterruptSpinGuard<'a, InternalQueue>) {
+    pub fn block(queue: InterruptSpinGuard<InternalQueue>) {
         unsafe {
             SCHEDULER.block(queue);
         }
@@ -190,8 +190,8 @@ impl SchedulerImpl {
         }
     }
 
-    pub unsafe fn block<'a>(&mut self,
-                            mut queue: InterruptSpinGuard<'a, InternalQueue>) {
+    pub unsafe fn block(&mut self,
+                        mut queue: InterruptSpinGuard<InternalQueue>) {
         if let Some(ref mut r) = self.running {
             r.get_mut().state = State::Blocked;
 
