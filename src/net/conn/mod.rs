@@ -4,6 +4,7 @@ use sync::Arc;
 
 mod uni;
 mod multi;
+pub mod filter;
 
 pub use self::uni::UniConn;
 pub use self::multi::MultiConn;

@@ -1,0 +1,6 @@
+//! Definitions of types and traits related to packet filtering
+//!
+//! Two different parameters class are going to be mentioned in this module:
+//!
+//! - Generic parameter: ether type, protocol id, ...
+//! - Specific parameter: hardware address, ip address, ...
