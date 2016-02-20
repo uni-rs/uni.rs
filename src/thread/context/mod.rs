@@ -52,6 +52,7 @@ impl Context {
     }
 
     #[inline(always)]
+    #[cfg_attr(feature = "clippy", allow(inline_always))]
     /// Save the current context. This function will actually return twice.
     /// The first return is just after saving the context and will return false
     /// The second time is when the saved context gets restored and will return
