@@ -17,6 +17,7 @@ pub fn eh_personality() -> ! {
 }
 
 #[cfg(not(test))]
+#[cfg_attr(feature = "clippy", allow(empty_loop))]
 #[lang = "panic_fmt"]
 pub extern fn panic_impl(msg: fmt::Arguments, file: &'static str, line: u32) {
     // Use raw console to be sure to not be locked
