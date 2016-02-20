@@ -5,9 +5,13 @@
 //! - Generic parameter: ether type, protocol id, ...
 //! - Specific parameter: hardware address, ip address, ...
 
+use sync::Arc;
+
 use net::Packet;
 
 use net::defs::Rule;
+
+use net::conn::MultiConn;
 
 /// Extract generic/specific parameters of type T from a packet or a rule.
 ///
@@ -40,4 +44,24 @@ pub trait PacketSanitizer {
     ///
     /// If this method returns an `Err` the packet will be dropped.
     fn sanitize(pkt: &mut Packet) -> Result<(), ()>;
+}
+
+/// Trait implemented by generic filters (i.e. filters based on generic
+/// parameters)
+///
+/// Generic filters allow protocols to route packets to the appropriate
+/// connexion based on a generic parameter.
+///
+/// It may drop the packet if no matching connexion exists or if the packet is
+/// invalid (failed checksum, ...).
+pub trait GenericFilterTrait {
+    /// Insert a new multi connexion to the filter based on a rule.
+    fn insert_multi(&mut self, conn: Arc<MultiConn>,
+                    rule: &Rule) -> Result<(), ()>;
+
+    /// Filter and route an incoming packet to a connexion (uni or multi).
+    fn rx(&self, pkt: Packet);
+
+    /// Filter and route an incoming packet to a multi connexion
+    fn rx_multi(&self, pkt: Packet, rule: Rule);
 }
