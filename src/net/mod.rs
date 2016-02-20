@@ -8,7 +8,7 @@ mod imp;
 
 mod pkt;
 mod intf;
-mod conn;
+pub mod conn;
 
 mod eth;
 
