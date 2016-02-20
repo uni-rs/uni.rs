@@ -24,6 +24,8 @@ pub use self::pkt::{
 
 pub use self::intf::{Interface, InterfaceWeak, InterfaceRaw, V4Configuration};
 
+pub use self::conn::{UniConn, MultiConn};
+
 static STACK: GlobalCell<Instance> = GlobalCell::new();
 
 /// Uni.rs network stack
