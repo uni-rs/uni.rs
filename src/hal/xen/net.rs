@@ -1,6 +1,7 @@
 //! Implementation of Xen's network driver
 
 use core::{mem, ptr};
+use core::str::FromStr;
 
 use alloc_uni::{__rust_allocate, __rust_deallocate};
 
@@ -304,7 +305,7 @@ impl XenNetDevice {
         let mac = try!(t.read(try!(CString::new(format!("{}/mac", vif_root)))));
 
         // Convert it to HwAddr
-        let hw_addr = try!(HwAddr::from_str(mac));
+        let hw_addr = try!(HwAddr::from_str(&mac));
 
         // Set tx and rx grant references
         try!(t.write(try!(CString::new(format!("{}/tx-ring-ref", vif_root))),

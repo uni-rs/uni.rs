@@ -11,8 +11,9 @@ use core::fmt::{
     Error
 };
 
+use core::str::FromStr;
+
 use vec::Vec;
-use string::String;
 
 use num::PrimInt;
 
@@ -215,35 +216,6 @@ impl HwAddr {
         }
     }
 
-    /// Convert a string with format XX:XX:XX:XX:XX:XX to an hardware address
-    pub fn from_str(s: String) -> Result<Self, ()> {
-        let split: Vec<&str> = s.split(':').collect();
-
-        if split.len() != COUNT_HWADDR_BYTES {
-            return Err(())
-        }
-
-        let mut i = 0;
-        let mut ret = Self::empty();
-
-        for b in split {
-            let bytes = b.as_bytes();
-
-            if bytes.len() != 2 {
-                return Err(())
-            }
-
-            let d1 = try!(b.char_at(0).to_digit(16).ok_or(())) * 16;
-            let d2 = try!(b.char_at(1).to_digit(16).ok_or(()));
-
-            ret.bytes[i] = d1 as u8 + d2 as u8;
-
-            i += 1;
-        }
-
-        Ok(ret)
-    }
-
     /// Create an hardware address from bytes.
     ///
     /// This method is unsafe because the slice *MUST* contain at least 6
@@ -265,6 +237,36 @@ impl HwAddr {
     /// Returns the internal representation of an hardware address
     pub fn as_bytes(&self) -> &[u8] {
         &self.bytes[..]
+    }
+}
+
+impl FromStr for HwAddr {
+    type Err = ();
+
+    /// Convert a string with format XX:XX:XX:XX:XX:XX to an hardware address
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let split: Vec<&str> = s.split(':').collect();
+
+        if split.len() != COUNT_HWADDR_BYTES {
+            return Err(())
+        }
+
+        let mut ret = Self::empty();
+
+        for (i, b) in split.iter().enumerate() {
+            let bytes = b.as_bytes();
+
+            if bytes.len() != 2 {
+                return Err(())
+            }
+
+            let d1 = try!(b.char_at(0).to_digit(16).ok_or(())) * 16;
+            let d2 = try!(b.char_at(1).to_digit(16).ok_or(()));
+
+            ret.bytes[i] = d1 as u8 + d2 as u8;
+        }
+
+        Ok(ret)
     }
 }
 
