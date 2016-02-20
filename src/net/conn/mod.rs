@@ -2,3 +2,6 @@
 
 mod uni;
 mod multi;
+
+pub use self::uni::UniConn;
+pub use self::multi::MultiConn;
