@@ -130,7 +130,7 @@ pub enum IpAddr {
 }
 
 #[repr(C, packed)]
-#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Clone, Ord, PartialOrd, Eq, PartialEq)]
 /// An IPv4 address
 pub struct Ipv4Addr {
     a: u8,
