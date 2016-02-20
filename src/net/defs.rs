@@ -202,7 +202,7 @@ impl Display for Ipv6Addr {
 }
 
 #[repr(C, packed)]
-#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Clone, Ord, PartialOrd, Eq, PartialEq)]
 /// A MAC address
 pub struct HwAddr {
     bytes: [u8; COUNT_HWADDR_BYTES],
