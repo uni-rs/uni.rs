@@ -8,15 +8,16 @@ use hal::console;
 
 use sync::spin::{InterruptSpinLock, InterruptSpinGuard};
 
+
+fn stdout_init() -> Arc<InterruptSpinLock<Console<'static>>> {
+    Arc::new(InterruptSpinLock::new(console()))
+}
+
 pub fn stdout() -> Stdout {
     static STDOUT: Lazy<InterruptSpinLock<Console<'static>>> = Lazy::new(stdout_init);
 
-    return Stdout {
+    Stdout {
         inner: unsafe { STDOUT.get() },
-    };
-
-    fn stdout_init() -> Arc<InterruptSpinLock<Console<'static>>> {
-        Arc::new(InterruptSpinLock::new(console()))
     }
 }
 
@@ -46,15 +47,16 @@ impl<'a> Write for StdoutLock<'a> {
     }
 }
 
+
+fn stdin_init() -> Arc<InterruptSpinLock<Console<'static>>> {
+    Arc::new(InterruptSpinLock::new(console()))
+}
+
 pub fn stdin() -> Stdin {
     static STDIN: Lazy<InterruptSpinLock<Console<'static>>> = Lazy::new(stdin_init);
 
-    return Stdin {
+    Stdin {
         inner: unsafe { STDIN.get() },
-    };
-
-    fn stdin_init() -> Arc<InterruptSpinLock<Console<'static>>> {
-        Arc::new(InterruptSpinLock::new(console()))
     }
 }
 
