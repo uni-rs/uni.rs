@@ -27,6 +27,8 @@ net = []
 
 [dependencies]
 
+clippy = { version = "*", optional = true }
+
 rlibc = { path = "deps/rlibc", optional = true }
 spin = { path = "deps/spinlock-rs", optional = true }
 
