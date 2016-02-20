@@ -65,6 +65,7 @@ pub fn init() {
     }
 }
 
+#[cfg_attr(feature = "clippy", allow(identity_op))]
 pub fn init_memory() -> Vaddr {
     raw_println!("Kernel sections (end @ -> {:p}):", &__uni_end);
     raw_println!("  .boot: {:p} - {:p}", &__boot_start, &__boot_end);

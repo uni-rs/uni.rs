@@ -28,17 +28,11 @@ pub unsafe fn update_va_mapping(guest_page: Vaddr, entry: PageEntry,
     }
 }
 
+#[derive(Clone, Copy)]
 #[repr(C)]
 pub struct MmuUpdate {
     ptr: u64,
     val: u64,
-}
-
-impl Copy for MmuUpdate {}
-impl Clone for MmuUpdate {
-    fn clone(&self) -> MmuUpdate {
-        *self
-    }
 }
 
 impl MmuUpdate {

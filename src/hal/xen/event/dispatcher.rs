@@ -73,6 +73,7 @@ impl Dispatcher {
         }
     }
 
+    #[cfg_attr(feature = "clippy", allow(inline_always))]
     #[inline(always)]
     unsafe fn serve_event(&self) {
         let cpu = &mut shared_info.vcpu_info[0];

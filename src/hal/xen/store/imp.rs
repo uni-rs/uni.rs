@@ -42,7 +42,7 @@ impl RequestBuilder {
     }
 
     pub fn append_data(mut self, data: &[u8]) -> Self {
-        self.data.extend(data);
+        self.data.extend_from_slice(data);
         self
     }
 
@@ -170,7 +170,7 @@ impl XenStoreImpl {
         }
     }
 
-    fn write_request_bytes(&mut self, b: &[u8]) {
+    fn write_request_bytes(&mut self, bytes: &[u8]) {
         let mut lock;
         let mut prod;
         let interface_ref = unsafe { &mut *self.interface };
@@ -179,12 +179,12 @@ impl XenStoreImpl {
 
         loop {
             wait_event!(self.interface_notifier,
-                        prod + b.len() as u32 - interface_ref.req_cons <=
+                        prod + bytes.len() as u32 - interface_ref.req_cons <=
                         XENSTORE_RING_SIZE as u32);
 
             lock = self.req_lock.lock();
 
-            let tmp = prod + b.len() as u32 - interface_ref.req_cons;
+            let tmp = prod + bytes.len() as u32 - interface_ref.req_cons;
 
             if  tmp <= XENSTORE_RING_SIZE as u32 {
                 break
@@ -193,10 +193,10 @@ impl XenStoreImpl {
             mem::drop(lock);
         }
 
-        for i in 0..b.len() {
+        for byte in bytes {
             let ring_index = prod & (XENSTORE_RING_SIZE as u32 - 1);
 
-            interface_ref.req[ring_index as usize] = b[i];
+            interface_ref.req[ring_index as usize] = *byte;
 
             prod += 1;
         }
@@ -207,19 +207,19 @@ impl XenStoreImpl {
         mem::drop(lock);
     }
 
-    fn read_response_bytes(&self, b: &mut [u8]) {
+    fn read_response_bytes(&self, bytes: &mut [u8]) {
         let interface_ref = unsafe { &mut *self.interface };
 
         wait_event!(self.interface_notifier,
                     interface_ref.rsp_prod - interface_ref.rsp_cons >=
-                    b.len() as u32);
+                    bytes.len() as u32);
 
         let mut cons = interface_ref.rsp_cons;
 
-        for i in 0..b.len() {
+        for byte in bytes {
             let ring_index = cons & (XENSTORE_RING_SIZE as u32 - 1);
 
-            b[i] = interface_ref.rsp[ring_index as usize];
+            *byte = interface_ref.rsp[ring_index as usize];
 
             cons += 1;
         }
@@ -365,10 +365,8 @@ impl RequestIdPool {
     }
 
     fn has_free_id(&self) -> bool {
-        let locked_pool = self.pool.lock();
-
-        for i in 0..locked_pool.len() {
-            if locked_pool[i] {
+        for id_free in self.pool.lock().iter() {
+            if *id_free {
                 return true;
             }
         }

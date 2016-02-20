@@ -80,13 +80,13 @@ struct GnttabQuerySize {
 }
 
 #[allow(dead_code)]
-const GTF_INVALID: u16 = 0 << 0;
+const GTF_INVALID: u16 = 0;
 #[allow(dead_code)]
-const GTF_PERMIT_ACCESS: u16 = 1 << 0;
+const GTF_PERMIT_ACCESS: u16 = 1;
 #[allow(dead_code)]
-const GTF_ACCEPT_TRANSFER: u16 = 2 << 0;
+const GTF_ACCEPT_TRANSFER: u16 = 2;
 #[allow(dead_code)]
-const GTF_TYPE_MASK: u16 = 3 << 0;
+const GTF_TYPE_MASK: u16 = 3;
 
 #[allow(dead_code)]
 const GTF_READONLY: u16 = 1 << 2;
@@ -200,7 +200,7 @@ impl TableImpl {
             dom: DOMID_SELF,
             nr_frames: frame_count as u32,
             status: GntStatus::Ok,
-            frame_list: frames.as_mut_slice().as_mut_ptr(),
+            frame_list: (&mut frames[..]).as_mut_ptr(),
         };
 
         // Get the frame list for the grant table from Xen
@@ -232,7 +232,7 @@ impl TableImpl {
 
         unsafe {
             // Map the grant table
-            match map_non_contiguous_mfn(vaddr, frames.as_slice()) {
+            match map_non_contiguous_mfn(vaddr, &frames[..]) {
                 Err(..) => Err(GntStatus::GeneralError),
                 Ok(..) => {
                     let count = Self::get_grant_entries_count();

@@ -50,7 +50,7 @@ enum NetifRsp {
 #[allow(dead_code)]
 /// XEN_NETTXF_*
 enum NetTxFlags {
-    CsumBlank = 1 << 0,
+    CsumBlank = 1,
     DataValidated = 1 << 1,
     MoreData = 1 << 2,
     ExtraInfo = 1 << 3,
@@ -61,7 +61,7 @@ enum NetTxFlags {
 #[allow(dead_code)]
 /// XEN_NETRXF_*
 enum NetRxFlags {
-    DataValidated = 1 << 0,
+    DataValidated = 1,
     CsumBlank = 1 << 1,
     MoreData = 1 << 2,
     ExtraInfo = 1 << 3,
@@ -249,6 +249,7 @@ impl XenNetDevice {
         xen_dev.rx_packet();
     }
 
+    #[cfg_attr(feature = "clippy", allow(cyclomatic_complexity))]
     /// Creates a new Xen network device with id `id`.
     ///
     /// This interface will be the backend of the interface `intf`

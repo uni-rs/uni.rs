@@ -210,6 +210,7 @@ impl<Req, Resp> SharedRing<Req, Resp> {
         (*self.sring).rsp_event = rsp;
     }
 
+    #[cfg_attr(feature = "clippy", allow(cyclomatic_complexity))]
     /// Returns the size of the ring
     ///
     /// Equivalent to __RING_SIZE
