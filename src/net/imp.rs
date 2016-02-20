@@ -101,7 +101,7 @@ impl Instance {
     }
 
     /// Get the list of registered interfaces within network stack
-    pub fn interfaces<'a>(&'a self) -> RwLockReadGuard<'a, Vec<Interface>> {
+    pub fn interfaces(&self) -> RwLockReadGuard<Vec<Interface>> {
         self.0.interfaces.read()
     }
 
@@ -142,6 +142,6 @@ impl Instance {
 impl InstanceWeak {
     /// Upgrade the weak reference to a strong one
     pub fn upgrade(&self) -> Option<Instance> {
-        self.0.upgrade().map(|strong| Instance(strong))
+        self.0.upgrade().map(Instance)
     }
 }
