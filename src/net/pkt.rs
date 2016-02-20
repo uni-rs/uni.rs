@@ -8,6 +8,9 @@ use alloc_uni::__rust_deallocate;
 
 use hal::arch::defs::PAGE_SIZE;
 
+/// Wrap packet creation
+pub struct Builder;
+
 /// A network packet
 pub struct Packet {
     /// The page that contains the packet. This is aligned on PAGE_SIZE and
