@@ -21,18 +21,18 @@ use hal::xen::grant::Table as GrantTable;
 // Taken from xen/interface/io/ring.h
 macro_rules! RD2 {
     ($x:expr) => (
-        if $x & 0x2 != 0 {
+        if ($x) & 0x2 != 0 {
             0x2
         } else {
-            $x & 0x1
+            ($x) & 0x1
         }
     );
 }
 
 macro_rules! RD4 {
     ($x:expr) => (
-        if $x & 0xC != 0 {
-            RD2!($x >> 2) << 2
+        if ($x) & 0xC != 0 {
+            RD2!(($x) >> 2) << 2
         } else {
             RD2!($x)
         }
@@ -41,8 +41,8 @@ macro_rules! RD4 {
 
 macro_rules! RD8 {
     ($x:expr) => (
-        if $x & 0xF0 != 0 {
-            RD4!($x >> 4) << 4
+        if ($x) & 0xF0 != 0 {
+            RD4!(($x) >> 4) << 4
         } else {
             RD4!($x)
         }
@@ -51,8 +51,8 @@ macro_rules! RD8 {
 
 macro_rules! RD16 {
     ($x:expr) => (
-        if $x & 0xFF00 != 0 {
-            RD8!($x >> 8) << 8
+        if ($x) & 0xFF00 != 0 {
+            RD8!(($x) >> 8) << 8
         } else {
             RD8!($x)
         }
@@ -61,8 +61,8 @@ macro_rules! RD16 {
 
 macro_rules! RD32 {
     ($x:expr) => (
-        if $x & 0xFFFF0000 != 0 {
-            RD16!($x >> 16) << 16
+        if ($x) & 0xFFFF0000 != 0 {
+            RD16!(($x) >> 16) << 16
         } else {
             RD16!($x)
         }
@@ -290,6 +290,7 @@ impl<Req, Resp> FrontRing<Req, Resp> {
     }
 
     #[inline]
+    #[cfg_attr(feature = "clippy", allow(cyclomatic_complexity))]
     /// Returns the size of the ring (i.e. the number of entries it contains)
     pub fn size(&self) -> usize {
         self.nr_ents as usize
