@@ -65,3 +65,28 @@ pub trait GenericFilterTrait {
     /// Filter and route an incoming packet to a multi connexion
     fn rx_multi(&self, pkt: Packet, rule: Rule);
 }
+
+/// Trait implemented by specific filters (i.e. filters based on specific
+/// parameters)
+///
+/// Specific filters allow protocols to route packets to the appropriate
+/// connexion based on a specific parameter
+///
+/// It may drop the packet if no matching connexion exists.
+pub trait SpecificFilterTrait<T> {
+    /// Create a new specific filter.
+    ///
+    /// The generic parameter taken as parameter is used to associate a
+    /// specific filter with a generic one.
+    fn new(generic_param: T) -> Self;
+
+    /// Insert a new multi connexion to the filter based on a rule.
+    fn insert_multi(&mut self, conn: Arc<MultiConn>,
+                    rule: &Rule) -> Result<(), ()>;
+
+    /// Filter and route an incoming packet to a connexion (uni or multi).
+    fn rx(&self, pkt: Packet);
+
+    /// Filter and route an incoming packet to a multi connexion
+    fn rx_multi(&self, pkt: Packet, rule: Rule);
+}
