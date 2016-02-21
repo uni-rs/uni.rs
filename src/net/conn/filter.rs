@@ -7,11 +7,32 @@
 
 use sync::Arc;
 
+use boxed::Box;
+
 use net::Packet;
 
 use net::defs::Rule;
 
 use net::conn::MultiConn;
+
+/// Callbacks used by `SpecificFilter`.
+///
+/// **FIXME**: I feel like this is somehow hacky
+pub trait SpecificCallbacks<T: Ord + Clone> {
+    /// Determine if a rule has an upper protocol component.
+    ///
+    /// For example if you implement a network protocol this will return `true`
+    /// if the rule has a transport layer component.
+    fn has_upper_filter(rule: &Rule) -> bool;
+
+    /// Create a new generic filter that filters the generic parameter `param`
+    /// of type T.
+    fn filter_from_generic_parameter(param: T) -> Option<Box<GenericFilterTrait>>;
+
+    /// Set the component of the `rule` implemented by this protocol based on
+    /// information contained in a packet.
+    fn set_layer_rule(rule: &mut Rule, pkt: &Packet);
+}
 
 /// Extract generic/specific parameters of type T from a packet or a rule.
 ///
