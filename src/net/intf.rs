@@ -5,6 +5,8 @@ use sync::{Arc, Weak};
 
 use sync::spin::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 
+use net::{Instance, InstanceWeak};
+
 use net::defs::{HwAddr, Ipv4Addr, Device};
 
 use hal::net::HwInterface;
@@ -37,6 +39,8 @@ unsafe impl Send for InterfaceWeak {}
 
 /// The raw network interface
 pub struct InterfaceRaw {
+    /// The network stack the interface belongs to
+    instance: InstanceWeak,
     /// Name of the interface
     name: String,
     /// Hardware address of the interface
@@ -49,8 +53,9 @@ pub struct InterfaceRaw {
 
 impl Interface {
     /// Creates a new network interface
-    pub fn new() -> Self {
+    pub fn new(instance: &Instance) -> Self {
         let inner = InterfaceRaw {
+            instance: instance.downgrade(),
             name: String::new(),
             hw_addr: HwAddr::empty(),
             conf: V4Configuration {

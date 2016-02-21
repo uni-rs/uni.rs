@@ -14,7 +14,7 @@ use sync::spin::{InterruptSpinLock, SpinLock};
 
 use ffi::CString;
 
-use net::{Interface, InterfaceWeak, Packet, Stack as NetStack};
+use net::{Instance, Interface, InterfaceWeak, Packet, Stack as NetStack};
 use net::defs::{Device, HwAddr};
 
 use hal::mmu::{Vaddr, Mfn};
@@ -127,13 +127,13 @@ fn vif_id_exists(id: u32) -> bool {
 }
 
 /// Returns a list of interfaces that have a xen backend
-pub fn discover() -> Vec<Interface> {
+pub fn discover(instance: &Instance) -> Vec<Interface> {
     let mut id = 0;
     let mut v = Vec::new();
 
     // Create interface for every `id` valid
     while vif_id_exists(id) {
-        let interface = Interface::new();
+        let interface = Interface::new(instance);
         let interface_weak = interface.downgrade();
 
         v.push(interface);

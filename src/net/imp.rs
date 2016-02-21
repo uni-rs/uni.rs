@@ -77,7 +77,7 @@ impl Instance {
 
         let instance = Instance(inner);
 
-        let intfs = discover();
+        let intfs = discover(&instance);
 
         if intfs.is_empty() {
             println!("Warning: Uni.rs is built with network capabilities but no interface found");

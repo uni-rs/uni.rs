@@ -124,15 +124,15 @@ mod hw_imp {
 
         use hal::xen::net;
 
-        use net::Interface;
+        use net::{Instance, Interface};
 
         /// Type of the hardware interface.
         pub type HwInterface = net::XenNetDevice;
 
         /// Discover hardware configuration and return a list of existing
         /// interfaces
-        pub fn discover() -> Vec<Interface> {
-            net::discover()
+        pub fn discover(instance: &Instance) -> Vec<Interface> {
+            net::discover(instance)
         }
     }
 }
