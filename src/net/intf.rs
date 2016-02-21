@@ -5,9 +5,9 @@ use sync::{Arc, Weak};
 
 use sync::spin::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-use net::{Instance, InstanceWeak};
+use net::{Instance, InstanceWeak, Packet, PacketBuilder};
 
-use net::defs::{HwAddr, Ipv4Addr, Device};
+use net::defs::{Rule, HwAddr, Ipv4Addr, Device};
 
 use hal::net::HwInterface;
 
@@ -86,6 +86,17 @@ impl Interface {
     /// For more info see spin::RwLock::write()
     pub fn write(&self) -> RwLockWriteGuard<InterfaceRaw> {
         self.0.write()
+    }
+
+    /// Receive a packet on the interface
+    pub fn rx_packet(&self, _pkt: Packet) {
+        unimplemented!();
+    }
+
+    /// Transmit a packet through the interface
+    pub fn tx_packet(&self, _builder: PacketBuilder,
+                     _rule: &Rule) -> Result<(), ()> {
+        unimplemented!();
     }
 }
 
