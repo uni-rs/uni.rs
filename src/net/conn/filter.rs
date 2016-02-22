@@ -16,7 +16,12 @@ use net::Packet;
 
 use net::defs::Rule;
 
-use net::conn::MultiConn;
+use net::conn::{UniConn, MultiConn};
+
+enum ConnChoice<C, F: GenericFilterTrait + ?Sized> {
+    Conn(Arc<C>),
+    Filter(Box<F>),
+}
 
 /// Callbacks used by `SpecificFilter`.
 ///
@@ -193,6 +198,131 @@ impl<T, U, E, S> GenericFilterTrait for GenericFilter<T, U, E, S>
                 if let Some(filter) = self.filters.get(&key) {
                     filter.rx_multi(pkt, rule);
                 }
+            }
+        }
+    }
+}
+
+/// Filter packets on a specific parameter
+///
+/// This is a generic class that can be used by protocols to implement a
+/// specific filter.
+///
+/// Here is the explanation of types taken as parameters:
+///
+/// - `T`: type of the specific parameter.
+/// - `P`: type of the generic parameter.
+/// - `E`: type that allows extraction of the specific parameter from rules and
+/// packets.
+/// - `F`: type that provides various callbacks to be used to route the packet
+/// to the appropriate connexion.
+pub struct SpecificFilter<T, P, E, F> where T: Ord + Clone,
+                                            P: Ord + Clone,
+                                            E: Extractor<T>,
+                                            F: SpecificCallbacks<P> {
+    generic_param: P,
+    filters: BTreeMap<T, ConnChoice<UniConn, GenericFilterTrait>>,
+    multi: Option<ConnChoice<MultiConn, GenericFilterTrait>>,
+    _extractor: PhantomData<E>,
+    _factory: PhantomData<F>,
+}
+
+impl<T, P, E, F> SpecificFilterTrait<P> for SpecificFilter<T, P, E, F>
+                                     where T: Ord + Clone,
+                                           P: Ord + Clone,
+                                           E: Extractor<T>,
+                                           F: SpecificCallbacks<P> {
+    fn new(generic_param: P) -> Self {
+        SpecificFilter {
+            generic_param: generic_param,
+            filters: BTreeMap::new(),
+            multi: None,
+            _extractor: PhantomData,
+            _factory: PhantomData,
+        }
+    }
+
+    fn insert_multi(&mut self, conn: Arc<MultiConn>,
+                    rule: &Rule) -> Result<(), ()> {
+        // If the rule has an upper layer (for example we are a network
+        // protocol and the rule has a transport component), we need to create
+        // a new upper layer filter and insert the connexion inside it
+        if F::has_upper_filter(rule) {
+            if let None = self.multi {
+                // Create the upper filter
+                let filter = {
+                    F::filter_from_generic_parameter(self.generic_param.clone())
+                };
+
+                if let Some(f) = filter {
+                    self.multi = Some(ConnChoice::Filter(f));
+                }
+            }
+
+            // Insert the connexion in the upper filter
+            match self.multi {
+                None => Err(()),
+                Some(ref mut multi) => {
+                    if let ConnChoice::Filter(ref mut filter) = *multi {
+                        filter.insert_multi(conn, rule)
+                    } else {
+                        Err(())
+                    }
+                }
+            }
+        } else {
+            // If there is no upper layer try to insert the multi in our filter
+            if let None = self.multi {
+                self.multi = Some(ConnChoice::Conn(conn));
+                Ok(())
+            } else {
+                // A multi already exist, cannot insert this new one
+                Err(())
+            }
+        }
+    }
+
+    fn rx(&self, pkt: Packet) {
+        // Extract the specific parameter from the packet
+        if let Some(key) = E::from_packet(&pkt) {
+            // Do we have a uni connexion to handle that packet
+            if let Some(_) = self.filters.get(&key) {
+                unimplemented!();
+            } else if let Some(ref multi) = self.multi {
+                // If we don't have a uni connexion to handle the packet but
+                // a multi exists, receive the packet on this multi.
+                let mut rule = Rule {
+                    eth_rule: None,
+                    net_rule: None,
+                    tspt_rule: None,
+                };
+
+                // Set the rule parameters (both generic and specific, for
+                // example ether type and hw source address). This will be used
+                // by connexion user to know who sent that packet and how to
+                // respond.
+                F::set_layer_rule(&mut rule, &pkt);
+
+                // Receive the packet (pass it to an upper filter if one exists,
+                // or push the packet to the connexion otherwise).
+                match *multi {
+                    ConnChoice::Conn(ref conn) => conn.rx(pkt, rule),
+                    ConnChoice::Filter(ref filter) => {
+                        filter.rx_multi(pkt, rule)
+                    }
+                }
+            }
+        }
+    }
+
+    fn rx_multi(&self, pkt: Packet, mut rule: Rule) {
+        if let Some(ref multi) = self.multi {
+            // See comment in Self::rx()
+            F::set_layer_rule(&mut rule, &pkt);
+
+            match *multi {
+                ConnChoice::Conn(ref conn) => conn.rx(pkt, rule),
+                ConnChoice::Filter(ref filter) => filter.rx_multi(pkt, rule),
             }
         }
     }
