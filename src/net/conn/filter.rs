@@ -5,9 +5,12 @@
 //! - Generic parameter: ether type, protocol id, ...
 //! - Specific parameter: hardware address, ip address, ...
 
+use core::marker::PhantomData;
+
 use sync::Arc;
 
 use boxed::Box;
+use btree_map::BTreeMap;
 
 use net::Packet;
 
@@ -110,4 +113,87 @@ pub trait SpecificFilterTrait<T> {
 
     /// Filter and route an incoming packet to a multi connexion
     fn rx_multi(&self, pkt: Packet, rule: Rule);
+}
+
+/// Filter packets on a generic parameter
+///
+/// This is a generic class that can be used by protocols to implement a
+/// generic filter.
+///
+/// Here is the explanation of types taken as parameters:
+///
+/// - `T`: type of the generic parameter.
+/// - `U`: type of the filter used to filter on specific parameter.
+/// - `E`: type that allows extraction of the generic parameter from rules and
+///        packets.
+/// - `S`: type that allows the protocol to sanitize incoming packets.
+pub struct GenericFilter<T, U, E, S> where T: Ord + Clone,
+                                           U: SpecificFilterTrait<T>,
+                                           E: Extractor<T>,
+                                           S: PacketSanitizer {
+    filters: BTreeMap<T, U>,
+    _extractor: PhantomData<E>,
+    _sanitizer: PhantomData<S>,
+}
+
+impl<T, U, E, S> GenericFilter<T, U, E, S> where T: Ord + Clone,
+                                                 U: SpecificFilterTrait<T>,
+                                                 E: Extractor<T>,
+                                                 S: PacketSanitizer {
+    /// Create a new generic filter
+    pub fn new() -> Self {
+        GenericFilter {
+            filters: BTreeMap::new(),
+            _extractor: PhantomData,
+            _sanitizer: PhantomData,
+        }
+    }
+}
+
+impl<T, U, E, S> GenericFilterTrait for GenericFilter<T, U, E, S>
+                                    where T: Ord + Clone,
+                                          U: SpecificFilterTrait<T>,
+                                          E: Extractor<T>,
+                                          S: PacketSanitizer {
+    fn insert_multi(&mut self, conn: Arc<MultiConn>,
+                    rule: &Rule) -> Result<(), ()> {
+        // Extract the generic parameter of the rule. If none exists then it's
+        // an error and the connexion cannot be added
+        if let Some(key) = E::from_rule(rule) {
+            // Check if a filter already exists, if none add one
+            if !self.filters.contains_key(&key) {
+                self.filters.insert(key.clone(), U::new(key.clone()));
+            }
+
+            // Insert the connexion in the specific filter
+            self.filters.get_mut(&key).unwrap().insert_multi(conn, rule)
+        } else {
+            Err(())
+        }
+    }
+
+    fn rx(&self, mut pkt: Packet) {
+        // Sanitize the packet
+        if S::sanitize(&mut pkt).is_ok() {
+            // Get the generic parameter
+            if let Some(key) = E::from_packet(&pkt) {
+                // Pass the packet to the specific filter if such filter exists
+                if let Some(filter) = self.filters.get(&key) {
+                    filter.rx(pkt);
+                }
+            }
+        }
+    }
+
+    fn rx_multi(&self, mut pkt: Packet, rule: Rule) {
+        // This basically behaves like rx() except that it give the packet
+        // to the multi in the filter
+        if S::sanitize(&mut pkt).is_ok() {
+            if let Some(key) = E::from_packet(&pkt) {
+                if let Some(filter) = self.filters.get(&key) {
+                    filter.rx_multi(pkt, rule);
+                }
+            }
+        }
+    }
 }
