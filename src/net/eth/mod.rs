@@ -4,4 +4,5 @@
 //! routed to the proper connexion based on ether type and source mac address.
 
 mod defs;
+mod sanitizer;
 mod extractor;
