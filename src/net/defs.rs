@@ -216,6 +216,19 @@ impl HwAddr {
         }
     }
 
+    /// Create a broadcast hardware address (i.e., FF:FF:FF:FF:FF:FF)
+    pub fn broadcast() -> Self {
+        HwAddr {
+            bytes: [0xFF; COUNT_HWADDR_BYTES],
+        }
+    }
+
+    /// Is the current hardware address a broadcast
+    /// address (i.e., FF:FF:FF:FF:FF:FF)
+    pub fn is_broadcast(&self) -> bool {
+        *self == Self::broadcast()
+    }
+
     /// Create an hardware address from bytes.
     ///
     /// This method is unsafe because the slice *MUST* contain at least 6
