@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["PAGE_SIZE","Size of a page"]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Builder","Wrap packet creationThis object is convenient to create a new packet. It wraps allocation, buffer management and final format of the packet. The packet yielded by the `finalize` method can be directly sent out on the network."],["Packet","A network packet"]],"trait":[["Formatter","Used to format a packet at the link or network layer"]]});

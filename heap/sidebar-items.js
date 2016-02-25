@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["buddy","An implementation of a buddy allocator."]],"struct":[["FirstFit",""]],"trait":[["Allocator","Trait implemented by every allocator"]]});

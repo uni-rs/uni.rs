@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["map_contiguous","Map `count` physical pages into virtual address space"],["map_non_contiguous_mfn","Map non contiguous machine frames into virtual address space"],["map_page","Map a single physical page into virtual address space"]]});

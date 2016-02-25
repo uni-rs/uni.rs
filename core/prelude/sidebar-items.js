@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["v1","The core preludeThis module is intended for users of libcore which do not link to libstd as well. This module is imported by default when `#![no_std]` is used in the same manner as the standard library's prelude."]]});

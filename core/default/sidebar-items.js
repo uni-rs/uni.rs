@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["Default","A trait for giving a type a useful default value.A struct can derive default implementations of `Default` for basic types using `#[derive(Default)]`.Examples"]]});

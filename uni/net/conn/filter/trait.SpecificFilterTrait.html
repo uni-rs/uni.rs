@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `SpecificFilterTrait` trait in crate `uni`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, SpecificFilterTrait">
+
+    <title>uni::net::conn::filter::SpecificFilterTrait - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../../index.html'>uni</a>::<wbr><a href='../../index.html'>net</a>::<wbr><a href='../index.html'>conn</a>::<wbr><a href='index.html'>filter</a></p><script>window.sidebarCurrent = {name: 'SpecificFilterTrait', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../../../index.html'>uni</a>::<wbr><a href='../../index.html'>net</a>::<wbr><a href='../index.html'>conn</a>::<wbr><a href='index.html'>filter</a>::<wbr><a class='trait' href=''>SpecificFilterTrait</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-3084' class='srclink' href='../../../../src/uni/net/conn/filter.rs.html#105-121' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait SpecificFilterTrait&lt;T&gt; {
+    fn <a href='#tymethod.new' class='fnname'>new</a>(generic_param: T) -&gt; Self;
+    fn <a href='#tymethod.insert_multi' class='fnname'>insert_multi</a>(&amp;mut self, conn: <a class='struct' href='../../../../uni/sync/struct.Arc.html' title='uni::sync::Arc'>Arc</a>&lt;<a class='struct' href='../../../../uni/net/struct.MultiConn.html' title='uni::net::MultiConn'>MultiConn</a>&gt;, rule: &amp;<a class='struct' href='../../../../uni/net/defs/struct.Rule.html' title='uni::net::defs::Rule'>Rule</a>) -&gt; <a class='enum' href='../../../../core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;(), ()&gt;;
+    fn <a href='#tymethod.rx' class='fnname'>rx</a>(&amp;self, pkt: <a class='struct' href='../../../../uni/net/struct.Packet.html' title='uni::net::Packet'>Packet</a>);
+    fn <a href='#tymethod.rx_multi' class='fnname'>rx_multi</a>(&amp;self, pkt: <a class='struct' href='../../../../uni/net/struct.Packet.html' title='uni::net::Packet'>Packet</a>, rule: <a class='struct' href='../../../../uni/net/defs/struct.Rule.html' title='uni::net::defs::Rule'>Rule</a>);
+}</pre><div class='docblock'><p>Trait implemented by specific filters (i.e. filters based on specific
+parameters)</p>
+
+<p>Specific filters allow protocols to route packets to the appropriate
+connexion based on a specific parameter</p>
+
+<p>It may drop the packet if no matching connexion exists.</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.new' class='method stab '><code>fn <a href='#tymethod.new' class='fnname'>new</a>(generic_param: T) -&gt; Self</code></h3><div class='docblock'><p>Create a new specific filter.</p>
+
+<p>The generic parameter taken as parameter is used to associate a
+specific filter with a generic one.</p>
+</div><h3 id='tymethod.insert_multi' class='method stab '><code>fn <a href='#tymethod.insert_multi' class='fnname'>insert_multi</a>(&amp;mut self, conn: <a class='struct' href='../../../../uni/sync/struct.Arc.html' title='uni::sync::Arc'>Arc</a>&lt;<a class='struct' href='../../../../uni/net/struct.MultiConn.html' title='uni::net::MultiConn'>MultiConn</a>&gt;, rule: &amp;<a class='struct' href='../../../../uni/net/defs/struct.Rule.html' title='uni::net::defs::Rule'>Rule</a>) -&gt; <a class='enum' href='../../../../core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;(), ()&gt;</code></h3><div class='docblock'><p>Insert a new multi connexion to the filter based on a rule.</p>
+</div><h3 id='tymethod.rx' class='method stab '><code>fn <a href='#tymethod.rx' class='fnname'>rx</a>(&amp;self, pkt: <a class='struct' href='../../../../uni/net/struct.Packet.html' title='uni::net::Packet'>Packet</a>)</code></h3><div class='docblock'><p>Filter and route an incoming packet to a connexion (uni or multi).</p>
+</div><h3 id='tymethod.rx_multi' class='method stab '><code>fn <a href='#tymethod.rx_multi' class='fnname'>rx_multi</a>(&amp;self, pkt: <a class='struct' href='../../../../uni/net/struct.Packet.html' title='uni::net::Packet'>Packet</a>, rule: <a class='struct' href='../../../../uni/net/defs/struct.Rule.html' title='uni::net::defs::Rule'>Rule</a>)</code></h3><div class='docblock'><p>Filter and route an incoming packet to a multi connexion</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;T, P, E, F&gt; <a class='trait' href='../../../../uni/net/conn/filter/trait.SpecificFilterTrait.html' title='uni::net::conn::filter::SpecificFilterTrait'>SpecificFilterTrait</a>&lt;P&gt; for <a class='struct' href='../../../../uni/net/conn/filter/struct.SpecificFilter.html' title='uni::net::conn::filter::SpecificFilter'>SpecificFilter</a>&lt;T, P, E, F&gt; <span class='where'>where T: <a class='trait' href='../../../../core/cmp/trait.Ord.html' title='core::cmp::Ord'>Ord</a> + <a class='trait' href='../../../../core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, P: <a class='trait' href='../../../../core/cmp/trait.Ord.html' title='core::cmp::Ord'>Ord</a> + <a class='trait' href='../../../../core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, E: <a class='trait' href='../../../../uni/net/conn/filter/trait.Extractor.html' title='uni::net::conn::filter::Extractor'>Extractor</a>&lt;T&gt;, F: <a class='trait' href='../../../../uni/net/conn/filter/trait.SpecificCallbacks.html' title='uni::net::conn::filter::SpecificCallbacks'>SpecificCallbacks</a>&lt;P&gt;</span></code></li>
+</ul><script type="text/javascript" async
+                              src="../../../../implementors/uni/net/conn/filter/trait.SpecificFilterTrait.js">
+                      </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../";
+        window.currentCrate = "uni";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../../jquery.js"></script>
+    <script src="../../../../main.js"></script>
+    
+    <script defer src="../../../../search-index.js"></script>
+</body>
+</html>

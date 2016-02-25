@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["copy_memory","Copies data from `src` to `dst`Panics if the length of `dst` is less than the length of `src`."]],"trait":[["MutableByteVector","A trait for operations on mutable `[u8]`s."]]});

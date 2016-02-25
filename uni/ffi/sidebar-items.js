@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CString","Represents an owned C style stringThis type generates compatible C-strings from Rust. It guarantees that there is no null bytes in the string and that the string is ended by a null byte."]]});

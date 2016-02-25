@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["L1_PAGE_SHIFT",""],["L2_PAGE_SHIFT",""],["L3_PAGE_SHIFT",""],["L4_PAGE_SHIFT",""],["OFFSET_MASK",""],["PAGE_SHIFT",""],["PTE_FLAGS_MASK","Mask to apply to a page table entry to isolate the flags"],["PTE_MASK",""],["PTE_PER_TABLE",""]],"enum":[["PageFlags",""]],"struct":[["PageEntryImp",""]],"type":[["PageEntry",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FrontRing","Xen's front end ring`Req` is the type of the request`Resp` is the type of the response"],["SharedRing","Xen's shared ring`Req` is the type of the request`Resp` is the type of the response"]],"type":[["Idx","Ring index type"]]});

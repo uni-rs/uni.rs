@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["GntStatus","Error status that can be returned by the table initialization"]],"struct":[["Ref","A grant reference index inside the grant table"],["Table","The global grant table wrapper"]]});

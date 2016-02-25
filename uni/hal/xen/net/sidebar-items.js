@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["discover","Returns a list of interfaces that have a xen backend"]],"struct":[["XenNetDevice","A Xen vif (virtual interface)"]]});

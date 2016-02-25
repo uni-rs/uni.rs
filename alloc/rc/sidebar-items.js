@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Rc","A reference-counted pointer type over an immutable value.See the module level documentation for more details."],["Weak","A weak version of `Rc<T>`.Weak references do not count when determining if the inner value should be dropped.See the module level documentation for more."]]});

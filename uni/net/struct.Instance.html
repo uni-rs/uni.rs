@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Instance` struct in crate `uni`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Instance">
+
+    <title>uni::net::Instance - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>uni</a>::<wbr><a href='index.html'>net</a></p><script>window.sidebarCurrent = {name: 'Instance', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>uni</a>::<wbr><a href='index.html'>net</a>::<wbr><a class='struct' href=''>Instance</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-2748' class='srclink' href='../../src/uni/net/imp.rs.html#25' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Instance(_);</pre><div class='docblock'><p>A network stack</p>
+
+<p>This object represent a shareable network stack. This object stack
+internally uses an Arc so it can be safely shared.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../uni/net/struct.Instance.html' title='uni::net::Instance'>Instance</a></code></h3><div class='impl-items'><h4 id='method.network_thread' class='method'><code>fn <a href='#method.network_thread' class='fnname'>network_thread</a>(instance: <a class='struct' href='../../uni/net/struct.Instance.html' title='uni::net::Instance'>Instance</a>)</code></h4>
+<div class='docblock'><p>Network thread linked to an instance</p>
+
+<p>This function is used to process packet that are received within a
+network stack instance</p>
+</div><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; Self</code></h4>
+<div class='docblock'><p>Create a new network stack</p>
+
+<p>TODO: This cannot really be used more than once for now.</p>
+</div><h4 id='method.downgrade' class='method'><code>fn <a href='#method.downgrade' class='fnname'>downgrade</a>(&amp;self) -&gt; <a class='struct' href='../../uni/net/struct.InstanceWeak.html' title='uni::net::InstanceWeak'>InstanceWeak</a></code></h4>
+<div class='docblock'><p>Get a weak reference over the network stack</p>
+</div><h4 id='method.interfaces' class='method'><code>fn <a href='#method.interfaces' class='fnname'>interfaces</a>(&amp;self) -&gt; <a class='struct' href='../../uni/sync/spin/struct.RwLockReadGuard.html' title='uni::sync::spin::RwLockReadGuard'>RwLockReadGuard</a>&lt;<a class='struct' href='../../collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../../uni/net/struct.Interface.html' title='uni::net::Interface'>Interface</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Get the list of registered interfaces within network stack</p>
+</div><h4 id='method.enqueue_rx_packet' class='method'><code>fn <a href='#method.enqueue_rx_packet' class='fnname'>enqueue_rx_packet</a>(&amp;self, packet: <a class='struct' href='../../uni/net/struct.Packet.html' title='uni::net::Packet'>Packet</a>) -&gt; bool</code></h4>
+<div class='docblock'><p>Enqueue a packet to be received on the network stack</p>
+
+<p>Returns false if the receive queue is full and therefore the packet was
+not enqueued.</p>
+
+<p>Note: This is safe to be called from interrupt context. Indeed the
+receive queue is not resizable so no allocation will be performed by
+this function</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='../../core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../uni/net/struct.Instance.html' title='uni::net::Instance'>Instance</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='../../core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../uni/net/struct.Instance.html' title='uni::net::Instance'>Instance</a></code></h4>
+<h4 id='method.clone_from' class='method'><span class="since">1.0.0</span><code>fn <a href='../../core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "uni";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

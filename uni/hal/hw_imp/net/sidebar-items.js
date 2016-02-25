@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["discover","Discover hardware configuration and return a list of existing interfaces"]],"type":[["HwInterface","Type of the hardware interface."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["block","Block the application until an interruption arrives"],["crash","Crash the applicationOn certain platform this might be equivalent to `exit()`"],["exit","Exit the applicationThis will also power off the system.Note that the error code might be ignored on certain platforms"]]});

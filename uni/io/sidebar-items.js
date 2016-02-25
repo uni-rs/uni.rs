@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["stdin",""],["stdout",""]],"struct":[["Stdin",""],["StdinLock",""],["Stdout",""],["StdoutLock",""]],"trait":[["Read",""],["Write",""]],"type":[["Result",""]]});

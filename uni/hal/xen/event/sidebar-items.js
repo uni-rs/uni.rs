@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["dispatcher","Access the global event dispatcher"],["do_hypervisor_callback","This function is called when an event occur"],["send","Send an event to the remote end of the channel whose local endpoint is `port`"]],"struct":[["Dispatcher","Dispatch and manage Xen events"]]});

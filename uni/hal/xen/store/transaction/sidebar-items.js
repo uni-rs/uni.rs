@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Transaction","A transaction with the Xen StoreNote: the transaction is automatically ended on `Drop` if not already down."]]});

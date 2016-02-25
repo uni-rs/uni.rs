@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["GlobalCell","Mutable memory location to wrap global variables"],["GlobalCellMutRef","Represents a mutable reference over the wrapped value of a GlobalCell<T>"],["GlobalCellRef","Represents a non mutable reference over the wrapped value of a GlobalCell<T>"]]});

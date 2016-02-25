@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["PrimInt","Primitive operations for built-in integer types"]]});

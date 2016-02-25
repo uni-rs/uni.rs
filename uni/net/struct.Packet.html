@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Packet` struct in crate `uni`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Packet">
+
+    <title>uni::net::Packet - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>uni</a>::<wbr><a href='index.html'>net</a></p><script>window.sidebarCurrent = {name: 'Packet', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>uni</a>::<wbr><a href='index.html'>net</a>::<wbr><a class='struct' href=''>Packet</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-2850' class='srclink' href='../../src/uni/net/pkt.rs.html#144-160' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Packet {
+    // some fields omitted
+}</pre><div class='docblock'><p>A network packet</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../uni/net/struct.Packet.html' title='uni::net::Packet'>Packet</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>unsafe fn <a href='#method.new' class='fnname'>new</a>(page: *mut u8, offset: usize, size: usize) -&gt; Self</code></h4>
+<div class='docblock'><p>Creates a new packet from a memory pointer <code>page</code></p>
+
+<p><code>offset</code> is the offset from the beginning of the page where the actual
+network data is</p>
+
+<p><code>size</code> is the size in bytes of the packet</p>
+
+<p>This method is unsafe because a few requirements are necessary:</p>
+
+<ul>
+<li><code>page</code> must be allocated with <code>__rust_allocate(PAGE_SIZE, PAGE_SIZE)</code></li>
+<li><code>page</code> ownership is transferred to this packet (i.e. it will be
+deallocated on <code>Drop</code>)</li>
+</ul>
+</div><h4 id='method.size' class='method'><code>fn <a href='#method.size' class='fnname'>size</a>(&amp;self) -&gt; usize</code></h4>
+<div class='docblock'><p>Returns the size of the packet</p>
+</div><h4 id='method.offset' class='method'><code>fn <a href='#method.offset' class='fnname'>offset</a>(&amp;self) -&gt; usize</code></h4>
+<div class='docblock'><p>Returns the offset from <code>page()</code> where the data starts</p>
+</div><h4 id='method.page' class='method'><code>fn <a href='#method.page' class='fnname'>page</a>(&amp;self) -&gt; *const u8</code></h4>
+<div class='docblock'><p>Returns the beginning of the allocated page</p>
+</div><h4 id='method.start' class='method'><code>fn <a href='#method.start' class='fnname'>start</a>(&amp;self) -&gt; *const u8</code></h4>
+<div class='docblock'><p>Returns a pointer that points to the beginning of the network data</p>
+</div><h4 id='method.interface' class='method'><code>fn <a href='#method.interface' class='fnname'>interface</a>(&amp;self) -&gt; <a class='enum' href='../../core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../uni/net/struct.Interface.html' title='uni::net::Interface'>Interface</a>&gt;</code></h4>
+<div class='docblock'><p>Return the interface the packet is linked to</p>
+</div><h4 id='method.set_interface' class='method'><code>fn <a href='#method.set_interface' class='fnname'>set_interface</a>(&amp;mut self, intf: <a class='struct' href='../../uni/net/struct.InterfaceWeak.html' title='uni::net::InterfaceWeak'>InterfaceWeak</a>)</code></h4>
+<div class='docblock'><p>Set the interface the packet is linked to</p>
+</div><h4 id='method.link_hdr_size' class='method'><code>fn <a href='#method.link_hdr_size' class='fnname'>link_hdr_size</a>(&amp;self) -&gt; usize</code></h4>
+<div class='docblock'><p>Returns the size of the link header</p>
+
+<p>This has to be set by the link layer handler</p>
+</div><h4 id='method.link_hdr_size_mut' class='method'><code>unsafe fn <a href='#method.link_hdr_size_mut' class='fnname'>link_hdr_size_mut</a>(&amp;mut self) -&gt; &amp;mut usize</code></h4>
+<div class='docblock'><p>Returns a mutable reference to the size of the link header</p>
+</div><h4 id='method.net_hdr_size' class='method'><code>fn <a href='#method.net_hdr_size' class='fnname'>net_hdr_size</a>(&amp;self) -&gt; usize</code></h4>
+<div class='docblock'><p>Returns the size of the network header</p>
+
+<p>This has to be set by the network layer handler</p>
+</div><h4 id='method.net_hdr_size_mut' class='method'><code>unsafe fn <a href='#method.net_hdr_size_mut' class='fnname'>net_hdr_size_mut</a>(&amp;mut self) -&gt; &amp;mut usize</code></h4>
+<div class='docblock'><p>Returns a mutable reference to the size of the network header</p>
+</div><h4 id='method.tspt_hdr_size' class='method'><code>fn <a href='#method.tspt_hdr_size' class='fnname'>tspt_hdr_size</a>(&amp;self) -&gt; usize</code></h4>
+<div class='docblock'><p>Returns the size of the transport header</p>
+
+<p>This has to be set by the transport layer handler</p>
+</div><h4 id='method.tspt_hdr_size_mut' class='method'><code>unsafe fn <a href='#method.tspt_hdr_size_mut' class='fnname'>tspt_hdr_size_mut</a>(&amp;mut self) -&gt; &amp;mut usize</code></h4>
+<div class='docblock'><p>Returns a mutable reference to the size of the transport header</p>
+</div><h4 id='method.payload_size' class='method'><code>fn <a href='#method.payload_size' class='fnname'>payload_size</a>(&amp;self) -&gt; usize</code></h4>
+<div class='docblock'><p>Returns the size of the payload.</p>
+</div><h4 id='method.link_header' class='method'><code>fn <a href='#method.link_header' class='fnname'>link_header</a>&lt;T&gt;(&amp;self) -&gt; <a class='enum' href='../../core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;T&gt;</code></h4>
+<div class='docblock'><p>Get a reference to the link header.</p>
+
+<p>This will return None if the packet size is smaller than the size
+of the link header.</p>
+</div><h4 id='method.net_header' class='method'><code>fn <a href='#method.net_header' class='fnname'>net_header</a>&lt;T&gt;(&amp;self) -&gt; <a class='enum' href='../../core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;T&gt;</code></h4>
+<div class='docblock'><p>Get a reference to the network header.</p>
+
+<p>This will return None if the packet size is smaller than the size
+of the network header.</p>
+</div><h4 id='method.tspt_header' class='method'><code>fn <a href='#method.tspt_header' class='fnname'>tspt_header</a>&lt;T&gt;(&amp;self) -&gt; <a class='enum' href='../../core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;T&gt;</code></h4>
+<div class='docblock'><p>Get a reference to the transport header.</p>
+
+<p>This will return None if the packet size is smaller than the size
+of the transport header.</p>
+</div><h4 id='method.payload' class='method'><code>fn <a href='#method.payload' class='fnname'>payload</a>(&amp;self) -&gt; <a class='enum' href='../../core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;[u8]&gt;</code></h4>
+<div class='docblock'><p>Extract the payload from the packet.</p>
+
+<p>This will return None if there is no payload</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='../../core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../../uni/net/struct.Packet.html' title='uni::net::Packet'>Packet</a></code></h3><div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='../../core/ops/trait.Drop.html#method.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "uni";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

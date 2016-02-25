@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Instance","A network stackThis object represent a shareable network stack. This object stack internally uses an Arc so it can be safely shared."],["InstanceWeak","A weak reference over a network stack"]]});

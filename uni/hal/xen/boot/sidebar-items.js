@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["init",""],["init_memory",""]],"static":[["__boot_end",""],["__boot_start",""],["__data_end",""],["__data_start",""],["__rodata_end",""],["__rodata_start",""],["__text_end",""],["__text_start",""],["__uni_end",""],["rust_stack",""],["start_info",""]]});

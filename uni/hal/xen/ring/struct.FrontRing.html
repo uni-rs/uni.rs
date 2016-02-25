@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `FrontRing` struct in crate `uni`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, FrontRing">
+
+    <title>uni::hal::xen::ring::FrontRing - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../../index.html'>uni</a>::<wbr><a href='../../index.html'>hal</a>::<wbr><a href='../index.html'>xen</a>::<wbr><a href='index.html'>ring</a></p><script>window.sidebarCurrent = {name: 'FrontRing', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../../index.html'>uni</a>::<wbr><a href='../../index.html'>hal</a>::<wbr><a href='../index.html'>xen</a>::<wbr><a href='index.html'>ring</a>::<wbr><a class='struct' href=''>FrontRing</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-933' class='srclink' href='../../../../src/uni/hal/xen/ring.rs.html#275-280' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct FrontRing&lt;Req, Resp&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>Xen&#39;s front end ring</p>
+
+<p><code>Req</code> is the type of the request</p>
+
+<p><code>Resp</code> is the type of the response</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;Req, Resp&gt; <a class='struct' href='../../../../uni/hal/xen/ring/struct.FrontRing.html' title='uni::hal::xen::ring::FrontRing'>FrontRing</a>&lt;Req, Resp&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(sring: <a class='struct' href='../../../../uni/hal/xen/ring/struct.SharedRing.html' title='uni::hal::xen::ring::SharedRing'>SharedRing</a>&lt;Req, Resp&gt;) -&gt; Self</code></h4>
+<div class='docblock'><p>Create a new frond end ring that operates on the shared ring <code>sring</code></p>
+</div><h4 id='method.size' class='method'><code>fn <a href='#method.size' class='fnname'>size</a>(&amp;self) -&gt; usize</code></h4>
+<div class='docblock'><p>Returns the size of the ring (i.e. the number of entries it contains)</p>
+</div><h4 id='method.req_prod' class='method'><code>fn <a href='#method.req_prod' class='fnname'>req_prod</a>(&amp;self) -&gt; <a class='type' href='../../../../uni/hal/xen/ring/type.Idx.html' title='uni::hal::xen::ring::Idx'>Idx</a></code></h4>
+<div class='docblock'><p>Returns the request production index</p>
+</div><h4 id='method.rsp_cons' class='method'><code>fn <a href='#method.rsp_cons' class='fnname'>rsp_cons</a>(&amp;self) -&gt; <a class='type' href='../../../../uni/hal/xen/ring/type.Idx.html' title='uni::hal::xen::ring::Idx'>Idx</a></code></h4>
+<div class='docblock'><p>Returns the response consumer index</p>
+</div><h4 id='method.req_prod_mut' class='method'><code>unsafe fn <a href='#method.req_prod_mut' class='fnname'>req_prod_mut</a>(&amp;mut self) -&gt; &amp;mut <a class='type' href='../../../../uni/hal/xen/ring/type.Idx.html' title='uni::hal::xen::ring::Idx'>Idx</a></code></h4>
+<div class='docblock'><p>Returns the request production index as mutable</p>
+
+<p>This is unsafe as an invalid index can corrupt the ring</p>
+</div><h4 id='method.rsp_cons_mut' class='method'><code>unsafe fn <a href='#method.rsp_cons_mut' class='fnname'>rsp_cons_mut</a>(&amp;mut self) -&gt; &amp;mut <a class='type' href='../../../../uni/hal/xen/ring/type.Idx.html' title='uni::hal::xen::ring::Idx'>Idx</a></code></h4>
+<div class='docblock'><p>Returns the response production index as mutable</p>
+
+<p>This is unsafe as an invalid index can corrupt the ring</p>
+</div><h4 id='method.sring_mut' class='method'><code>unsafe fn <a href='#method.sring_mut' class='fnname'>sring_mut</a>(&amp;mut self) -&gt; &amp;mut <a class='struct' href='../../../../uni/hal/xen/ring/struct.SharedRing.html' title='uni::hal::xen::ring::SharedRing'>SharedRing</a>&lt;Req, Resp&gt;</code></h4>
+<div class='docblock'><p>Returns a mutable reference over the underlying shared ring</p>
+</div><h4 id='method.has_unconsumed_responses' class='method'><code>fn <a href='#method.has_unconsumed_responses' class='fnname'>has_unconsumed_responses</a>(&amp;self) -&gt; bool</code></h4>
+<div class='docblock'><p>Returns true if the ring has unconsumed responses</p>
+
+<p>Equivalent to RING_HAS_UNCONSUMED_RESPONSES</p>
+</div><h4 id='method.push_requests' class='method'><code>fn <a href='#method.push_requests' class='fnname'>push_requests</a>(&amp;mut self) -&gt; bool</code></h4>
+<div class='docblock'><p>Push requests down to the shared ring.</p>
+
+<p>This function will return true if the other end of the ring should be
+notified</p>
+
+<p>Equivalent to RING_PUSH_REQUESTS_AND_CHECK_NOTIFY</p>
+</div><h4 id='method.final_check_for_responses' class='method'><code>fn <a href='#method.final_check_for_responses' class='fnname'>final_check_for_responses</a>(&amp;mut self) -&gt; bool</code></h4>
+<div class='docblock'><p>Returns true if there is still work to do</p>
+
+<p>Equivalent to RING_FINAL_CHECK_FOR_RESPONSES</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../";
+        window.currentCrate = "uni";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../../jquery.js"></script>
+    <script src="../../../../main.js"></script>
+    
+    <script defer src="../../../../search-index.js"></script>
+</body>
+</html>

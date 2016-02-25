@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `StartInfo` struct in crate `uni`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, StartInfo">
+
+    <title>uni::hal::xen::defs::StartInfo - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../../index.html'>uni</a>::<wbr><a href='../../index.html'>hal</a>::<wbr><a href='../index.html'>xen</a>::<wbr><a href='index.html'>defs</a></p><script>window.sidebarCurrent = {name: 'StartInfo', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../../index.html'>uni</a>::<wbr><a href='../../index.html'>hal</a>::<wbr><a href='../index.html'>xen</a>::<wbr><a href='index.html'>defs</a>::<wbr><a class='struct' href=''>StartInfo</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-728' class='srclink' href='../../../../src/uni/hal/xen/defs/mod.rs.html#17-33' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct StartInfo {
+    pub magic: [u8; 32],
+    pub nr_pages: <a class='type' href='../../../../uni/hal/xen/defs/type.Ulong.html' title='uni::hal::xen::defs::Ulong'>Ulong</a>,
+    pub shared_info: <a class='type' href='../../../../uni/hal/xen/defs/type.Ulong.html' title='uni::hal::xen::defs::Ulong'>Ulong</a>,
+    pub flags: u32,
+    pub store_mfn: <a class='type' href='../../../../uni/hal/xen/defs/type.Pfn.html' title='uni::hal::xen::defs::Pfn'>Pfn</a>,
+    pub store_evtchn: u32,
+    pub domu_console: <a class='struct' href='../../../../uni/hal/xen/defs/struct.DomUConsole.html' title='uni::hal::xen::defs::DomUConsole'>DomUConsole</a>,
+    pub pt_base: <a class='type' href='../../../../uni/hal/xen/defs/type.Ulong.html' title='uni::hal::xen::defs::Ulong'>Ulong</a>,
+    pub nr_pt_frames: <a class='type' href='../../../../uni/hal/xen/defs/type.Ulong.html' title='uni::hal::xen::defs::Ulong'>Ulong</a>,
+    pub mfn_list: <a class='type' href='../../../../uni/hal/xen/defs/type.Ulong.html' title='uni::hal::xen::defs::Ulong'>Ulong</a>,
+    pub mod_start: <a class='type' href='../../../../uni/hal/xen/defs/type.Ulong.html' title='uni::hal::xen::defs::Ulong'>Ulong</a>,
+    pub mod_len: <a class='type' href='../../../../uni/hal/xen/defs/type.Ulong.html' title='uni::hal::xen::defs::Ulong'>Ulong</a>,
+    pub cmd_line: [u8; MAX_GUEST_CMDLINE],
+    pub first_p2m_pfn: <a class='type' href='../../../../uni/hal/xen/defs/type.Ulong.html' title='uni::hal::xen::defs::Ulong'>Ulong</a>,
+    pub nr_p2m_frames: <a class='type' href='../../../../uni/hal/xen/defs/type.Ulong.html' title='uni::hal::xen::defs::Ulong'>Ulong</a>,
+}</pre><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.magic'><code>magic</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.nr_pages'><code>nr_pages</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.shared_info'><code>shared_info</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.flags'><code>flags</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.store_mfn'><code>store_mfn</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.store_evtchn'><code>store_evtchn</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.domu_console'><code>domu_console</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.pt_base'><code>pt_base</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.nr_pt_frames'><code>nr_pt_frames</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.mfn_list'><code>mfn_list</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.mod_start'><code>mod_start</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.mod_len'><code>mod_len</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.cmd_line'><code>cmd_line</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.first_p2m_pfn'><code>first_p2m_pfn</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.nr_p2m_frames'><code>nr_p2m_frames</code></td><td></td></tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../";
+        window.currentCrate = "uni";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../../jquery.js"></script>
+    <script src="../../../../main.js"></script>
+    
+    <script defer src="../../../../search-index.js"></script>
+</body>
+</html>
